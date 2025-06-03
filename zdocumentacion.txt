@@ -1,0 +1,11 @@
+ng new cliente
+zoneless? y
+css
+ssr n
+
+npm uninstall zone.js
+
+en package.json -> "dev": "ng serve",
+para instalar tailwind seguir los pasos -> https://tailwindcss.com/docs/installation/framework-guides/angular
+
+añadir a .gitignore -> /zconfiguracion.txt
