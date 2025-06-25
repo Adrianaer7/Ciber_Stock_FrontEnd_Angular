@@ -3,7 +3,8 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './auth/interceptors/auth.interceptor';
+import { authRequestInterceptor } from './auth/interceptors/authRequest.interceptor';
+import { authResponseInterceptor } from './auth/interceptors/authResponse.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,7 +14,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([
-        authInterceptor,
+        authRequestInterceptor,
+        authResponseInterceptor
       ])
     ),
   ]

@@ -2,10 +2,8 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { RegistroUsuarioResponse, Usuario } from '../interfaces/auth.interface';
 import { ErrorResponse } from '../../shared/interfaces/error-response.interface';
 import { HttpClient } from '@angular/common/http';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -25,16 +23,16 @@ export class AuthService {
   mensaje = computed(() => this._mensaje());
   estaAutenticado = computed(() => this.autenticado()); // solo lectura
 
-  //envio el token al backend para autenticar al usuario
+  //envio el token al backend
   usuarioAutenticado(): Observable<boolean> {
-    if( this.autenticado()) return of(true)
+    if (this.autenticado()) return of(true)
     if (!this._token()) {
       this.logout();
       return of(false);
     } else {
-      return this.http.get<{ usuario: Usuario }>(`${environment.backendURL}/auth`) //mando el token en el interceptor. La respuesta de la api va a ser {usuario: {...}}
+      return this.http.get(`${environment.backendURL}/auth`) //mando el token en el interceptor
         .pipe(
-          map((res) => this.exitoAlAutenticar(res.usuario)),
+          map(() => true),  //en el interceptor -> exitoAlAutenticar()
           catchError((error: ErrorResponse) => this.errorAlAutenticar(error))
         );
     }

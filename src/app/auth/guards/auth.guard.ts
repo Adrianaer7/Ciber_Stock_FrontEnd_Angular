@@ -7,9 +7,9 @@ export const AuthGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.estaAutenticado()) return true;
+  if (authService.estaAutenticado()) return true; //una vez que hace el login se guarda aca. De esta manera no hay que hacer un auth por cada llamada al back
 
-  const autenticado = await firstValueFrom(authService.usuarioAutenticado());
+  const autenticado = await firstValueFrom(authService.usuarioAutenticado()); //valida que el token del ls sea valido
 
   if (!autenticado) {
     router.navigateByUrl('/');
