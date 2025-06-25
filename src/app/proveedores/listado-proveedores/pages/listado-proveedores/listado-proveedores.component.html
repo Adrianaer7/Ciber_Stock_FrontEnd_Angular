@@ -1,0 +1,161 @@
+<div class="absolute lg:relative min-w-full m-0">
+    <h1 class="font-black  text-3xl sm:text-4xl text-emerald-900 text-center mt-2 sm:mt-0 mb-4 ">Listado de proveedores</h1>
+    <div class="flex flex-col-reverse sm:flex-row justify-between ">
+        <div class="relative my-auto p-2 w-full sm:w-2/6 xl:w-2/6 shadow  focus:outline-none focus:ring focus:border-blue-300  bg-white rounded-md md:rounded-lg">
+            <input
+                type="text"
+                class="w-10/12 xl:w-11/12 p-2 focus:outline-none placeholder-gray-500"
+                placeholder="Buscar algún proveedor"
+                [value]=filtrando()
+                #inputBox
+                (keyup)="busqueda(inputBox.value)"
+            />
+            <div class="absolute mr-2 -inset-y-1 flex right-0 opacity-40">
+                <img 
+                    [src]=" filtrando() ? 'img/close_light.svg' : 'img/search_dark.svg' "
+                    width="30"
+                    height="30"
+                    class="cursor-pointer"
+                    (click)="manejarFiltro()"
+                />
+            </div>
+        </div>
+        <button
+            class="bg-emerald-800 hover:bg-emerald-900 rounded-lg hover:cursor-pointer text-white shadow-md px-4 font-bold uppercase "
+            (click)="switchMostrarForm()"
+        >
+            {{mostrarForm() ? "CANCELAR" : "AGREGAR"}}
+        </button>
+    </div>
+</div>
+
+@if (mostrarForm()) {
+    <div class=" py-3 bg-white rounded-lg mt-6 mx-auto">
+
+        <form
+            (ngSubmit)="onSubmit()"
+            [formGroup]="formProveedor"
+        >
+            <div class="flex justify-between px-2 gap-2">
+                <div>
+                    <label htmlFor="nombre" class="text-gray-800  font-bold font">Nombre y apellido</label>
+                    <input
+                        type="text"
+                        name="nombre"
+                        autoComplete="off"
+                        class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
+                        placeholder="Juan Pérez"
+                        formControlName="nombre"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="empresa" class="text-gray-800  font-bold font">Empresa</label>
+
+                    <input
+                        type="text"
+                        name="empresa"
+                        autoComplete="off"
+                        list="empresas"
+                        class="bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300  uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
+                        placeholder="Mercadolibre"
+                        formControlName="empresa"
+                    />
+                    <datalist id="empresas">
+                        @for (proveedor of proveedores(); track proveedor._id) {
+                            <option key="proveedor._id" value="proveedor.empresa"></option>
+                        }
+                    </datalist>
+                </div>
+                <div>
+                    <label htmlFor="telpersonal" class="text-gray-800  font-bold font">Tel. Personal</label>
+
+                    <input
+                        type="tel"
+                        name="telPersonal"
+                        autoComplete="off"
+                        class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1  shadow-sm placeholder-gray-500"
+                        placeholder="3446101010"
+                        formControlName="telPersonal"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="telempresa" class="text-gray-800  font-bold font">Tel. Empresa</label>
+
+                    <input
+                        type="tel"
+                        name="telEmpresa"
+                        autoComplete="off"
+                        class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
+                        placeholder="3446101010"
+                        formControlName="telEmpresa"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="email" class="text-gray-800  font-bold font">Email</label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        autoComplete="off"
+                        class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
+                        placeholder="correo@correo.com"
+                        formControlName="email"
+                    />
+                </div>
+                <button class=" mt-5 bg-blue-900 text-white px-2 items-end rounded-lg font-bold uppercase hover:cursor-pointer">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+}
+
+
+<table class="relative top-44 sm:top-44 lg:top-0 w-full mt-5 table-fixed shadow rounded-lg  bg-white">
+    <thead class="bg-emerald-600 text-white">
+        <tr class="hover:cursor-pointer select-none">
+            <th class="p-2 rounded-tl-lg break-words">NOMBRE Y APELLIDO</th>
+            <th class="break-words">EMPRESA</th>
+            <th class="break-words">TEL. PERSONAL</th>
+            <th class="break-words">TEL. EMPRESA</th>
+            <th class="break-words">EMAIL</th>
+            <th class="rounded-tr-lg w-32">ACCIONES</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (filtrado of filtrados(); track filtrado._id) {
+                <proveedor class="contents"
+                    [proveedor]="filtrado"
+                    [crearNuevo]="crearNuevo()"
+                >
+                </proveedor>
+        } 
+        @if(!this.filtrados()) {
+            @for (proveedor of proveedores(); track proveedor._id) {
+                <!--la class contents hace que angular no añada al DOM el "div" <proveedor></proveedor> entonces del tbody va directo al tr-->
+                <proveedor class="contents"
+                    [proveedor]="proveedor"
+                    [crearNuevo]="crearNuevo()"
+                >
+                </proveedor>
+            }
+        }
+    </tbody>
+
+</table>
+
+@if(filtrando() && !filtrados().length) {
+    <div class="mx-auto mt-10 w-1/4">
+        <img
+            class="max-w-sm"
+            src="img/lupanoencontrado.png"
+            alt="NoEncontrada"
+            width="400"
+            height="400"
+            priority
+        />
+        <p class=" text-center text-2xl">
+            No hay resultados
+        </p>
+    </div>
+}

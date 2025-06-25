@@ -1,61 +1,57 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { AuthError, ErrorResponse, RegistroUsuarioResponse, Usuario } from '../interfaces/auth.interface';
+import { RegistroUsuarioResponse, Usuario } from '../interfaces/auth.interface';
+import { ErrorResponse } from '../../shared/interfaces/error-response.interface';
 import { HttpClient } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private http = inject(HttpClient)
-
   private _usuario = signal<Usuario | null>(null)
-  private _token = signal<string | null | undefined>(localStorage.getItem('token'));
+  private _token = signal<string | null | undefined>(localStorage.getItem('token') ?? '');
   private _cargando = signal<boolean>(false);
   private _mensaje = signal<string>('');
-
-  //ni bien carga la pagina intento autenticar al usuario
-  estadoLoginResource = rxResource({
-    stream: () => this.usuarioAutenticado(),
-  });
+  private autenticado = signal<boolean>(false);
 
   //guardo en mis signals de solo lectura para que nadie pueda modificar
   user = computed(() => this._usuario());
   token = computed(this._token);
   cargando = computed(() => this._cargando());
   mensaje = computed(() => this._mensaje());
+  estaAutenticado = computed(() => this.autenticado()); // solo lectura
 
   //envio el token al backend para autenticar al usuario
   usuarioAutenticado(): Observable<boolean> {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if( this.autenticado()) return of(true)
+    if (!this._token()) {
       this.logout();
       return of(false);
+    } else {
+      return this.http.get<{ usuario: Usuario }>(`${environment.backendURL}/auth`) //mando el token en el interceptor. La respuesta de la api va a ser {usuario: {...}}
+        .pipe(
+          map((res) => this.exitoAlAutenticar(res.usuario)),
+          catchError((error: ErrorResponse) => this.errorAlAutenticar(error))
+        );
     }
-
-    return this.http.get<Usuario>(`${environment.backendURL}/auth`) //mando el token en el interceptor
-      .pipe(
-        map((usuario) => this.exitoAlAutenticar(usuario)),
-        catchError((error: ErrorResponse) => this.errorAlAutenticar(error))
-      );
   }
 
-  logout() {
-    this._usuario.set(null);
-    this._token.set(null);
-    localStorage.removeItem('token');
-  }
 
   //la uso al loguearme o autenticarme con el token cargado en el ls
   exitoAlAutenticar(usuario: Usuario): boolean {
-
     this._usuario.set(usuario);
-    this._token.set(usuario?.token);
-    if (usuario.token) {
-      localStorage.setItem('token', usuario.token);
+    if (!this.token()) { // si me estoy logeando por primera vez
+      this._token.set(usuario.token);
     }
+    if (!localStorage.getItem('token')) {  // si me estoy logeando por primera vez
+      localStorage.setItem('token', usuario.token!);
+    }
+    this.autenticado.set(true);
+
     return true;
   }
 
@@ -65,6 +61,13 @@ export class AuthService {
     return of(false);
   }
 
+
+  logout() {
+    this._usuario.set(null);
+    this._token.set(null);
+    localStorage.removeItem('token');
+
+  }
 
   login(email: string, password: string): Observable<boolean> {
     return this.http.post<Usuario>(`${environment.backendURL}/auth`, { email, password })

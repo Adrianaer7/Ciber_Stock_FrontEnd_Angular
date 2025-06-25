@@ -42,15 +42,13 @@ export class LoginComponent {
     //me logeo
     this.authService.login(email!, password!).subscribe((usuario) => {
       if(usuario) {
-        //this.router.navigate(['/productos']);
-        console.log('Usuario logueado:', usuario);
-        return
+        this.router.navigate(['/productos']);
+      } else {
+        this.mensajeForm.set(this.mensaje());
+        setTimeout(() => {
+          this.mensajeForm.set('');
+        }, 3000);
       }
-
-      this.mensajeForm.set(this.mensaje());
-      setTimeout(() => {
-        this.mensajeForm.set('');
-      }, 3000);
     })
   }
 

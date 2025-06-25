@@ -1,0 +1,88 @@
+<tr class="  hover:bg-gray-50 hover:cursor-pointer active:bg-gray-100 ">
+    <td class="p-3  text-center font-semibold break-words" >{{producto().codigo}}</td>
+    <td class=" text-center">IMAGEN
+        <!-- @if (producto().imagen) {
+            <img
+                [src]="'src/imagenes/' + producto().imagen "
+                width="100"
+                height="100"
+                quality="50"
+                alt="img"
+                style="object-fit: contain; width: auto; height: auto"
+                (click)="mostrarElModal()"
+            />
+        } -->
+    </td>
+    <td class=" p-3 text-center break-words">{{producto().nombre}}</td>
+    <td class="p-3  text-center break-words">{{producto().marca || '-'}}</td>
+    <td class="p-3  text-center break-words">{{producto().modelo || '-'}}</td>
+    <td class="text-center uppercase break-words">
+        @if (!producto().disponibles) {
+            <span class="bg-red-600 font-black text-white p-1 rounded-sm">Sin stock</span>
+        } @else if (!producto().faltante && (colorFaltante() === null || colorFaltante() === false)) {
+            {{ producto().disponibles }}
+        } @else {
+            <span class="text-red-600 font-bold">{{producto().disponibles }}</span>
+        }
+    </td>
+    <td class="p-3 text-center break-words">
+        @if (todasGarantias().length) {
+            <!-- @for (garantia of todasGarantias(); track garantia._id) {
+            <div>
+                <p class="font-medium">{{ garantia.garantia }}</p>
+                <p class="mb-1">{{ garantia.proveedor }}</p>
+            </div>
+            } -->
+        } @else {
+            -
+        }
+    </td>
+    <td class="p-2  text-center text-lg hover:cursor-pointer break-words">
+        <div class="flex flex-col">
+            <p class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-3xl font-black " (click)={copiarPrecioTarjeta}>{{producto().precio_venta_tarjeta}}</p>
+            <p class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-2xl font-medium" (click)={copiarPrecioEfectivo}>{{producto().precio_venta_efectivo}}</p>
+            <p class="mt-4 pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl" (click)={copiarPrecioConocidos}>{{producto().precio_venta_conocidos}}</p>
+        </div>
+    </td>
+    <td class="p-2  text-center  text-lg hover:cursor-pointer break-words">
+        <div class="flex flex-col">
+            <p class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " (click)={copiarAhoraDoce}>
+                Un pago
+                <span class="block font-black text-3xl">{{producto().precio_venta_ahoraDoce}}</span>
+            </p>
+            <p class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " (click)={copiarAhoraDoce}>
+                12 cuotas de:
+                <span class="block font-black text-2xl">{{producto().precio_venta_cuotas}}</span>
+            </p>
+
+        </div>
+    </td>
+
+    <td class="p-3 mt-2  h-full break-words">
+        <button
+            type="button"
+            class="block bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 mb-2 w-full cursor-pointer text-black p-2 uppercase font-bold text-xs  rounded-md"
+            (click)={venderElProducto}
+        >Vender</button>
+        <a
+            [routerLink]="'/producto/' + producto()._id"
+            type="button"
+            class="bg-blue-600 hover:bg-blue-900 mb-2 w-full cursor-pointer text-white text-center p-2 uppercase font-bold text-xs block  rounded-md"
+        >
+            Detalles
+        </a>
+        <a
+            [routerLink]="'/producto/editar/' + producto()._id"
+            type="button"
+            class="bg-green-600 hover:bg-green-900 mb-2 w-full cursor-pointer text-white text-center p-2 uppercase font-bold text-xs block rounded-md"
+        >
+            Editar
+        </a>
+        <button
+            type="button"
+            class="bg-red-600 hover:bg-red-900  w-full cursor-pointer text-white p-2 uppercase font-bold text-xs block rounded-md"
+            (click)={cambiarFaltante}
+        >{{!colorFaltante || !producto().faltante ? "Agregar faltante" : "Quitar faltante"}}</button>
+
+    </td>
+</tr>

@@ -1,0 +1,127 @@
+<div class="min-w-full top-0 m-0">
+    <h1 class="font-black text-3xl sm:text-4xl text-blue-900 text-center mt-2 sm:mt-0 mb-4 ">Listado de productos </h1>
+    <div class="flex justify-between">
+
+        <div class="flex flex-col-reverse gap-1 sm:flex-row w-full sm:w-4/12 xl:w-5/12 mx-1 md:mx-0">
+            <div class=" relative my-auto p-2 w-full sm:w-2/6 xl:w-full shadow  focus:outline-none focus:ring focus:border-blue-300  bg-white rounded-md md:rounded-lg">
+                <input
+                    type="text"
+                    class="w-10/12 xl:w-11/12 p-2 focus:outline-none placeholder-gray-500"
+                    placeholder="Buscar algún producto"
+                    [value]=filtrando()
+                    #inputBox
+                    (keyup)="busqueda(inputBox.value)"
+
+                />
+
+                <div class="absolute mr-2 -inset-y-1 flex right-0 opacity-40">
+                    <img 
+                        [src]=" filtrando() ? 'img/close_light.svg' : 'img/search_dark.svg' "
+                        width="30"
+                        height="30"
+                        class="cursor-pointer"
+                        (click)="manejarFiltro()"
+                    />
+                </div>
+            </div>
+            <div class="my-auto whitespace-nowrap ">
+                <label class="flex ml-2">
+                    <input
+                        type="checkbox"
+                        (click)="setConStock()"
+                    />
+                    <div class="ml-2">Con stock</div>
+                </label>
+
+            </div>
+            <div class="my-auto whitespace-nowrap ">
+                <label class="flex ml-2">
+
+                    <input
+                        type="checkbox"
+                        (click)="setOculto()"
+                    />
+                    <div class="ml-2">Ocultos</div>
+                </label>
+
+            </div>
+        </div>
+        <div>
+            @if (dolarDB()) {
+                <div class="p-4 pl-0 my-auto text-right w-auto font-bold whitespace-nowrap flex flex-row justify-end">
+                    <p class="mr-1">Dólar hoy:</p>
+                    
+                    @if (!mostrarFormDolar()) {
+                        <span class="hover:cursor-pointer text-red-600 mr-1" (click)="mostrarFormDolar.set(true)">
+                            ${{ dolarDB() }}
+                        </span>
+                    } @else {
+                        <form [formGroup]="formDolar" (ngSubmit)="onSubmitDolar()" class="w-1/4">
+                            <input type="tel" 
+                                class="w-full focus:outline-none focus:ring focus:border-blue-300 bg-white rounded-sm md:rounded-sm"
+                                formControlName="precio" 
+                                autocomplete="off" 
+                                id="precio">
+                        </form>
+                    }
+                    
+                    @if (!dolarAutomatico()) {
+                        <button class="bg-gray-200 hover:bg-gray-300 rounded-full px-2" (click)="setDolarAutomatico()">
+                            X
+                        </button>
+                    }
+                </div>
+            }
+        </div>   
+    </div>
+</div>
+
+<table class="top-44 sm:top-44 lg:top-0 w-full mt-5 table-fixed shadow rounded-none md:rounded-lg  bg-white ">
+    <thead class="bg-blue-800 text-white">
+        <tr class="hover:cursor-pointer select-none">
+            <th class="p-2 md:rounded-tl-lg break-words w-20">CODIGO</th>
+            <th class="w-32">IMAGEN</th>
+            <th  class="break-words">NOMBRE</th>
+            <th  class="break-words">MARCA</th>
+            <th  class="break-words">MODELO</th>
+            <th  class="break-words w-28">DISPONIBLES</th>
+            <th class="break-words">GARANTÍA</th>
+            <th  class="break-words">CONTADO</th>
+            <th  class="break-words">12 CUOTAS</th>
+            <th class="md:rounded-tr-lg w-40 break-words">ACCIONES</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (filtrado of filtrados(); track filtrado._id) {
+            <producto 
+                class="contents"
+                [producto]="filtrado"
+            >
+            </producto>
+        } 
+        @for (producto of productos(); track producto._id) {
+            <producto 
+                class="contents"
+                [producto]="producto"
+            >
+            </producto>
+        }
+    </tbody>
+
+</table>
+
+@if(filtrando() && !filtrados().length) {
+    <div class="mx-auto mt-10 w-1/4">
+        <img
+            class="max-w-sm"
+            src="img/lupanoencontrado.png"
+            alt="NoEncontrada"
+            width="400"
+            height="400"
+            priority
+        />
+        <p class=" text-center text-2xl">
+            No hay resultados
+        </p>
+    </div>
+}
