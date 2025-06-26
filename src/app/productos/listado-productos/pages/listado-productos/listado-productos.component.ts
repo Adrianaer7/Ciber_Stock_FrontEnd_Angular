@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductosService } from '../../../services/productos.service';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -18,16 +18,17 @@ export class ListadoProductosComponent {
   fb = inject(FormBuilder)
   router = inject(Router);
   productosService = inject(ProductosService)
+  authService = inject(AuthService)
   filtrando = signal<string>('');
   conStock = signal<boolean>(false)
   oculto = signal<boolean>(false)
-  dolarDB = signal<number>(this.productosService.precio() )
   dolarAutomatico = signal<boolean>(true);
   productos = signal<Producto[]>([]);
   mostrarFormDolar = signal<boolean>(false);
-  token = inject(AuthService).token();
   filtrados = signal<Producto[]>([]);
-
+  
+  dolarDB = computed(() => this.productosService.precio() )
+  token = computed(() => this.authService.token())
 
   listadoProductosResource = rxResource({
     stream: () => forkJoin({
@@ -41,7 +42,6 @@ export class ListadoProductosComponent {
       const { productos, dolar } = this.listadoProductosResource.value();
       this.productos.set(productos.productos);
       this.dolarAutomatico.set(dolar.automatico);
-      this.dolarDB.set(dolar.precio);
     }
   });
 
@@ -67,11 +67,10 @@ setOculto() {
 }
 
 setDolarAutomatico() {
-  this.productosService.editarDolarDB("", true ).subscribe((dolar) => {
+  this.productosService.editarDolarDB("", true ).subscribe(() => {
     this.formDolar.reset()
     this.mostrarFormDolar.set(false);
     this.dolarAutomatico.set(true);
-    this.dolarDB.set(dolar.precio);
   })
 }
 
@@ -83,7 +82,6 @@ onSubmitDolar() {
   this.productosService.editarDolarDB(precio, false ).subscribe((dolar) => {
     this.formDolar.reset()
     this.mostrarFormDolar.set(false)
-    this.dolarDB.set(dolar.precio);
     this.dolarAutomatico.set(false);
   })
     

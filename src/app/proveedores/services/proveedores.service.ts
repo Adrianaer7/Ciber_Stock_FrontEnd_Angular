@@ -37,11 +37,6 @@ export class ProveedoresService {
   }
 
 
-  proveedorActual(proveedor: Proveedor) {
-    this.proveedorSeleccionado.set(proveedor);
-  }
-
-
   editarProveedor(proveedor: Proveedor): Observable<Proveedor | string> {
     return this.http.put<{ proveedor: Proveedor }>(`${environment.backendURL}/proveedores/${proveedor._id}`, proveedor)
       .pipe(
@@ -53,12 +48,6 @@ export class ProveedoresService {
   }
 
 
-  async limpiarSeleccionado() {
-    this.proveedorSeleccionado.set(PROVEEDOR_VACIO);
-  }
-
-
-
   eliminarUnProveedor(id: string): Observable<boolean | string> {
     return this.http.delete<{ msg: string }>(`${environment.backendURL}/proveedores/${id}`)
       .pipe(
@@ -66,5 +55,15 @@ export class ProveedoresService {
         map(() => true),
         catchError((error: ErrorResponse) => error.error.msg)
       );
+  }
+
+
+  proveedorActual(proveedor: Proveedor) {
+    this.proveedorSeleccionado.set(proveedor);
+  }
+
+
+  async limpiarSeleccionado() {
+    this.proveedorSeleccionado.set(PROVEEDOR_VACIO);
   }
 }
