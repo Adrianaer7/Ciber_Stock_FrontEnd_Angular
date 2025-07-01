@@ -29,6 +29,11 @@ export const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
+        path: 'porcentajes',
+        loadChildren: () => import('./porcentajes/porcentajes.routes'),
+        canActivate: [AuthGuard]
+    },
+    {
         path: '404',
         component: PageNotFoundComponent
     },

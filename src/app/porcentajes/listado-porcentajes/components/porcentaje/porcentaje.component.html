@@ -1,0 +1,31 @@
+<tr class=" hover:bg-gray-50 active:bg-gray-100 align-middle"> <!--con align-middle se alinea verticalmente-->
+    <td class="p-1  text-center break-words ">{{porcentaje().nombre || '-'}}</td>
+    <td class="p-1  text-center break-words ">{{porcentaje().comision || '-'}}</td>
+    <td class="p-1 w-40 ">
+        <div class="flex items-center justify-center gap-3 ">
+            <div 
+                class = "hover:bg-gray-200 p-1 pb-0 items-center rounded-md hover:cursor-pointer"
+            >
+                <img
+                    src="img/editar_dark.svg"
+                    alt="Editar"
+                    width="30"
+                    height="30"
+                    priority
+                    (click)="editarPorcentaje()"
+                />
+            </div>
+            <div class="hover:bg-gray-200  p-1 pb-0 items-center rounded-md hover:cursor-pointer">
+                <img
+                    src="img/delete_dark.svg"
+                    alt="Eliminar"
+                    width="30"
+                    height="30"
+                    priority
+                    (click)="eliminarPorcentaje()"
+                />
+            </div>
+        </div>
+
+    </td>
+</tr>
