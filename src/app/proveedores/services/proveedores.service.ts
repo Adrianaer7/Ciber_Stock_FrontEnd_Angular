@@ -41,6 +41,7 @@ export class ProveedoresService {
     return this.http.put<{ proveedor: Proveedor }>(`${environment.backendURL}/proveedores/${proveedor._id}`, proveedor)
       .pipe(
         tap(res => this.proveedores.update(proveedores => proveedores.map(proveedor => proveedor._id === res.proveedor._id ? res.proveedor : proveedor))),
+        tap(() => this.limpiarSeleccionado()),
         map((res) => res.proveedor),
         catchError((error: ErrorResponse) => error.error.msg)
       )

@@ -2,46 +2,48 @@
     <h1 class="font-black  text-3xl sm:text-4xl text-emerald-900 text-center mt-2 sm:mt-0 mb-4 ">Listado de porcentajes</h1>
     <p class="mt-3 mb-3 text-center text-black">Listado con porcentajes de las comisiones. Se pueden ver y editar las comisiones</p>
     @if (mostrarForm()) {
-        <div class=" py-3 bg-white rounded-lg lg:w-2/4 mt-6 flex flex-row-reverse mx-auto items-end justify-center">
-            <button
-                class="ml-auto bg-emerald-800 hover:bg-emerald-900 rounded-lg hover:cursor-pointer text-white shadow-md px-4 h-11 font-bold uppercase"
-                (click)="switchMostrarForm()"
-            >
-                CANCELAR
-            </button>
-            <form
-                (ngSubmit)="onSubmit()"
-                [formGroup]="formPorcentaje"
-            >
-                <div class="flex justify-between px-2 gap-2">
-                    <div>
-                        <label htmlFor="nombre" class="text-gray-800  font-bold font">Nombre</label>
-                        <input
-                            type="text"
-                            name="nombre"
-                            autoComplete="off"
-                            class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
-                            placeholder="EFECTIVO"
-                            formControlName="nombre"
-                        />
+        <div class="lg:w-2/4 mx-auto">
+            <div class=" py-3 bg-white rounded-lg  mt-6  flex flex-row-reverse justify-center  items-end">
+                <button
+                    class="bg-emerald-800 hover:bg-emerald-900 rounded-lg hover:cursor-pointer text-white shadow-md px-4 h-11 font-bold uppercase"
+                    (click)="switchMostrarForm()"
+                >
+                    CANCELAR
+                </button>
+                <form
+                    (ngSubmit)="onSubmit()"
+                    [formGroup]="formPorcentaje"
+                >
+                    <div class="flex justify-between px-2 gap-2">
+                        <div>
+                            <label htmlFor="nombre" class="text-gray-800  font-bold font">Nombre</label>
+                            <input
+                                type="text"
+                                name="nombre"
+                                autoComplete="off"
+                                class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
+                                placeholder="EFECTIVO"
+                                formControlName="nombre"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="comision" class="text-gray-800  font-bold font">Comision</label>
+                            <input
+                                type="number"
+                                name="comision"
+                                autoComplete="off"
+                                class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
+                                placeholder="EFECTIVO"
+                                formControlName="comision"
+                            />
+                        </div>
+                        
+                        <button class=" mt-5 bg-blue-900 text-white px-2 items-end rounded-lg font-bold uppercase hover:cursor-pointer">
+                            Guardar
+                        </button>
                     </div>
-                    <div>
-                        <label htmlFor="comision" class="text-gray-800  font-bold font">Comision</label>
-                        <input
-                            type="number"
-                            name="comision"
-                            autoComplete="off"
-                            class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
-                            placeholder="EFECTIVO"
-                            formControlName="comision"
-                        />
-                    </div>
-                    
-                    <button class=" mt-5 bg-blue-900 text-white px-2 items-end rounded-lg font-bold uppercase hover:cursor-pointer">
-                        Guardar
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     }
 </div>

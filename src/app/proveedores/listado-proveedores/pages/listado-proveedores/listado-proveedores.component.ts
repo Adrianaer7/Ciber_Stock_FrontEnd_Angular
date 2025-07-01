@@ -22,7 +22,7 @@ export class ListadoProveedoresComponent {
   router = inject(Router);
   proveedorService = inject(ProveedoresService)
   authService = inject(AuthService)
-  proveedores = signal<Proveedor[]>([]);
+  proveedores = this.proveedorService.proveedores;
   filtrando = signal<string>('');
   filtrados = signal<Proveedor[]>([]);
   mostrarForm = signal<boolean>(false);
@@ -136,7 +136,6 @@ export class ListadoProveedoresComponent {
 
       this.proveedorService.crearProveedor(nuevoProveedor).subscribe((res) => { //mando al back
         if (typeof res === 'string') return ToastError(res) //si hay error
-        this.proveedores.update(proveedores => [...proveedores, res]);
         this.formProveedor.reset();
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
@@ -153,7 +152,6 @@ export class ListadoProveedoresComponent {
 
         this.proveedorService.editarProveedor(proveedorEditado).subscribe((res) => {
           if (typeof res === 'string') return ToastError(res) //si hay error
-          this.proveedores.update(proveedores => proveedores.map(prov => prov._id === res._id ? res : prov));
           this.formProveedor.reset();
           this.mostrarForm.set(false);
           this.crearNuevo.set(false);

@@ -20,10 +20,10 @@ export class ListadoPorcentajesComponent {
   router = inject(Router);
   porcentajesService = inject(PorcentajesService)
   authService = inject(AuthService)
-  porcentajes = signal<Porcentaje[]>([]);
   filtrando = signal<string>('');
   mostrarForm = signal<boolean>(false);
-
+  
+  porcentajes = this.porcentajesService.porcentajes;
   porcentajeSeleccionado = computed(() => this.porcentajesService.porcentajeSeleccionado());
   usuario = computed(() => this.authService.user())
 
@@ -85,7 +85,6 @@ export class ListadoPorcentajesComponent {
         let porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
         this.porcentajesService.editarPorcentaje(porcentajeEditado).subscribe((res) => {
           if (typeof res === 'string') return ToastError(res) //si hay error
-          this.porcentajes.update(porcentajes => porcentajes.map(porcentaje => porcentaje._id === res._id ? res : porcentaje));
           this.formPorcentaje.reset();
           this.mostrarForm.set(false);
           ToastExito(AGREGAR_EXITO)
