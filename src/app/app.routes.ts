@@ -33,6 +33,11 @@ export const routes: Routes = [
         loadChildren: () => import('./porcentajes/porcentajes.routes'),
         canActivate: [AuthGuard]
     },
+        {
+        path: 'rubros',
+        loadChildren: () => import('./rubros/rubros.routes'),
+        canActivate: [AuthGuard]
+    },
     {
         path: '404',
         component: PageNotFoundComponent

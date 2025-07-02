@@ -6,7 +6,7 @@ import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.const
 import { AuthService } from 'app/auth/services/auth.service';
 import { AlertErrorComision, AlertErrorNombre } from 'app/porcentajes/constants/porcentajes.contants';
 import { Porcentaje } from 'app/porcentajes/interfaces/porcentajes.intercaces';
-import { PorcentajesService } from 'app/porcentajes/services/porcentajesService';
+import { PorcentajesService } from 'app/porcentajes/services/porcentajes.service';
 import { PorcentajeComponent } from '../../components/porcentaje/porcentaje.component';
 
 @Component({
@@ -24,8 +24,8 @@ export class ListadoPorcentajesComponent {
   mostrarForm = signal<boolean>(false);
   
   porcentajes = this.porcentajesService.porcentajes;
-  porcentajeSeleccionado = computed(() => this.porcentajesService.porcentajeSeleccionado());
-  usuario = computed(() => this.authService.user())
+  porcentajeSeleccionado = this.porcentajesService.porcentajeSeleccionado;
+  usuario = this.authService.user
 
 
   porcentajeResource = rxResource({
@@ -97,7 +97,7 @@ export class ListadoPorcentajesComponent {
   estructurarPorcentaje() {
     return {
       _id: this.porcentajeSeleccionado()?._id || '',
-      nombre: this.formPorcentaje.get('nombre')?.value || '',
+      nombre: this.formPorcentaje.get('nombre')?.value?.toUpperCase() || '',
       comision: this.formPorcentaje.get('comision')?.value || 1,
       tipo: this.porcentajeSeleccionado().tipo || '',
       creador: this.usuario()?._id || ''

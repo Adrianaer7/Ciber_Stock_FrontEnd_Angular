@@ -1,0 +1,70 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { Rubro } from '../interfaces/rubros.intefaces';
+import { RUBRO_VACIO } from '../constants/rubros.constants';
+import { environment } from 'environments/environment.development';
+import { catchError, map, Observable, of, tap } from 'rxjs';
+import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
+
+@Injectable({
+    providedIn: 'root'
+})
+
+export class RubrosService {
+
+    private http = inject(HttpClient)
+    rubros = signal<Rubro[]>([])
+    rubroSeleccionado = signal<Rubro>(RUBRO_VACIO)
+
+
+    crearRubro(rubro: Rubro): Observable<Rubro | string> {
+        return this.http.post<{ rubro: Rubro }>(`${environment.backendURL}/rubros`, rubro)
+            .pipe(
+                tap(res => this.rubros.update(rubros => [...rubros, res.rubro])),
+                map((res) => res.rubro),
+                catchError((error: ErrorResponse) => of(error.error.msg))
+            );
+    }
+
+    traerRubros() {
+        return this.http.get<{ rubros: Rubro[] }>(`${environment.backendURL}/rubros`)
+            .pipe(
+                tap(res => this.rubros.set(res.rubros)),
+                map((res) => res.rubros),
+                catchError((error: ErrorResponse) => error.error.msg)
+            )
+    }
+
+
+    editarRubro(rubro: Rubro) {
+        return this.http.put<{ rubro: Rubro }>(`${environment.backendURL}/rubros/${rubro._id}`, rubro)
+            .pipe(
+                tap(res => this.rubros.update(rubros => rubros.map(rubro => rubro._id === res.rubro._id ? res.rubro : rubro))),
+                tap(() => this.limpiarSeleccionado()),
+                map((res) => res.rubro),
+                catchError((error: ErrorResponse) => error.error.msg)
+            )
+
+    }
+
+
+    eliminarUnRubro(id: string) {
+        return this.http.delete<{ msg: string }>(`${environment.backendURL}/rubros/${id}`)
+            .pipe(
+                tap(() => this.rubros.update(rubros => rubros.filter(rubro => rubro._id !== id))),
+                map(() => true),
+                catchError((error: ErrorResponse) => error.error.msg)
+            );
+    }
+
+
+    rubroActual(rubro: Rubro) {
+        this.rubroSeleccionado.set(rubro)
+    }
+
+    async limpiarSeleccionado() {
+        this.rubroSeleccionado.set(RUBRO_VACIO)
+    }
+
+
+}

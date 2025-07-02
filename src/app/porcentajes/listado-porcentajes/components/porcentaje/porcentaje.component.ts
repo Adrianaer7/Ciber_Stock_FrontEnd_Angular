@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { Porcentaje } from 'app/porcentajes/interfaces/porcentajes.intercaces';
-import { PorcentajesService } from '../../../services/porcentajesService';
+import { PorcentajesService } from '../../../services/porcentajes.service';
 import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 
 @Component({

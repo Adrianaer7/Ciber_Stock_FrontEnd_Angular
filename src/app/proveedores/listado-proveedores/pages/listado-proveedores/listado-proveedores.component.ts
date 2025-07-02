@@ -22,15 +22,15 @@ export class ListadoProveedoresComponent {
   router = inject(Router);
   proveedorService = inject(ProveedoresService)
   authService = inject(AuthService)
-  proveedores = this.proveedorService.proveedores;
   filtrando = signal<string>('');
   filtrados = signal<Proveedor[]>([]);
   mostrarForm = signal<boolean>(false);
   crearNuevo = signal<boolean>(false);
-
-
-  proveedorSeleccionado = computed(() => this.proveedorService.proveedorSeleccionado()) ;
-  usuario = computed(() => this.authService.user() ) 
+  
+  
+  proveedores = this.proveedorService.proveedores;
+  proveedorSeleccionado = this.proveedorService.proveedorSeleccionado;
+  usuario = this.authService.user
 
 
   proveedoresResoruce = rxResource({
