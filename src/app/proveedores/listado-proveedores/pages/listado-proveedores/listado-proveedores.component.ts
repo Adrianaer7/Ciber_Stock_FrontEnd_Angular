@@ -12,7 +12,7 @@ import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.const
 import { AlertError } from '../../../constants/proveedor.constants';
 
 @Component({
-  selector: 'app-listado-proveedores',
+  selector: 'listado-proveedores',
   imports: [ReactiveFormsModule, ProveedorComponent, CommonModule],
   templateUrl: './listado-proveedores.component.html'
 })
@@ -42,7 +42,6 @@ export class ListadoProveedoresComponent {
     if (this.proveedoresResoruce.hasValue()) {
       const respuesta = this.proveedoresResoruce.value()
       if (typeof respuesta === 'string') return ToastError(respuesta)
-      this.proveedores.set(respuesta);
     }
   })
 
@@ -125,15 +124,15 @@ export class ListadoProveedoresComponent {
 
 
   async onSubmit() {
+    await this.validoCampos()
+    if (!this.formProveedor.valid) return;
+
     //CREAR NUEVO
     if (this.crearNuevo()) {
-      //llamar al endpoint para crear un nuevo proveedor
-      await this.validoCampos()
-      if (!this.formProveedor.valid) return;
-
       let nuevoProveedor: Proveedor = this.estructurarProveedor()
       nuevoProveedor.datos = this.cargarDatos(nuevoProveedor);
-
+      
+      //llamar al endpoint para crear un nuevo proveedor
       this.proveedorService.crearProveedor(nuevoProveedor).subscribe((res) => { //mando al back
         if (typeof res === 'string') return ToastError(res) //si hay error
         this.formProveedor.reset();
@@ -144,22 +143,18 @@ export class ListadoProveedoresComponent {
     }
     //EDITAR 
     if (this.proveedorSeleccionado()?._id) {
+      let proveedorEditado: Proveedor = this.estructurarProveedor()
+      proveedorEditado.datos = this.cargarDatos(proveedorEditado);
+      
       //llamar al endpoint para editar el proveedor seleccionado
-      await this.validoCampos()
-      if (this.formProveedor.valid) {
-        let proveedorEditado: Proveedor = this.estructurarProveedor()
-        proveedorEditado.datos = this.cargarDatos(proveedorEditado);
-
-        this.proveedorService.editarProveedor(proveedorEditado).subscribe((res) => {
-          if (typeof res === 'string') return ToastError(res) //si hay error
-          this.formProveedor.reset();
-          this.mostrarForm.set(false);
-          this.crearNuevo.set(false);
-          ToastExito(AGREGAR_EXITO)
-        })
-      }
+      this.proveedorService.editarProveedor(proveedorEditado).subscribe((res) => {
+        if (typeof res === 'string') return ToastError(res) //si hay error
+        this.formProveedor.reset();
+        this.mostrarForm.set(false);
+        this.crearNuevo.set(false);
+        ToastExito(AGREGAR_EXITO)
+      })
     }
-
   }
 
   estructurarProveedor() {
@@ -178,10 +173,7 @@ export class ListadoProveedoresComponent {
 
   async validoCampos() {
     const empresa = this.formProveedor.get('empresa')?.value;
-    if (!empresa) {
-      AlertError()
-      return
-    }
+    if (!empresa) AlertError()
   }
 
   cargarDatos(proveedor: Proveedor): string {

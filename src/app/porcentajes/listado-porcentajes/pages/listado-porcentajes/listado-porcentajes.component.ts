@@ -37,7 +37,6 @@ export class ListadoPorcentajesComponent {
     if (this.porcentajeResource.hasValue()) {
       const respuesta = this.porcentajeResource.value()
       if (typeof respuesta === 'string') return ToastError(respuesta)
-      this.porcentajes.set(respuesta);
     }
   })
 
@@ -79,17 +78,15 @@ export class ListadoPorcentajesComponent {
 
     //EDITAR 
     if (this.porcentajeSeleccionado()?._id) {
+      let porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
+
       //llamar al endpoint para editar el porcentaje seleccionado
-      await this.validoCampos()
-      if (this.formPorcentaje.valid) {
-        let porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
-        this.porcentajesService.editarPorcentaje(porcentajeEditado).subscribe((res) => {
-          if (typeof res === 'string') return ToastError(res) //si hay error
-          this.formPorcentaje.reset();
-          this.mostrarForm.set(false);
-          ToastExito(AGREGAR_EXITO)
-        })
-      }
+      this.porcentajesService.editarPorcentaje(porcentajeEditado).subscribe((res) => {
+        if (typeof res === 'string') return ToastError(res) //si hay error
+        this.formPorcentaje.reset();
+        this.mostrarForm.set(false);
+        ToastExito(AGREGAR_EXITO)
+      })
     }
 
   }
@@ -108,15 +105,14 @@ export class ListadoPorcentajesComponent {
   async validoCampos() {
     const nombre = this.formPorcentaje.get('nombre')?.value;
     if (!nombre) {
-      AlertErrorNombre()
+      AlertErrorNombre();
       return
-    }
+    } 
+
     const comisionCambiada = Number(this.formPorcentaje.get('comision')?.value)
-    if (!comisionCambiada || comisionCambiada < 1 || isNaN(comisionCambiada) || !Number(comisionCambiada)) {
+    if (!comisionCambiada || comisionCambiada < 1 || isNaN(comisionCambiada) || !Number(comisionCambiada))  {
       AlertErrorComision()
       return
-
     }
   }
-
 }

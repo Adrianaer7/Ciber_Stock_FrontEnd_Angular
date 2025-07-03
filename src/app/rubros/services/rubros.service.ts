@@ -26,7 +26,7 @@ export class RubrosService {
             );
     }
 
-    traerRubros() {
+    traerRubros(): Observable<Rubro[] | string> {
         return this.http.get<{ rubros: Rubro[] }>(`${environment.backendURL}/rubros`)
             .pipe(
                 tap(res => this.rubros.set(res.rubros)),
@@ -36,7 +36,7 @@ export class RubrosService {
     }
 
 
-    editarRubro(rubro: Rubro) {
+    editarRubro(rubro: Rubro): Observable<Rubro | string> {
         return this.http.put<{ rubro: Rubro }>(`${environment.backendURL}/rubros/${rubro._id}`, rubro)
             .pipe(
                 tap(res => this.rubros.update(rubros => rubros.map(rubro => rubro._id === res.rubro._id ? res.rubro : rubro))),
@@ -48,7 +48,7 @@ export class RubrosService {
     }
 
 
-    eliminarUnRubro(id: string) {
+    eliminarUnRubro(id: string): Observable<boolean | string> {
         return this.http.delete<{ msg: string }>(`${environment.backendURL}/rubros/${id}`)
             .pipe(
                 tap(() => this.rubros.update(rubros => rubros.filter(rubro => rubro._id !== id))),

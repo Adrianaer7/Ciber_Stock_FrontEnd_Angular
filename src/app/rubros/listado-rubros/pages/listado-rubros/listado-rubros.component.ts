@@ -40,7 +40,6 @@ export class ListadoRubrosComponent {
     if (this.rubrosResource.hasValue()) {
       const respuesta = this.rubrosResource.value()
       if (typeof respuesta === 'string') return ToastError(respuesta)
-      this.rubros.set(respuesta);
     }
   })
 
@@ -84,13 +83,13 @@ export class ListadoRubrosComponent {
 
   async onSubmit() {
     //CREAR NUEVO
-    if (this.crearNuevo()) {
-      //llamar al endpoint para crear un nuevo rubro
-      await this.validoCampos()
-      if (!this.formRubro.valid) return;
+    await this.validoCampos()
+    if (!this.formRubro.valid) return;
 
+    if (this.crearNuevo()) {
       let nuevoRubro: Rubro = this.estructurarRubro()
 
+      //llamar al endpoint para crear un nuevo rubro
       this.rubrosService.crearRubro(nuevoRubro).subscribe((res) => { //mando al back
         if (typeof res === 'string') return ToastError(res) //si hay error
         this.formRubro.reset();
@@ -101,21 +100,17 @@ export class ListadoRubrosComponent {
     }
     //EDITAR 
     if (this.rubroSeleccionado()?._id) {
+      let rubroEditado: Rubro = this.estructurarRubro()
+      
       //llamar al endpoint para editar el rubro seleccionado
-      await this.validoCampos()
-      if (this.formRubro.valid) {
-        let rubroEditado: Rubro = this.estructurarRubro()
-
-        this.rubrosService.editarRubro(rubroEditado).subscribe((res) => {
-          if (typeof res === 'string') return ToastError(res) //si hay error
-          this.formRubro.reset();
-          this.mostrarForm.set(false);
-          this.crearNuevo.set(false);
-          ToastExito(AGREGAR_EXITO)
-        })
-      }
+      this.rubrosService.editarRubro(rubroEditado).subscribe((res) => {
+        if (typeof res === 'string') return ToastError(res) //si hay error
+        this.formRubro.reset();
+        this.mostrarForm.set(false);
+        this.crearNuevo.set(false);
+        ToastExito(AGREGAR_EXITO)
+      })
     }
-
   }
 
   estructurarRubro() {
@@ -135,6 +130,7 @@ export class ListadoRubrosComponent {
       AlertErrorNombre()
       return
     }
+    
     const rentabilidadCambiada = Number(rentabilidad)
     if (!rentabilidad || rentabilidad < 1 || isNaN(rentabilidad) || !Number(rentabilidadCambiada)) {
       AlertErrorRentabilidad()
