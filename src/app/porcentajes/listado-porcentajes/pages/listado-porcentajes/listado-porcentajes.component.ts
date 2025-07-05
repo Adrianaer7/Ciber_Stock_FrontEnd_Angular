@@ -1,7 +1,6 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { AlertErrorComision, AlertErrorNombre } from 'app/porcentajes/constants/porcentajes.contants';
@@ -17,7 +16,6 @@ import { PorcentajeComponent } from '../../components/porcentaje/porcentaje.comp
 export class ListadoPorcentajesComponent {
 
   fb = inject(FormBuilder)
-  router = inject(Router);
   porcentajesService = inject(PorcentajesService)
   authService = inject(AuthService)
   filtrando = signal<string>('');

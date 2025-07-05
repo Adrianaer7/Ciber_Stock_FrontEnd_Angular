@@ -7,7 +7,7 @@ import { MensajeComponent } from '../../components/mensaje/mensaje.component';
 
 
 @Component({
-  selector: 'app-olvide-password',
+  selector: 'olvide-password',
   imports: [MensajeComponent, RouterLink, ReactiveFormsModule],
   templateUrl: './olvide-password.component.html',
 })

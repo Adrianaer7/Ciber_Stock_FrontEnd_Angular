@@ -1,6 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ProveedoresService } from '../../../services/proveedores.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Proveedor } from '../../../interfaces/proveedores.interface';
@@ -13,20 +12,18 @@ import { AlertError } from '../../../constants/proveedor.constants';
 
 @Component({
   selector: 'listado-proveedores',
-  imports: [ReactiveFormsModule, ProveedorComponent, CommonModule],
+  imports: [ProveedorComponent, ReactiveFormsModule],
   templateUrl: './listado-proveedores.component.html'
 })
 export class ListadoProveedoresComponent {
 
   fb = inject(FormBuilder)
-  router = inject(Router);
   proveedorService = inject(ProveedoresService)
   authService = inject(AuthService)
   filtrando = signal<string>('');
   filtrados = signal<Proveedor[]>([]);
   mostrarForm = signal<boolean>(false);
   crearNuevo = signal<boolean>(false);
-  
   
   proveedores = this.proveedorService.proveedores;
   proveedorSeleccionado = this.proveedorService.proveedorSeleccionado;

@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { AlertErrorNombre, AlertErrorRentabilidad } from 'app/rubros/constants/rubros.constants';
@@ -13,13 +12,12 @@ import { RubroComponent } from '../../components/rubro/rubro.component';
 
 @Component({
   selector: 'listado-rubros',
-  imports: [RubroComponent, CommonModule, ReactiveFormsModule],
+  imports: [RubroComponent, ReactiveFormsModule],
   templateUrl: './listado-rubros.component.html',
 })
 export class ListadoRubrosComponent {
 
   fb = inject(FormBuilder)
-  router = inject(Router);
   rubrosService = inject(RubrosService)
   authService = inject(AuthService)
   mostrarForm = signal<boolean>(false);

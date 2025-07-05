@@ -7,7 +7,7 @@ import { FormUtils } from '../../utils/forms.utils';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-nueva-contraseña',
+  selector: 'nueva-contraseña',
   imports: [MensajeComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './nueva-contraseña.component.html',
 })

@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-confirmar-cuenta',
+  selector: 'confirmar-cuenta',
   imports: [RouterLink],
   templateUrl: './confirmar-cuenta.component.html',
 })

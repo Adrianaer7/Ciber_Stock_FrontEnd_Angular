@@ -10,7 +10,7 @@ import { AuthService } from '../../../../auth/services/auth.service';
 import { ProductoComponent } from "../../components/producto/producto.component";
 
 @Component({
-  selector: 'app-listado-productos',
+  selector: 'listado-productos',
   imports: [ReactiveFormsModule, CommonModule, ProductoComponent],
   templateUrl: './listado-productos.component.html',
 })

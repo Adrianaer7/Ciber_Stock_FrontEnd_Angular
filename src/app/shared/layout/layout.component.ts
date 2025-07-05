@@ -4,7 +4,7 @@ import { AuthService } from '../../auth/services/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-layout',
+  selector: 'layout',
   imports: [RouterLink, RouterLinkActive, RouterOutlet, CommonModule],
   templateUrl: './layout.component.html',
 })

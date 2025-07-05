@@ -11,7 +11,7 @@ export const routes: Routes = [
         path: 'productos',
         loadChildren: () => import('./productos/listado-productos/productos.routes'),
         canActivate: [AuthGuard]  //si quiero que se ejecute el guard de autenticacion
-        
+
     },
     {
         path: 'nuevoproducto',
@@ -33,9 +33,14 @@ export const routes: Routes = [
         loadChildren: () => import('./porcentajes/porcentajes.routes'),
         canActivate: [AuthGuard]
     },
-        {
+    {
         path: 'rubros',
         loadChildren: () => import('./rubros/rubros.routes'),
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'ventas',
+        loadChildren: () => import('./ventas/ventas.routes'),
         canActivate: [AuthGuard]
     },
     {
