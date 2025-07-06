@@ -2,7 +2,7 @@ import Swal from "sweetalert2"
 
 export const ELIMINAR_EXITO = 'Se eliminó correctamente'
 export const AGREGAR_EXITO = 'Se agregó correctamente'
-
+export const EDITAR_EXITO = 'Se editó correctamente'
 
 export const Toast = Swal.mixin({
     toast: true,

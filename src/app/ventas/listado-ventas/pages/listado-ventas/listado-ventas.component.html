@@ -7,8 +7,8 @@
                 class="w-10/12 xl:w-11/12 p-2 focus:outline-none placeholder-gray-500"
                 placeholder="Consulta el historial de ventas"
                 [value]=filtrando()
-                #inputBox
-                (keyup)="busqueda(inputBox.value)"
+                #inputBusqueda
+                (keyup)="busqueda(inputBusqueda.value)"
             />
             <div class="absolute mr-2 -inset-y-1 flex right-0 opacity-40">
                 <img 
@@ -19,6 +19,51 @@
                     (click)="manejarFiltro()"
                 />
             </div>
+        </div>
+        <div class="flex gap-2">
+            @if(fechaDesde() && fechaHasta()) {
+                @if (fechaDesde() > fechaHasta()) {
+                    <div class="grid grid-rows-2">
+                        <p class=" my-auto block font-bold row-start-2 bg-pink-500 text-white rounded-md p-1">PERÍODO INVÁLIDO</p>
+                    </div>
+                }
+            }
+            <div>
+                <label htmlFor="fechaDesde" class= "text-gray-500 font-bold">Fecha desde</label>
+                <input
+                    type="date"
+                    autoComplete="off"
+                    class=" block  p-2 appearance-none rounded-md bg-gray-50 shadow   focus:outline-none  focus:ring-1 focus:ring-blue-300"
+                    id="fechaDesde"
+                    name="fechaDesde"
+                    [value]="fechaDesde()"
+                    #inputFechaDesde
+                    (change)="this.fechaDesde.set(inputFechaDesde.value)"
+                />
+            </div>
+            <div>
+                <label htmlFor="fechaHasta" class="font-bold text-gray-500">Fecha hasta</label>
+                <input
+                    type="date"
+                    autoComplete="off"
+                    class=" block  p-2 appearance-none rounded-md bg-gray-50 shadow   focus:outline-none  focus:ring-1 focus:ring-blue-300"
+                    id="fechaHasta"
+                    name="fechaHasta"
+                    [value]="fechaHasta()"
+                    #inputFechaHasta
+                    (change)="this.fechaHasta.set(inputFechaHasta.value)"
+                />
+            </div>
+            @if (fechaDesde() || fechaHasta()) {
+                <div class="grid grid-rows-2">
+                    <button
+                        class=" block font-bold row-start-2 bg-pink-500 text-white rounded-md p-1"
+                        (click)="vaciarFecha()"
+                    >
+                        Limpiar
+                    </button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -42,11 +87,11 @@
         </tr>
     </thead>
     <tbody>
-        @for (filtrada of filtradas(); track filtrada._id) {
-            <venta class="contents" [venta]="filtrada"></venta>
-        } 
-        @if(!this.filtradas().length && !filtrando()) {
-
+        @if (filter()) {
+            @for (filtrada of filtradas(); track filtrada._id) {
+                <venta class="contents" [venta]="filtrada"></venta>
+            } 
+        } @else {
             @for (venta of ventas(); track venta._id) {
                 <!--la class contents hace que angular no añada al DOM el "div" <venta></venta> entonces del tbody va directo al tr-->
                 <venta class="contents" [venta]="venta"></venta>
@@ -56,7 +101,7 @@
 
 </table>
 
-@if(filtrando() && !filtradas().length) {
+@if(filter() && !filtradas().length) {
     <div class="mx-auto mt-10 w-1/4">
         <img
             class="max-w-sm"

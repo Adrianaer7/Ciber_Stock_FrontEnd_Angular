@@ -7,8 +7,8 @@
                 class="w-10/12 xl:w-11/12 p-2 focus:outline-none placeholder-gray-500"
                 placeholder="Buscar algún proveedor"
                 [value]=filtrando()
-                #inputBox
-                (keyup)="busqueda(inputBox.value)"
+                #inputBusqueda
+                (keyup)="busqueda(inputBusqueda.value)"
             />
             <div class="absolute mr-2 -inset-y-1 flex right-0 opacity-40">
                 <img 

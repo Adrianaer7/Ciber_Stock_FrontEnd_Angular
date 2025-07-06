@@ -1,8 +1,9 @@
 import { Component, inject, input } from '@angular/core';
-import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
+import { EDITAR_EXITO, ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 import { Venta } from 'app/ventas/interfaces/ventas.interface';
 import { VentasService } from 'app/ventas/services/ventas.service';
 import { generarFecha } from 'app/utils/general.utils';
+import { ErrorCantidad, ErrorValor, ModalCantidad, ToastExitoEditar } from 'app/ventas/constants/ventas.constants';
 
 @Component({
   selector: 'venta',
@@ -15,12 +16,33 @@ export class VentaComponent {
   venta = input.required<Venta>()
   generarFecha = generarFecha //guardo la funcion aca asi puedo usarla en el html
 
-  editarVenta() {
-    this.ventaService.ventaActual(this.venta())
+  async editarVenta() {
+    const valor = await ModalCantidad()
+    if (valor.isConfirmed) {
+      const cantidad = Number(valor.value[0])
+      if (cantidad < 1 || !cantidad || isNaN(cantidad) || !Number.isInteger(cantidad)) {
+        await ErrorValor()
+        this.editarVenta()
+        return
+      }
+      if (cantidad > this.venta().unidades) {
+        await ErrorCantidad()
+        this.editarVenta()
+        return
+      }
+      if (this.venta().unidades == cantidad) {
+        this.eliminarVenta()
+        return
+      }
+      this.ventaService.editarVenta(this.venta()._id, cantidad).subscribe(res => {
+        typeof res === 'string'
+          ? ToastError(res)
+          : ToastExitoEditar(cantidad, this.venta().nombre);
+      })
+    }
   }
 
   async eliminarVenta() {
-    await this.ventaService.limpiarSeleccionada() //por si hay alguno seleccionado
     const { isConfirmed } = await Warning();  //muestro la la alerta para que confirme
     if (!isConfirmed) return; //si no confirma 
 
@@ -31,4 +53,4 @@ export class VentaComponent {
     });
   }
 
- }
+}

@@ -4,7 +4,7 @@ import { ToastError } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { Venta } from 'app/ventas/interfaces/ventas.interface';
 import { VentasService } from 'app/ventas/services/ventas.service';
-import { VentaComponent } from "../../components/venta/venta.component";
+import { VentaComponent } from '../../components/venta/venta.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,89 +13,77 @@ import { CommonModule } from '@angular/common';
   templateUrl: './listado-ventas.component.html',
 })
 export class ListadoVentasComponent {
-  ventaService = inject(VentasService)
-  authService = inject(AuthService)
+  ventaService = inject(VentasService);
+  authService = inject(AuthService);
+
   filtrando = signal<string>('');
   filtradas = signal<Venta[]>([]);
-  fechaDesde = signal('')
-  fechaHasta = signal('')
+  filter = signal<boolean>(false);
+  fechaDesde = signal<string>('');
+  fechaHasta = signal<string>('');
 
   ventas = this.ventaService.ventas;
-  ventaSeleccionada = this.ventaService.ventaSeleccionada;
-  usuario = this.authService.user
-
+  usuario = this.authService.user;
 
   ventasResoruce = rxResource({
-    stream: () => this.ventaService.traerVentas()
-  })
+    stream: () => this.ventaService.traerVentas(),
+  });
 
-  //traer ventas o mostrar error
   ventasEffect = effect(() => {
     if (this.ventasResoruce.hasValue()) {
-      const respuesta = this.ventasResoruce.value()
-      if (typeof respuesta === 'string') return ToastError(respuesta)
+      const respuesta = this.ventasResoruce.value();
+      if (typeof respuesta === 'string') return ToastError(respuesta);
     }
-  })
-
-  //cargar el form con datos del venta a editar
-  ventaSeleccionadaEffect = effect(() => {
-    const venta = this.ventaSeleccionada();
-
-  })
-
-  //cuando cambie filtrando()
-  filtroVenta = computed(() => {
-    const palabras = this.filtrando().trim().toUpperCase(); // signal de texto
-    const fechaDesde = this.fechaDesde(); // signal de fecha desde
-    const fechaHasta = this.fechaHasta(); // signal de fecha hasta
-    const ventas = this.ventas(); // signal con array de ventas
-
-    const sinPalabras = !palabras;
-    const sinFechas = !fechaDesde || !fechaHasta;
-
-    if (sinPalabras && sinFechas) return [];
-
-    const incluyeTodas = (descripcion: string): boolean => {
-      return palabras
-        .split(' ')
-        .every(p => descripcion.toUpperCase().includes(p));
-    };
-
-    const enRangoDeFechas = (fecha: string): boolean => {
-      if (sinFechas || fechaDesde > fechaHasta) return true;
-      return fecha >= fechaDesde && fecha <= fechaHasta;
-    };
-
-    return ventas.filter(({ descripcion, fecha }) => {
-      const pasaFiltroTexto = sinPalabras ? true : incluyeTodas(descripcion);
-      const pasaFiltroFecha = enRangoDeFechas(fecha);
-      return pasaFiltroTexto && pasaFiltroFecha;
-    });
   });
 
-  // cuando cambie el computed() filtroventa
   filtradosEffect = effect(() => {
-    this.filtradas.set(this.filtroVenta());
+    const texto = this.limpiarBusqueda(this.filtrando());
+    const ventas = this.ventas();
+    const desde = this.fechaDesde();
+    const hasta = this.fechaHasta();
+
+    const tieneTexto = !!texto;
+    const tieneFechas = !!desde && !!hasta; //que las dos variables contengan valores
+    const fechasValidas = tieneFechas && desde <= hasta;  //que la fecha desde sea menor
+
+    //si no hay ningun tipod de filtro puesto
+    if (!tieneTexto && !tieneFechas) {
+      this.filter.set(false);
+      return;
+    }
+
+    const incluyeTodas = (desc: string) =>
+      texto.split(' ')
+        .every(p => desc.toUpperCase().includes(p));
+
+    const enRangoDeFechas = (fecha: string) => !fechasValidas || (fecha >= desde && fecha <= hasta);  //si no es valida la fecha la función devuelve siempre true. Esto significa que no se filtra por fecha
+
+    const ventasFiltradas = ventas.filter(({ descripcion, fecha }) => {
+      const textoOk = tieneTexto ? incluyeTodas(descripcion) : true;  //va a devolver true siempre a menos que no encuentre la descripcion
+      const fechaOk = tieneFechas ? enRangoDeFechas(fecha) : true;  //va a devoler true siempre a menos que la fecha de la venta no esté dentro del rango buscado
+      return textoOk && fechaOk;  //agrega la venta al array si se cumplen las dos condiciones
+    });
+
+    this.filtradas.set(ventasFiltradas);
+    this.filter.set(true);
   });
 
-  //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(this.limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(this.limpiarBusqueda(value));
+  }
+
+  limpiarBusqueda(value: string): string {
+    return value.toUpperCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
   manejarFiltro() {
     if (this.filtrando()) {
-      this.limpiarFiltro()
+      this.filtrando.set('');
     }
   }
 
-  limpiarFiltro() {
-    this.filtrando.set('')
+  vaciarFecha() {
+    this.fechaDesde.set('');
+    this.fechaHasta.set('');
   }
-
-
-  limpiarBusqueda(value: string): string {
-    return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-  }
-
 }
