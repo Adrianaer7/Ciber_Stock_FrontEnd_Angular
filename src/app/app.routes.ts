@@ -44,6 +44,11 @@ export const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
+        path: 'faltantes',
+        loadChildren: () => import('./faltantes/faltantes.routes'),
+        canActivate: [AuthGuard]
+    },
+    {
         path: '404',
         component: PageNotFoundComponent
     },

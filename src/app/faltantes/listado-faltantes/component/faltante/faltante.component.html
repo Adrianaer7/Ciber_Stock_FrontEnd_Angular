@@ -1,0 +1,51 @@
+<tr class=" hover:bg-gray-50 active:bg-gray-100 align-middle"> <!--con align-middle se alinea verticalmente-->
+    <td class="p-1  text-center break-words ">{{faltante().codigo || '-'}}</td>
+    <td class="p-1  text-center break-words ">{{faltante().nombre || '-'}}</td>
+    <td class="p-1  text-center break-words ">{{faltante().marca || '-'}}</td>
+    <td class="p-1  text-center break-words ">{{faltante().modelo || '-'}}</td>
+    <td class="p-1  text-center break-words ">{{faltante().rubro || '-'}}</td>
+    <td class="p-1  text-center break-words ">
+        @if (!proveedoresIguales().length) {'-'} @else {
+            @for (proveedor of proveedoresIguales(); track proveedor._id) {
+                <p>{{proveedor.empresa}} ({{proveedor.nombre}})</p>
+            }
+        }
+    </td>
+    <td class="p-1 text-center uppercase dark:text-gray-50">
+        @if (faltante().disponibles && faltante().faltante) {
+            <span class="font-bold text-red-600 p-1">{{ faltante().disponibles }}</span>
+        } @else if (faltante().disponibles && !faltante().faltante) {
+            {{ faltante().disponibles }}
+        } @else {
+            <span class="font-black text-white bg-red-600 p-1 uppercase rounded-sm">Sin stock</span>
+        }
+</td>
+
+    <td class="p-1 w-40 ">
+        <div class="flex items-center justify-center gap-3 ">
+            <div 
+                class = "hover:bg-gray-200 p-1 pb-0 items-center rounded-md hover:cursor-pointer"
+            >
+                <img
+                    src="img/detalle_dark.svg"
+                    alt="Editar"
+                    width="30"
+                    height="30"
+                    priority
+                    
+                />
+            </div>
+            <div class="hover:bg-gray-200  p-1 pb-0 items-center rounded-md hover:cursor-pointer">
+                <img
+                    src="img/delete_dark.svg"
+                    alt="Eliminar"
+                    width="30"
+                    height="30"
+                    priority
+                    (click)="eliminarFaltante()"
+                />
+            </div>
+        </div>
+
+    </td>
+</tr>

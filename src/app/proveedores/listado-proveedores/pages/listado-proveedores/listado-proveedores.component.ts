@@ -68,7 +68,7 @@ export class ListadoProveedoresComponent {
 
   //cuando cambie filtrando()
   filtroProveedor = computed(() => {
-    const palabras = this.filtrando().trim().toUpperCase();
+    const palabras = this.filtrando()
 
     if (!palabras) return this.proveedores();
 
