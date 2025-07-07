@@ -1,0 +1,110 @@
+<tr
+  class="hover:bg-gray-50 active:bg-gray-100   cursor-pointer"
+  [ngClass]="{ 'font-semibold': !detalles() }"
+  (click)="verDetalles()"
+>
+  <td class="p-3 text-center break-words ">{{ compra().nombre }}</td>
+  <td class="p-3 text-center break-words ">{{ mostrar(compra().marca) }}</td>
+  <td class="p-3 text-center break-words ">{{ mostrar(compra().modelo) }}</td>
+
+  <td class="p-3 text-center w-20 ">
+    <ul>
+      @if (detalles()) {
+        @for (historia of compra().historial; track $index) {
+          <li>{{ mostrar(historia.cantidad) }}</li>
+        }
+      } @else {
+        +
+      }
+    </ul>
+  </td>
+
+  <td class="p-3 text-center ">
+    <ul>
+      @if (detalles()) {
+        @for (historia of compra().historial; track $index) {
+          <li>{{ mostrar(generarFecha(historia.fecha_compra)) }}</li>
+        }
+      } @else {
+        +
+      }
+    </ul>
+  </td>
+
+  <td class="p-3 text-center break-words ">
+    <ul>
+      @if (detalles()) {
+        @for (historia of compra().historial; track $index) {
+          <li>{{ mostrar(historia.garantia) }}</li>
+        }
+      } @else {
+        +
+      }
+    </ul>
+  </td>
+
+  <td class="p-3 text-center break-words ">
+    <ul>
+      @if (detalles()) {
+        @for (historia of compra().historial; track $index) {
+          <li>{{ mostrar(historia.barras) }}</li>
+        }
+      } @else {
+        +
+      }
+    </ul>
+  </td>
+
+  <td class="p-3 text-center break-words ">
+    <ul>
+      @if (detalles()) {
+        @for (historia of compra().historial; track $index) {
+          <li>{{ mostrar(historia.factura) }}</li>
+        }
+      } @else {
+        +
+      }
+    </ul>
+  </td>
+
+  <!-- proveedores -->
+    <td class="p-3 text-center break-words align-middle">
+        @if (detalles()) {
+            @if (proveedoresIguales().length > 0) {
+                @for (p of proveedoresIguales(); track p._id) {
+                <p>{{ p.empresa }} ({{ p.nombre }})</p>
+                }
+            }
+        } @else {
+        -
+        }
+    </td>
+
+  <td class="p-3 text-center break-words ">
+    <ul>
+      @if (detalles()) {
+        @for (historia of compra().historial; track $index) {
+          <li>{{ mostrar(historia.valor_dolar_compra) }}</li>
+        }
+      } @else {
+        +
+      }
+    </ul>
+  </td>
+
+  <td class="p-3 text-center break-words ">
+    <ul>
+      @if (detalles()) {
+        @for (historia of compra().historial; track $index) {
+          <li>
+            {{
+              mostrar(historia.precio_compra_dolar || historia.arsAdolar)
+            }}
+          </li>
+        }
+      } @else {
+        +
+      }
+    </ul>
+  </td>
+</tr>

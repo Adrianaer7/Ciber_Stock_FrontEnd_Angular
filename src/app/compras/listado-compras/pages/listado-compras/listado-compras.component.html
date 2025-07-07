@@ -1,5 +1,5 @@
 <div class="absolute lg:relative min-w-full m-0">
-    <h1 class="font-black  text-3xl sm:text-4xl text-red-500 text-center mt-2 sm:mt-0 mb-4 ">Listado de faltantes</h1>
+    <h1 class="font-black  text-3xl sm:text-4xl text-yellow-500 text-center mt-2 sm:mt-0 mb-4 ">Listado de compras</h1>
     <div class="flex flex-col-reverse sm:flex-row justify-between ">
         <div class="relative my-auto p-2 w-full sm:w-2/6 xl:w-2/6 shadow  focus:outline-none focus:ring focus:border-blue-300  bg-white rounded-md md:rounded-lg">
             <input
@@ -25,42 +25,45 @@
 
 
 <table class="relative top-44 sm:top-44 lg:top-0 w-full mt-5 table-fixed shadow rounded-lg  bg-white">
-    <thead class="bg-red-600 text-white">
+    <thead class="bg-yellow-600 text-white">
         <tr class="hover:cursor-pointer select-none">
-            <th class="p-2 rounded-tl-lg break-words">CODIGO</th>
-            <th class="break-words">NOMBRE</th>
+            <th class="p-2 rounded-tl-lg break-words">NOMBRE</th>
             <th class="break-words">MARCA</th>
             <th class="break-words">MODELO</th>
-            <th class="break-words">RUBRO</th>
+            <th class="break-words">CANTIDAD</th>
             <th class="break-words">PROVEEDOR</th>
-            <th class="break-words">DISPONIBLES</th>
-            <th class="rounded-tr-lg w-32">ACCIONES</th>
+            <th class="break-words">FECHA</th>
+            <th class="break-words">COD BARRAS</th>
+            <th class="break-words">FACTURA NRO</th>
+            <th class="break-words">PROVEEDOR</th>
+            <th class="break-words">VALOR DOLAR</th>
+            <th class="rounded-tr-lg w-32">PRECIO EN USD</th>
         </tr>
     </thead>
     <tbody>
-        @for (filtrado of filtrados(); track filtrado._id) {
-            <faltante class="contents" 
-                [faltante]="filtrado"
+        @for (filtrada of filtradas(); track filtrada._id) {
+            <compra class="contents" 
+                [compra]="filtrada"
                 [proveedores]="proveedores()"
             >
-            </faltante>
+            </compra>
         } 
-        @if(!this.filtrados()) {
-            @for (faltante of faltantes(); track faltante._id) {
+        @if(!this.filtradas()) {
+            @for (compra of compras(); track compra._id) {
                 <!--la class contents hace que angular no añada al DOM el "div" <faltante></faltante> entonces del tbody va directo al tr-->
-                <faltante 
+                <compra 
                     class="contents" 
-                    [faltante]="faltante"
+                    [compra]="compra"
                     [proveedores]="proveedores()"
                 >
-                </faltante>
+                </compra>
             }
         }
     </tbody>
 
 </table>
 
-@if(filtrando() && !filtrados().length) {
+@if(filtrando() && !filtradas().length) {
     <div class="mx-auto mt-10 w-1/4">
         <img
             class="max-w-sm"

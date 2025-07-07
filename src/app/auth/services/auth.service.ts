@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment.development';
   providedIn: 'root'
 })
 export class AuthService {
+  
   private http = inject(HttpClient)
   private _usuario = signal<Usuario | null>(null)
   private _token = signal<string | null | undefined>(localStorage.getItem('token') ?? '');
@@ -62,9 +63,9 @@ export class AuthService {
 
   logout() {
     this._usuario.set(null);
+    this.autenticado.set(false)
     this._token.set(null);
     localStorage.removeItem('token');
-
   }
 
   login(email: string, password: string): Observable<boolean> {

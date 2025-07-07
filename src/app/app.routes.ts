@@ -49,6 +49,11 @@ export const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
+        path: 'compras',
+        loadChildren: () => import('./compras/compras.routes'),
+        canActivate: [AuthGuard]
+    },
+    {
         path: '404',
         component: PageNotFoundComponent
     },

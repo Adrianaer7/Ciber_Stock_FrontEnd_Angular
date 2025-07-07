@@ -2,42 +2,42 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ToastError } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
-import { FaltantesService } from 'app/faltantes/services/faltantes.service';
-import { Producto } from 'app/productos/interfaces/productos.interface';
-import { FaltanteComponent } from '../../component/faltante/faltante.component';
+import { Compra } from 'app/compras/interfaces/compras.interfaces';
+import { ComprasService } from 'app/compras/services/compras.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { forkJoin } from 'rxjs';
+import { CompraComponent } from '../../components/compra/compra.component';
 
 @Component({
-  selector: 'listado-faltantes',
-  imports: [FaltanteComponent],
-  templateUrl: './listado-faltantes.component.html',
+  selector: 'listado-compras',
+  imports: [CompraComponent],
+  templateUrl: './listado-compras.component.html',
 })
-export class ListadoFaltantesComponent {
+export class ListadoComprasComponent {
 
-  faltantesService = inject(FaltantesService)
+  comprasService = inject(ComprasService)
   proveedoresService = inject(ProveedoresService)
   authService = inject(AuthService)
   filtrando = signal<string>('');
-  filtrados = signal<Producto[]>([]);
+  filtradas = signal<Compra[]>([]);
 
-  faltantes = this.faltantesService.faltantes;
+  compras = this.comprasService.compras;
   proveedores = this.proveedoresService.proveedores
   usuario = this.authService.user
 
 
-  faltantesResource = rxResource({
+  comprasResource = rxResource({
     stream: () => forkJoin({
-      faltantes: this.faltantesService.traerFaltantes(),
+      compras: this.comprasService.traerFaltantes(),
       proveedores: this.proveedoresService.traerProveedores()
     })
   });
 
-  //traer faltantes o mostrar error
-  faltantesEffect = effect(() => {
-    if (this.faltantesResource.hasValue()) {
-      const respuesta = this.faltantesResource.value()
-      if (typeof respuesta.faltantes === 'string') return ToastError(respuesta.faltantes)
+  //traer compras o mostrar error
+  comprasEffect = effect(() => {
+    if (this.comprasResource.hasValue()) {
+      const respuesta = this.comprasResource.value()
+      if (typeof respuesta.compras === 'string') return ToastError(respuesta.compras)
       if (typeof respuesta.proveedores === 'string') return ToastError(respuesta.proveedores)
     }
   })
@@ -47,7 +47,7 @@ export class ListadoFaltantesComponent {
   filtroFaltante = computed(() => {
     const palabras = this.filtrando()
 
-    if (!palabras) return this.faltantes();
+    if (!palabras) return this.compras();
 
     const incluyeTodas = (descripcion: string, palabras: string): boolean => {
       return palabras
@@ -55,14 +55,14 @@ export class ListadoFaltantesComponent {
         .every(p => descripcion.includes(p));
     };
 
-    return this.faltantes().filter(({ descripcion }) =>
+    return this.compras().filter(({ descripcion }) =>
       incluyeTodas(descripcion, palabras)
     );
   });
 
   // cuando cambie el computed() filtroFaltante
   filtradosEffect = effect(() => {
-    this.filtrados.set(this.filtroFaltante());
+    this.filtradas.set(this.filtroFaltante());
   });
 
   //cambio filtrando
