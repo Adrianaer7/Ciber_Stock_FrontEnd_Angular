@@ -18,7 +18,7 @@ export class ComprasService {
         return this.http.post<{ compra: Compra }>(`${environment.backendURL}/compras`, compra)
             .pipe(
                 tap(res => this.compras.update(compras => [...compras, res.compra])),
-                map((res) => res.compra),
+                map(res => res.compra),
                 catchError((error: ErrorResponse) => of(error.error.msg))
             );
     }
@@ -28,7 +28,7 @@ export class ComprasService {
         return this.http.get<{ todas: Compra[] }>(`${environment.backendURL}/compras`)
             .pipe(
                 tap(res => this.compras.set(res.todas)),
-                map((res) => res.todas),
+                map(res => res.todas),
                 catchError((error: ErrorResponse) => error.error.msg)
             )
     }
@@ -38,7 +38,7 @@ export class ComprasService {
         return this.http.put<{ producto: Compra }>(`${environment.backendURL}/compras/${id}`, {})
             .pipe(
                 tap(() => this.compras.update(compras => compras.filter(compra => compra._id !== id))),
-                map((res) => res.producto),
+                map(res => res.producto),
                 catchError((error: ErrorResponse) => error.error.msg)
             )
     }

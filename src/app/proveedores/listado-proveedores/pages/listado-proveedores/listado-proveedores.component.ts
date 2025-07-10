@@ -130,7 +130,7 @@ export class ListadoProveedoresComponent {
       nuevoProveedor.datos = this.cargarDatos(nuevoProveedor);
       
       //llamar al endpoint para crear un nuevo proveedor
-      this.proveedorService.crearProveedor(nuevoProveedor).subscribe((res) => { //mando al back
+      this.proveedorService.crearProveedor(nuevoProveedor).subscribe(res => { //mando al back
         if (typeof res === 'string') return ToastError(res) //si hay error
         this.formProveedor.reset();
         this.mostrarForm.set(false);
@@ -144,7 +144,7 @@ export class ListadoProveedoresComponent {
       proveedorEditado.datos = this.cargarDatos(proveedorEditado);
       
       //llamar al endpoint para editar el proveedor seleccionado
-      this.proveedorService.editarProveedor(proveedorEditado).subscribe((res) => {
+      this.proveedorService.editarProveedor(proveedorEditado).subscribe(res => {
         if (typeof res === 'string') return ToastError(res) //si hay error
         this.formProveedor.reset();
         this.mostrarForm.set(false);

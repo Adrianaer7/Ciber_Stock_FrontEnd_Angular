@@ -1,9 +1,9 @@
 import { Component, inject, input } from '@angular/core';
-import { EDITAR_EXITO, ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
+import { ELIMINAR_EXITO, ModalCantidad, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 import { Venta } from 'app/ventas/interfaces/ventas.interface';
 import { VentasService } from 'app/ventas/services/ventas.service';
 import { generarFecha } from 'app/utils/general.utils';
-import { ErrorCantidad, ErrorValor, ModalCantidad, ToastExitoEditar } from 'app/ventas/constants/ventas.constants';
+import { ErrorCantidad, ErrorValor, ToastExitoEditar } from 'app/ventas/constants/ventas.constants';
 
 @Component({
   selector: 'venta',

@@ -79,7 +79,7 @@ export class ListadoPorcentajesComponent {
       let porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
 
       //llamar al endpoint para editar el porcentaje seleccionado
-      this.porcentajesService.editarPorcentaje(porcentajeEditado).subscribe((res) => {
+      this.porcentajesService.editarPorcentaje(porcentajeEditado).subscribe(res => {
         if (typeof res === 'string') return ToastError(res) //si hay error
         this.formPorcentaje.reset();
         this.mostrarForm.set(false);

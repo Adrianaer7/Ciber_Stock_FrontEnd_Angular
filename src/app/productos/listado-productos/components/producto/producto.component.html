@@ -27,30 +27,46 @@
     </td>
     <td class="p-3 text-center break-words">
         @if (todasGarantias().length) {
-            <!-- @for (garantia of todasGarantias(); track garantia._id) {
+             @for (garantia of todasGarantias(); track garantia.proveedor) {
             <div>
                 <p class="font-medium">{{ garantia.garantia }}</p>
-                <p class="mb-1">{{ garantia.proveedor }}</p>
+                <p class="mb-1">({{ garantia.proveedor | uppercase}})</p>
             </div>
-            } -->
+            }
         } @else {
             -
         }
     </td>
     <td class="p-2  text-center text-lg hover:cursor-pointer break-words">
         <div class="flex flex-col">
-            <p class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-3xl font-black " (click)={copiarPrecioTarjeta}>{{producto().precio_venta_tarjeta}}</p>
-            <p class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-2xl font-medium" (click)={copiarPrecioEfectivo}>{{producto().precio_venta_efectivo}}</p>
-            <p class="mt-4 pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl" (click)={copiarPrecioConocidos}>{{producto().precio_venta_conocidos}}</p>
+            <p 
+                class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-3xl font-black " 
+                (click)="copiar('tarjeta')"
+            >
+                {{producto().precio_venta_tarjeta}}
+            </p>
+            <p 
+                class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-2xl font-medium" 
+                (click)="copiar('efectivo')"
+            >
+                {{producto().precio_venta_efectivo}}
+            </p>
+            <p class="mt-4 pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl" (click)="copiar('conocidos')">{{producto().precio_venta_conocidos}}</p>
         </div>
     </td>
     <td class="p-2  text-center  text-lg hover:cursor-pointer break-words">
         <div class="flex flex-col">
-            <p class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " (click)={copiarAhoraDoce}>
+            <p 
+                class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " 
+                (click)="copiar('ahoraDoce')"
+            >
                 Un pago
                 <span class="block font-black text-3xl">{{producto().precio_venta_ahoraDoce}}</span>
             </p>
-            <p class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " (click)={copiarAhoraDoce}>
+            <p 
+                class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " 
+                (click)="copiar('ahoraDoce')"
+            >
                 12 cuotas de:
                 <span class="block font-black text-2xl">{{producto().precio_venta_cuotas}}</span>
             </p>
@@ -62,7 +78,7 @@
         <button
             type="button"
             class="block bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 mb-2 w-full cursor-pointer text-black p-2 uppercase font-bold text-xs  rounded-md"
-            (click)={venderElProducto}
+            (click)="venderElProducto()"
         >Vender</button>
         <a
             [routerLink]="'/producto/' + producto()._id"
@@ -81,8 +97,8 @@
         <button
             type="button"
             class="bg-red-600 hover:bg-red-900  w-full cursor-pointer text-white p-2 uppercase font-bold text-xs block rounded-md"
-            (click)={cambiarFaltante}
-        >{{!colorFaltante || !producto().faltante ? "Agregar faltante" : "Quitar faltante"}}</button>
+            (click)="cambiarFaltante()"
+        >{{!colorFaltante() || !producto().faltante ? "Agregar faltante" : "Quitar faltante"}}</button>
 
     </td>
 </tr>

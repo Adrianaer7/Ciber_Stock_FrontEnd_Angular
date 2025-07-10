@@ -5,9 +5,6 @@ export interface ResponseDolar {
     creador:    string;
 }
 
-export interface Productos {
-    productos: Producto[];
-}
 
 export interface Producto {
     _id:                    string;
@@ -58,3 +55,5 @@ export interface DetalleGarantia {
     caducidad: string;
     proveedor: string;
 }
+
+export type Tipos = 'tarjeta' | 'efectivo' | 'conocidos' | 'ahoraDoce'

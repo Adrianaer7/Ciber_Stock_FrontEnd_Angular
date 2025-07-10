@@ -19,7 +19,7 @@ export class PorcentajesService {
         return this.http.get<{ porcentajes: Porcentaje[] }>(`${environment.backendURL}/porcentajes`)
             .pipe(
                 tap(res => this.porcentajes.set(res.porcentajes)),
-                map((res) => res.porcentajes),
+                map(res => res.porcentajes),
                 catchError((error: ErrorResponse) => error.error.msg)
             )
     }
@@ -31,7 +31,7 @@ export class PorcentajesService {
             .pipe(
                 tap(res => this.porcentajes.update(porcentajes => porcentajes.map(porcentaje => porcentaje._id === res.porcentaje._id ? res.porcentaje : porcentaje))),
                 tap(() => this.limpiarSeleccionado()),
-                map((res) => res.porcentaje),
+                map(res => res.porcentaje),
                 catchError((error: ErrorResponse) => error.error.msg)
             )
 

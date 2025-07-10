@@ -31,6 +31,15 @@ export const ToastExito = (title: string) => {
     })
 }
 
+export const Copiado = (title: string) => {
+    Toast.fire({
+        icon: 'success',
+        title: 'Copiado',
+        color: '#545454',
+        background: 'white',
+    });
+}
+
 
 export function Warning() {
     return Swal.fire({
@@ -47,4 +56,20 @@ export function Warning() {
     })
 }
 
+export function ModalCantidad() {
+    return Swal.fire({
+        title: '<h5 style="color:#545454">Unidades</h5>',
+        background: "white",
+        html: '<input id="swal-input" type="tel" value="1" style="color: black; width: 100px; text-align:center;" class="swal2-input">',
+        width: "25rem",
+        focusConfirm: true,
+        preConfirm: () => {
+            const input = document.getElementById('swal-input') as HTMLInputElement | null;
+            return [
+                input ? input.value : ""
+            ]
+        },
+        showCloseButton: true,
+    })
+}
 

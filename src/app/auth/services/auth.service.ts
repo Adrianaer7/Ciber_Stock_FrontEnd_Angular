@@ -79,7 +79,7 @@ export class AuthService {
   registrarUsuario(nombre: string, email: string, password: string): Observable<string> {
     return this.http.post<RegistroUsuarioResponse>(`${environment.backendURL}/usuarios`, { nombre, email, password })
       .pipe(
-        map((resp) => resp.msg),
+        map(resp => resp.msg),
         catchError((error: ErrorResponse) => of(error.error.msg))
       );
   }
@@ -87,7 +87,7 @@ export class AuthService {
   olvideContraseña(email: string): Observable<string> {
     return this.http.post<{ msg: string }>(`${environment.backendURL}/usuarios/olvide-password`, { email })
       .pipe(
-        map((resp) => resp.msg),
+        map(resp => resp.msg),
         catchError((error: ErrorResponse) => of(error.error.msg))
       );
   }
@@ -103,14 +103,14 @@ export class AuthService {
   nuevaPassword(contraseña: string, token: string): Observable<string> {
     return this.http.post<{ msg: string }>(`${environment.backendURL}/usuarios/olvide-password/${token}`, { contraseña })
       .pipe(
-        map((resp) => resp.msg),
+        map(resp => resp.msg),
         catchError((error: ErrorResponse) => of(error.error.msg))
       );
   }
   confirmarCuenta(token: string): Observable<string> {
     return this.http.get<{ msg: string }>(`${environment.backendURL}/usuarios/confirmar/${token}`)
       .pipe(
-        map((resp) => resp.msg),
+        map(resp => resp.msg),
         catchError((error: ErrorResponse) => of(error.error.msg))
       );
   }

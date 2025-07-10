@@ -17,7 +17,7 @@ export class VentasService {
     return this.http.post<{ venta: Venta }>(`${environment.backendURL}/ventas`, venta)
       .pipe(
         tap(res => this.ventas.update(ventas => [...ventas, res.venta])),
-        map((res) => res.venta),
+        map(res => res.venta),
         catchError((error: ErrorResponse) => of(error.error.msg))
       );
   }
@@ -27,7 +27,7 @@ export class VentasService {
     return this.http.get<{ ventas: Venta[] }>(`${environment.backendURL}/ventas`)
       .pipe(
         tap(res => this.ventas.set(res.ventas)),
-        map((res) => res.ventas),
+        map(res => res.ventas),
         catchError((error: ErrorResponse) => error.error.msg)
       )
   }
@@ -37,7 +37,7 @@ export class VentasService {
     return this.http.put<{ venta: Venta }>(`${environment.backendURL}/ventas/${id}`, {cantidad})
       .pipe(
         tap(res => this.ventas.update(ventas => ventas.map(venta => venta._id === res.venta._id ? res.venta : venta))),
-        map((res) => res.venta),
+        map(res => res.venta),
         catchError((error: ErrorResponse) => error.error.msg)
       )
   }

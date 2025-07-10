@@ -21,7 +21,7 @@ export class RubrosService {
         return this.http.post<{ rubro: Rubro }>(`${environment.backendURL}/rubros`, rubro)
             .pipe(
                 tap(res => this.rubros.update(rubros => [...rubros, res.rubro])),
-                map((res) => res.rubro),
+                map(res => res.rubro),
                 catchError((error: ErrorResponse) => of(error.error.msg))
             );
     }
@@ -30,7 +30,7 @@ export class RubrosService {
         return this.http.get<{ rubros: Rubro[] }>(`${environment.backendURL}/rubros`)
             .pipe(
                 tap(res => this.rubros.set(res.rubros)),
-                map((res) => res.rubros),
+                map(res => res.rubros),
                 catchError((error: ErrorResponse) => error.error.msg)
             )
     }
@@ -41,7 +41,7 @@ export class RubrosService {
             .pipe(
                 tap(res => this.rubros.update(rubros => rubros.map(rubro => rubro._id === res.rubro._id ? res.rubro : rubro))),
                 tap(() => this.limpiarSeleccionado()),
-                map((res) => res.rubro),
+                map(res => res.rubro),
                 catchError((error: ErrorResponse) => error.error.msg)
             )
 

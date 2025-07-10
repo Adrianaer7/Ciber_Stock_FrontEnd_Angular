@@ -1,66 +1,34 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
-import { Producto, Productos, ResponseDolar } from '../interfaces/productos.interface';
+import { Producto } from '../interfaces/productos.interface';
 import { environment } from '../../../environments/environment.development';
-import { ErrorResponse } from '../../shared/interfaces/error-response.interface';
+import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductosService {
+
   private http = inject(HttpClient)
+  productos = signal<Producto[]>([])
 
-  private _precio = signal<number>(0)
-  private products = signal<Producto[]>([])
-  elDolarAutomatico = signal<boolean>(true)
 
-  dolarDB = computed(() => this._precio())
-  precio = computed(() => this._precio())
-  productos = computed(() => this.products())
-
-  traerDolarDB(): Observable<ResponseDolar> {
-    return this.http.get<ResponseDolar>(`${environment.backendURL}/dolares`)
+  traerProductos(): Observable<Producto[] | string> {
+    return this.http.get<{ productos: Producto[] }>(`${environment.backendURL}/productos`)
       .pipe(
-        tap(dolar => this.guardarDolar(dolar)),
-        //catchError((error: ErrorResponse) => of(error.error.statusCode))
+        tap(res => this.productos.set(res.productos)),
+        map(res => res.productos),
+        catchError((error: ErrorResponse) => of(error.error.msg))
       )
   }
 
-  traerProductos() : Observable<Productos> {
-    return this.http.get<Productos>(`${environment.backendURL}/productos`)
+  editarProducto(producto: Producto, desdeForm?: false, formData?: false): Observable<Producto | string> {
+    return this.http.put<Producto>(`${environment.backendURL}/productos/${producto._id}`, {producto, desdeForm})
       .pipe(
-        tap(({ productos }) => this.products.set(productos)),
-        //catchError((error: ErrorResponse) => of(error.error.statusCode))
+        tap(res => this.productos.update(productos => productos.map(producto => producto._id == res._id ? res : producto))),
+        map(res => res),
+        catchError((error: ErrorResponse) => of(error.error.msg))
       )
-  }
-
-
-
-  editarDolarDB(precio: string = '0', automatico = false): Observable<ResponseDolar> {
-    let param;
-    if (!automatico) {
-      param = {
-        automatico: false,
-        dolarManual: {
-          precio
-        }
-      }
-    } else {
-      param = {
-        automatico: true,
-      }
-    }
-
-    return this.http.put<ResponseDolar>(`${environment.backendURL}/dolares`, param)
-      .pipe(
-        tap(dolar => this.guardarDolar(dolar)),
-        //catchError((error: ErrorResponse) => of(error.error.statusCode))
-      )
-  }
-
-  guardarDolar(dolar: ResponseDolar) {
-    this.elDolarAutomatico.set(dolar.automatico)
-    this._precio.set(dolar.precio)
   }
 }

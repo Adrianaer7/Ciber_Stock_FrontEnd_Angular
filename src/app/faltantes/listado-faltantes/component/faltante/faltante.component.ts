@@ -15,18 +15,18 @@ export class FaltanteComponent {
   faltante = input.required<Producto>()
   proveedores = input.required<Proveedor[]>()
 
+  proveedoresIguales = computed(() => this.proveedores().filter(proveedor => this.faltante().todos_proveedores.includes(proveedor._id!)))
 
   verFaltante() {
 
   }
 
-  proveedoresIguales = computed(() => this.proveedores().filter(proveedor => this.faltante().todos_proveedores.includes(proveedor._id!)))
 
   async eliminarFaltante() {
     const { isConfirmed } = await Warning();  //muestro la la alerta para que confirme
     if (!isConfirmed) return; //si no confirma 
 
-    this.faltantesService.eliminarUnFaltante(this.faltante()._id!).subscribe(res => { //si confirma
+    this.faltantesService.editarFaltante(this.faltante()._id!).subscribe(res => { //si confirma
       typeof res === 'string'
         ? ToastError(res)
         : ToastExito(ELIMINAR_EXITO);

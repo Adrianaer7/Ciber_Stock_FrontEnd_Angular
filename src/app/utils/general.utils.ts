@@ -4,3 +4,5 @@ export const generarFecha = (fecha: string) => { //tomo la fecha del producto
     const opciones: Intl.DateTimeFormatOptions = { year: "numeric", month: "numeric", day: "2-digit" }
     return fechaNueva.toLocaleString("es-AR", opciones)
 }
+
+export const hoy = new Date(Date.now()).toISOString().slice(0, 10);

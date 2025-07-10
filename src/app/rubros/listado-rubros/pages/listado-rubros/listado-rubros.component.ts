@@ -88,7 +88,7 @@ export class ListadoRubrosComponent {
       let nuevoRubro: Rubro = this.estructurarRubro()
 
       //llamar al endpoint para crear un nuevo rubro
-      this.rubrosService.crearRubro(nuevoRubro).subscribe((res) => { //mando al back
+      this.rubrosService.crearRubro(nuevoRubro).subscribe(res => { //mando al back
         if (typeof res === 'string') return ToastError(res) //si hay error
         this.formRubro.reset();
         this.mostrarForm.set(false);
@@ -101,7 +101,7 @@ export class ListadoRubrosComponent {
       let rubroEditado: Rubro = this.estructurarRubro()
       
       //llamar al endpoint para editar el rubro seleccionado
-      this.rubrosService.editarRubro(rubroEditado).subscribe((res) => {
+      this.rubrosService.editarRubro(rubroEditado).subscribe(res => {
         if (typeof res === 'string') return ToastError(res) //si hay error
         this.formRubro.reset();
         this.mostrarForm.set(false);

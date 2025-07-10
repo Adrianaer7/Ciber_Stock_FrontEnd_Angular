@@ -21,7 +21,7 @@ export class ProveedoresService {
     return this.http.post<{ proveedor: Proveedor }>(`${environment.backendURL}/proveedores`, proveedor)
       .pipe(
         tap(res => this.proveedores.update(proveedores => [...proveedores, res.proveedor])),
-        map((res) => res.proveedor),
+        map(res => res.proveedor),
         catchError((error: ErrorResponse) => of(error.error.msg))
       );
   }
@@ -31,7 +31,7 @@ export class ProveedoresService {
     return this.http.get<{ proveedores: Proveedor[] }>(`${environment.backendURL}/proveedores`)
       .pipe(
         tap(res => this.proveedores.set(res.proveedores)),
-        map((res) => res.proveedores),
+        map(res => res.proveedores),
         catchError((error: ErrorResponse) => error.error.msg)
       )
   }
@@ -42,7 +42,7 @@ export class ProveedoresService {
       .pipe(
         tap(res => this.proveedores.update(proveedores => proveedores.map(proveedor => proveedor._id === res.proveedor._id ? res.proveedor : proveedor))),
         tap(() => this.limpiarSeleccionado()),
-        map((res) => res.proveedor),
+        map(res => res.proveedor),
         catchError((error: ErrorResponse) => error.error.msg)
       )
 
