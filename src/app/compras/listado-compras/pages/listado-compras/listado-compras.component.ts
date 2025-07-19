@@ -8,6 +8,8 @@ import { ProveedoresService } from 'app/proveedores/services/proveedores.service
 import { forkJoin } from 'rxjs';
 import { CompraComponent } from '../../components/compra/compra.component';
 
+type propiedades = 'nombre' | 'marca' | 'modelo';
+
 @Component({
   selector: 'listado-compras',
   imports: [CompraComponent],
@@ -20,6 +22,8 @@ export class ListadoComprasComponent {
   authService = inject(AuthService)
   filtrando = signal<string>('');
   filtradas = signal<Compra[]>([]);
+  ordenAscendente = signal<boolean>(true);
+
 
   compras = this.comprasService.compras;
   proveedores = this.proveedoresService.proveedores
@@ -44,10 +48,10 @@ export class ListadoComprasComponent {
 
 
   //cuando cambie filtrando()
-  filtroFaltante = computed(() => {
+  filtroCompra = computed(() => {
     const palabras = this.filtrando()
 
-    if (!palabras) return this.compras();
+    if (!palabras) return [];
 
     const incluyeTodas = (descripcion: string, palabras: string): boolean => {
       return palabras
@@ -60,9 +64,9 @@ export class ListadoComprasComponent {
     );
   });
 
-  // cuando cambie el computed() filtroFaltante
+  // cuando cambie el computed() filtroCompra
   filtradosEffect = effect(() => {
-    this.filtradas.set(this.filtroFaltante());
+    this.filtradas.set(this.filtroCompra());
   });
 
   //cambio filtrando
@@ -80,5 +84,28 @@ export class ListadoComprasComponent {
     return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   }
 
+  ordenarPor(campo: propiedades) {
+    let resultado: Compra[] = [];
+    const comparar = (a: Compra, b: Compra) => {
+      const valorA = (a[campo] || '');  //obtengo el valor del campo
+      const valorB = (b[campo] || '');
+      if (valorA > valorB) return 1;  //valorA tiene que ir despues de valorB
+      if (valorA < valorB) return -1; //valorA tiene que ir antes de valorB
+      return 0; //si valorA y valorB son iguales, dejo como están
+    };
+
+    if (this.filtradas().length) {
+      resultado = [...this.filtradas()].sort((a: Compra, b: Compra) =>
+        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)  //seria como this.ordenAscendente() ? 1 : -1
+      );
+      this.filtradas.set(resultado);
+    } else {
+      resultado = [...this.compras()].sort((a: Compra, b: Compra) =>
+        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
+      );
+      this.compras.set(resultado);
+    }
+    this.ordenAscendente.set(!this.ordenAscendente());
+  }
 
 }

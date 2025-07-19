@@ -24,7 +24,8 @@ export class ListadoProveedoresComponent {
   filtrados = signal<Proveedor[]>([]);
   mostrarForm = signal<boolean>(false);
   crearNuevo = signal<boolean>(false);
-  
+  ordenAscendente = signal<boolean>(true);
+
   proveedores = this.proveedorService.proveedores;
   proveedorSeleccionado = this.proveedorService.proveedorSeleccionado;
   usuario = this.authService.user
@@ -70,7 +71,7 @@ export class ListadoProveedoresComponent {
   filtroProveedor = computed(() => {
     const palabras = this.filtrando()
 
-    if (!palabras) return this.proveedores();
+    if (!palabras) return [];
 
     const incluyeTodas = (datos: string, palabras: string): boolean => {
       return palabras
@@ -128,7 +129,7 @@ export class ListadoProveedoresComponent {
     if (this.crearNuevo()) {
       let nuevoProveedor: Proveedor = this.estructurarProveedor()
       nuevoProveedor.datos = this.cargarDatos(nuevoProveedor);
-      
+
       //llamar al endpoint para crear un nuevo proveedor
       this.proveedorService.crearProveedor(nuevoProveedor).subscribe(res => { //mando al back
         if (typeof res === 'string') return ToastError(res) //si hay error
@@ -142,7 +143,7 @@ export class ListadoProveedoresComponent {
     if (this.proveedorSeleccionado()?._id) {
       let proveedorEditado: Proveedor = this.estructurarProveedor()
       proveedorEditado.datos = this.cargarDatos(proveedorEditado);
-      
+
       //llamar al endpoint para editar el proveedor seleccionado
       this.proveedorService.editarProveedor(proveedorEditado).subscribe(res => {
         if (typeof res === 'string') return ToastError(res) //si hay error
@@ -179,5 +180,29 @@ export class ListadoProveedoresComponent {
 
   limpiarBusqueda(value: string): string {
     return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  }
+
+  ordenarPor() {
+    let resultado: Proveedor[] = [];
+    const comparar = (a: Proveedor, b: Proveedor) => {
+      const valorA = (a.empresa || '');  //obtengo el valor del campo
+      const valorB = (b.empresa || '');
+      if (valorA > valorB) return 1;  //valorA tiene que ir despues de valorB
+      if (valorA < valorB) return -1; //valorA tiene que ir antes de valorB
+      return 0; //si valorA y valorB son iguales, dejo como están
+    };
+
+    if (this.filtrados().length) {
+      resultado = [...this.filtrados()].sort((a: Proveedor, b: Proveedor) =>
+        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)  //seria como this.ordenAscendente() ? 1 : -1
+      );
+      this.filtrados.set(resultado);
+    } else {
+      resultado = [...this.proveedores()].sort((a: Proveedor, b: Proveedor) =>
+        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
+      );
+      this.proveedores.set(resultado);
+    }
+    this.ordenAscendente.set(!this.ordenAscendente());
   }
 }

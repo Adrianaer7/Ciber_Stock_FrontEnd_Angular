@@ -79,15 +79,15 @@
 <table class="top-44 sm:top-44 lg:top-0 w-full mt-5 table-fixed shadow rounded-none md:rounded-lg  bg-white ">
     <thead class="bg-blue-800 text-white">
         <tr class="hover:cursor-pointer select-none">
-            <th class="p-2 md:rounded-tl-lg break-words w-20">CODIGO</th>
+            <th class="p-2 md:rounded-tl-lg break-words w-20" (click)="ordenarPor('codigo')">CODIGO</th>
             <th class="w-32">IMAGEN</th>
-            <th  class="break-words">NOMBRE</th>
-            <th  class="break-words">MARCA</th>
-            <th  class="break-words">MODELO</th>
-            <th  class="break-words w-28">DISPONIBLES</th>
+            <th  class="break-words" (click)="ordenarPor('nombre')">NOMBRE</th>
+            <th  class="break-words" (click)="ordenarPor('marca')">MARCA</th>
+            <th  class="break-words" (click)="ordenarPor('modelo')">MODELO</th>
+            <th  class="break-words w-28" (click)="ordenarPor('disponibles')">DISPONIBLES</th>
             <th class="break-words">GARANTÍA</th>
-            <th  class="break-words">CONTADO</th>
-            <th  class="break-words">12 CUOTAS</th>
+            <th  class="break-words" (click)="ordenarPor('precio_venta_tarjeta')">CONTADO</th>
+            <th  class="break-words" (click)="ordenarPor('precio_venta_tarjeta')">12 CUOTAS</th>
             <th class="md:rounded-tr-lg w-40 break-words">ACCIONES</th>
         </tr>
     </thead>
@@ -100,13 +100,17 @@
             >
             </producto>
         } 
-        @for (producto of productos(); track producto._id) {
-            <producto 
-                class="contents"
-                [producto]="producto"
-                [faltante]="producto.faltante"
-            >
-            </producto>
+        @if (!filtro()) {
+            @for (producto of productos(); track producto._id) {
+                @if (producto.visibilidad) {
+                    <producto 
+                        class="contents"
+                        [producto]="producto"
+                        [faltante]="producto.faltante"
+                    >
+                    </producto>
+                }
+            }
         }
     </tbody>
 

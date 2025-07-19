@@ -5,7 +5,7 @@
             <input
                 type="text"
                 class="w-10/12 xl:w-11/12 p-2 focus:outline-none placeholder-gray-500 uppercase"
-                placeholder="Buscar algún faltante"
+                placeholder="Buscar alguna compra"
                 [value]=filtrando()
                 #inputBusqueda
                 (keyup)="busqueda(inputBusqueda.value)"
@@ -27,9 +27,9 @@
 <table class="relative top-44 sm:top-44 lg:top-0 w-full mt-5 table-fixed shadow rounded-lg  bg-white">
     <thead class="bg-yellow-600 text-white">
         <tr class="hover:cursor-pointer select-none">
-            <th class="p-2 rounded-tl-lg break-words">NOMBRE</th>
-            <th class="break-words">MARCA</th>
-            <th class="break-words">MODELO</th>
+            <th class="p-2 rounded-tl-lg break-words" (click)="ordenarPor('nombre')">NOMBRE</th>
+            <th class="break-words" (click)="ordenarPor('marca')">MARCA</th>
+            <th class="break-words" (click)="ordenarPor('modelo')">MODELO</th>
             <th class="break-words">CANTIDAD</th>
             <th class="break-words">PROVEEDOR</th>
             <th class="break-words">FECHA</th>

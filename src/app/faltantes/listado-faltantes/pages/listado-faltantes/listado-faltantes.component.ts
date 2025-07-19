@@ -8,11 +8,14 @@ import { FaltanteComponent } from '../../component/faltante/faltante.component';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { forkJoin } from 'rxjs';
 
+type propiedades = 'codigo' | 'nombre' | 'marca' | 'modelo' | 'rubro' | 'proveedor' | 'disponibles';
 @Component({
   selector: 'listado-faltantes',
   imports: [FaltanteComponent],
   templateUrl: './listado-faltantes.component.html',
 })
+
+
 export class ListadoFaltantesComponent {
 
   faltantesService = inject(FaltantesService)
@@ -20,6 +23,7 @@ export class ListadoFaltantesComponent {
   authService = inject(AuthService)
   filtrando = signal<string>('');
   filtrados = signal<Producto[]>([]);
+  ordenAscendente = signal<boolean>(true);
 
   faltantes = this.faltantesService.faltantes;
   proveedores = this.proveedoresService.proveedores
@@ -47,7 +51,7 @@ export class ListadoFaltantesComponent {
   filtroFaltante = computed(() => {
     const palabras = this.filtrando()
 
-    if (!palabras) return this.faltantes();
+    if (!palabras) return [];
 
     const incluyeTodas = (descripcion: string, palabras: string): boolean => {
       return palabras
@@ -80,5 +84,27 @@ export class ListadoFaltantesComponent {
     return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   }
 
+  ordenarPor(campo: propiedades) {
+    let resultado: Producto[] = [];
+    const comparar = (a: Producto, b: Producto) => {
+      const valorA = (a[campo] || '');  //obtengo el valor del campo
+      const valorB = (b[campo] || '');
+      if (valorA > valorB) return 1;  //valorA tiene que ir despues de valorB
+      if (valorA < valorB) return -1; //valorA tiene que ir antes de valorB
+      return 0; //si valorA y valorB son iguales, dejo como están
+    };
 
+    if (this.filtrados().length) {
+      resultado = [...this.filtrados()].sort((a: Producto, b: Producto) =>
+        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)  //seria como this.ordenAscendente() ? 1 : -1
+      );
+      this.filtrados.set(resultado);
+    } else {
+      resultado = [...this.faltantes()].sort((a: Producto, b: Producto) =>
+        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
+      );
+      this.faltantes.set(resultado);
+    }
+    this.ordenAscendente.set(!this.ordenAscendente());
+  }
 }

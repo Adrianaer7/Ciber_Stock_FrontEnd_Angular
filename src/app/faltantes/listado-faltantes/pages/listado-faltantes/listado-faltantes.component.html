@@ -27,13 +27,13 @@
 <table class="relative top-44 sm:top-44 lg:top-0 w-full mt-5 table-fixed shadow rounded-lg  bg-white">
     <thead class="bg-red-600 text-white">
         <tr class="hover:cursor-pointer select-none">
-            <th class="p-2 rounded-tl-lg break-words">CODIGO</th>
-            <th class="break-words">NOMBRE</th>
-            <th class="break-words">MARCA</th>
-            <th class="break-words">MODELO</th>
-            <th class="break-words">RUBRO</th>
+            <th class="p-2 rounded-tl-lg break-words" (click)="ordenarPor('codigo')">CODIGO</th>
+            <th class="break-words" (click)="ordenarPor('nombre')">NOMBRE</th>
+            <th class="break-words" (click)="ordenarPor('marca')">MARCA</th>
+            <th class="break-words" (click)="ordenarPor('modelo')">MODELO</th>
+            <th class="break-words" (click)="ordenarPor('rubro')">RUBRO</th>
             <th class="break-words">PROVEEDOR</th>
-            <th class="break-words">DISPONIBLES</th>
+            <th class="break-words" (click)="ordenarPor('disponibles')">DISPONIBLES</th>
             <th class="rounded-tr-lg w-32">ACCIONES</th>
         </tr>
     </thead>

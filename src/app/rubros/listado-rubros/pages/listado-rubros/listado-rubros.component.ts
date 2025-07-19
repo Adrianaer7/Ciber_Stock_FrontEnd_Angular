@@ -22,10 +22,11 @@ export class ListadoRubrosComponent {
   authService = inject(AuthService)
   mostrarForm = signal<boolean>(false);
   crearNuevo = signal<boolean>(false);
+  ordenAscendente = signal<boolean>(true);
 
 
   rubros = this.rubrosService.rubros;
-  rubroSeleccionado = this.rubrosService.rubroSeleccionado ;
+  rubroSeleccionado = this.rubrosService.rubroSeleccionado;
   usuario = this.authService.user
 
 
@@ -99,7 +100,7 @@ export class ListadoRubrosComponent {
     //EDITAR 
     if (this.rubroSeleccionado()?._id) {
       let rubroEditado: Rubro = this.estructurarRubro()
-      
+
       //llamar al endpoint para editar el rubro seleccionado
       this.rubrosService.editarRubro(rubroEditado).subscribe(res => {
         if (typeof res === 'string') return ToastError(res) //si hay error
@@ -128,7 +129,7 @@ export class ListadoRubrosComponent {
       AlertErrorNombre()
       return
     }
-    
+
     const rentabilidadCambiada = Number(rentabilidad)
     if (!rentabilidad || rentabilidad < 1 || isNaN(rentabilidad) || !Number(rentabilidadCambiada)) {
       AlertErrorRentabilidad()
@@ -136,4 +137,21 @@ export class ListadoRubrosComponent {
     }
   }
 
+  ordenarPor() {
+    let resultado: Rubro[] = [];
+    const comparar = (a: Rubro, b: Rubro) => {
+      const valorA = (a.rentabilidad || '');  //obtengo el valor del campo
+      const valorB = (b.rentabilidad || '');
+      if (valorA > valorB) return 1;  //valorA tiene que ir despues de valorB
+      if (valorA < valorB) return -1; //valorA tiene que ir antes de valorB
+      return 0; //si valorA y valorB son iguales, dejo como están
+    };
+
+
+    resultado = [...this.rubros()].sort((a: Rubro, b: Rubro) =>
+      this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
+    );
+    this.rubros.set(resultado);
+    this.ordenAscendente.set(!this.ordenAscendente());
+  }
 }

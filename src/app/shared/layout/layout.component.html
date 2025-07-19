@@ -45,6 +45,67 @@
                         Nuevo Producto
                         </a>
                     </li>
+                    <li >
+                        <a
+                            routerLink="/faltantes"
+                            routerLinkActive="lg:bg-blue-950 lg:border-none border-b-gray-300 border-b-2 lg:rounded-md "
+                            class="text-sm text-center lg:text-left sm:text-xl lg:text-2xl  block p-2 mt-2 hover:text-blue-300 text-white"
+                        >
+                        Faltantes
+                        </a>
+                    </li>
+                    <li >
+                        <a
+                            routerLink="/compras"
+                            routerLinkActive="lg:bg-blue-950 lg:border-none border-b-gray-300 border-b-2 lg:rounded-md "
+                            class="text-sm text-center lg:text-left sm:text-xl lg:text-2xl  block p-2 mt-2 hover:text-blue-300 text-white"
+                        >
+                        Compras
+                        </a>
+                    </li>
+                    <li >
+                        <a
+                            routerLink="/ventas"
+                            routerLinkActive="lg:bg-blue-950 lg:border-none border-b-gray-300 border-b-2 lg:rounded-md "
+                            class="text-sm text-center lg:text-left sm:text-xl lg:text-2xl  block p-2 mt-2 hover:text-blue-300 text-white"
+                        >
+                        Ventas
+                        </a>
+                    </li>
+                    <li 
+                        class="lg:border-none border-b-gray-300 border-b-2 lg:rounded-md  text-white text-sm text-center lg:text-left sm:text-xl lg:text-2xl block p-2 mt-2  hover:cursor-pointer"
+                        (click)="mostrarVarios.set(!mostrarVarios())"
+                    >
+                        Varios
+                        @if(mostrarVarios() || urlActual() === '/proveedores' || urlActual() === '/rubros' || urlActual() === '/porcentajes') {
+                            <ul class="ml-3">
+                                <li >
+                                    <a
+                                        [routerLink]="'/proveedores'"
+                                        [routerLinkActive]="'lg:bg-blue-950 dark:lg:bg-cyan-950 lg:border-none border-b-gray-300 border-b-2 lg:rounded-md text-white'"
+                                        class="text-white text-sm text-center lg:text-left sm:text-md lg:text-lg block p-2 mt-2 hover:text-blue-300"                                    >
+                                        Proveedores
+                                    </a>
+                                </li>
+                                <li >
+                                    <a
+                                        [routerLink]="'/rubros'"
+                                        [routerLinkActive]="'lg:bg-blue-950 dark:lg:bg-cyan-950 lg:border-none border-b-gray-300 border-b-2 lg:rounded-md text-white'"
+                                        class="text-white text-sm text-center lg:text-left sm:text-md lg:text-lg block p-2 mt-2 hover:text-blue-300"                                    >
+                                        Rubros
+                                    </a>
+                                </li>
+                                <li >
+                                    <a
+                                        [routerLink]="'/porcentajes'"
+                                        [routerLinkActive]="'lg:bg-blue-950 dark:lg:bg-cyan-950 lg:border-none border-b-gray-300 border-b-2 lg:rounded-md text-white'"
+                                        class="text-white text-sm text-center lg:text-left sm:text-md lg:text-lg block p-2 mt-2 hover:text-blue-300"                                    >
+                                        Porcentajes
+                                    </a>
+                                </li>
+                            </ul>
+                        }
+                    </li>
 
                 </ul>
             </nav>
