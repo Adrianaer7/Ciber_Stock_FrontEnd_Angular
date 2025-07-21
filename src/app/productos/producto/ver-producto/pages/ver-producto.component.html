@@ -1,1 +1,136 @@
-<p>ver-producto works!</p>,
+<div class=' lg:w-2/3 mx-auto  bg-slate-100 flex flex-col gap-4'>
+    <h1 class="font-black text-2xl lg:text-4xl  text-blue-900 text-center break-words">{{producto().nombre | uppercase}}</h1>
+    <div class=" overflow-x-auto shadow-md sm:rounded-lg">
+        <table class=" sm:table-fixed w-screen sm:w-full text-sm lg:text-lg  text-gray-500 ">
+            <tbody>
+                <tr class="odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2 ">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">NOMBRE</th>
+                    <td class="px-6 py-4 text-left break-words">{{producto().nombre}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">MARCA</th>
+                    <td class="px-6 py-4 mr-20 text-left break-words">{{producto().marca || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">MODELO</th>
+                    <td class="px-6 py-4 text-left break-words">{{producto().modelo || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">CÓDIGO</th>
+                    <td class="px-6 py-4 text-left">{{producto().codigo}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">CÓDIGO DE BARRAS</th>
+                    <td class="px-6 py-4 text-left break-words">{{producto().barras || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA CONOCIDOS</th>
+                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_conocidos || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA EN EFECTIVO</th>
+                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_efectivo || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA CON TARJETA</th>
+                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_tarjeta || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA AHORA 12</th>
+                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_ahoraDoce || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA CUOTAS AHORA 12</th>
+                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_cuotas || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">RUBRO</th>
+                    <td class="px-6 py-4 text-left">{{producto().rubro || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">GARANTIAS</th>
+                    <td class="p-3 px-6 py-4 break-words">
+                        @if (todasGarantias().length) {
+                            @for (garantia of todasGarantias(); track garantia.proveedor) {
+                            <div>
+                                <p class="font-medium">{{ garantia.garantia }}</p>
+                                <p class="mb-1">({{ garantia.proveedor | uppercase}})</p>
+                            </div>
+                            }
+                        } @else {
+                            -
+                        }
+                    </td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PROVEEDORES</th>
+                    <td class="p-1 px-6 py-4 break-words ">
+                        @if (!proveedoresIguales().length) {-} @else {
+                            @for (proveedor of proveedoresIguales(); track proveedor._id) {
+                                <p>{{proveedor.empresa}} ({{proveedor.nombre}})</p>
+                            }
+                        }
+                    </td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">FACTURA DE COMPRA </th>
+                    <td class="px-6 py-4 text-left break-words">{{producto().factura || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">VALOR DEL DÓLAR AL COMPRARLO</th>
+                    <td class="px-6 py-4 text-left">${{producto().valor_dolar_compra}}</td>
+                </tr>
+
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE LA COMPRA EN DÓLARES</th>
+                    <td class="px-6 py-4 text-left">{{producto().precio_compra_dolar || '-'}}</td>
+                </tr>
+
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE LA COMPRA EN PESOS</th>
+                    <td class="px-6 py-4 text-left">{{producto().precio_compra_peso || '-'}}</td>
+                </tr>
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">DISPONIBLES</th>
+                    <td class="px-6 py-4 text-left">{{producto().disponibles || 'SIN STOCK'}}</td>
+                </tr>
+
+
+                <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">FECHA DE LA ULTIMA COMPRA</th>
+                    <td class="px-6 py-4 uppercase">{{fecha() || '-'}}</td>
+                </tr>
+
+
+                <tr class=" odd:bg-white even:bg-gray-50 break-words justify-between grid  grid-cols-1 lg:grid-cols-2">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">NOTAS</th>
+                    <td class="px-6 py-4">{{producto().notas || '-'}}</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    <button
+        type="button"
+        class="bg-red-600 hover:bg-red-900  sm:w-1/4 text-white p-4 uppercase font-bold my-4 mx-auto block rounded-md"
+        (click)="eliminarElProducto()"
+    >Eliminar Producto
+    </button>
+</div>

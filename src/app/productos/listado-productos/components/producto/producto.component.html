@@ -1,4 +1,4 @@
-<tr class="  hover:bg-gray-50 hover:cursor-pointer active:bg-gray-100 ">
+<tr class="  hover:bg-gray-50 hover:cursor-pointer active:bg-gray-100 align-middle">
     <td class="p-3  text-center font-semibold break-words" >{{producto().codigo}}</td>
     <td class=" text-center">IMAGEN
         <!-- @if (producto().imagen) {
@@ -43,15 +43,20 @@
                 class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-3xl font-black " 
                 (click)="copiar('tarjeta')"
             >
-                {{producto().precio_venta_tarjeta}}
+                ${{producto().precio_venta_tarjeta}}
             </p>
             <p 
                 class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-2xl font-medium" 
                 (click)="copiar('efectivo')"
             >
-                {{producto().precio_venta_efectivo}}
+                ${{producto().precio_venta_efectivo}}
             </p>
-            <p class="mt-4 pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl" (click)="copiar('conocidos')">{{producto().precio_venta_conocidos}}</p>
+            <p 
+                class="mt-4 pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl" 
+                (click)="copiar('conocidos')"
+            >
+                ${{producto().precio_venta_conocidos}}
+            </p>
         </div>
     </td>
     <td class="p-2  text-center  text-lg hover:cursor-pointer break-words">
@@ -61,20 +66,20 @@
                 (click)="copiar('ahoraDoce')"
             >
                 Un pago
-                <span class="block font-black text-3xl">{{producto().precio_venta_ahoraDoce}}</span>
+                <span class="block font-black text-3xl">${{producto().precio_venta_ahoraDoce}}</span>
             </p>
             <p 
                 class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " 
                 (click)="copiar('ahoraDoce')"
             >
                 12 cuotas de:
-                <span class="block font-black text-2xl">{{producto().precio_venta_cuotas}}</span>
+                <span class="block font-black text-2xl">${{producto().precio_venta_cuotas}}</span>
             </p>
 
         </div>
     </td>
 
-    <td class="p-3 mt-2  h-full break-words">
+    <td class="p-3 mt-2 h-full break-words">
         <button
             type="button"
             class="block bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 mb-2 w-full cursor-pointer text-black p-2 uppercase font-bold text-xs  rounded-md"

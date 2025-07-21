@@ -45,7 +45,7 @@
             >
             </faltante>
         } 
-        @if(!this.filtrados()) {
+        @if(!this.filtrando()) {
             @for (faltante of faltantes(); track faltante._id) {
                 <!--la class contents hace que angular no añada al DOM el "div" <faltante></faltante> entonces del tbody va directo al tr-->
                 <faltante 

@@ -48,7 +48,7 @@
             >
             </compra>
         } 
-        @if(!this.filtradas()) {
+        @if(!this.filtrando()) {
             @for (compra of compras(); track compra._id) {
                 <!--la class contents hace que angular no añada al DOM el "div" <faltante></faltante> entonces del tbody va directo al tr-->
                 <compra 

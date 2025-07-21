@@ -31,4 +31,21 @@ export class ProductosService {
         catchError((error: ErrorResponse) => of(error.error.msg))
       )
   }
+
+  traerProducto(id: string): Observable<Producto | string> {
+    return this.http.get<{producto: Producto}>(`${environment.backendURL}/productos/${id}`)
+      .pipe(
+        map(res => res.producto),
+        catchError((error: ErrorResponse) => of(error.error.msg))
+      )
+  }
+
+  eliminarProducto(id: string): Observable<string | boolean> {
+    return this.http.delete<{msg: string}>(`${environment.backendURL}/productos/${id}`)
+      .pipe(
+        tap(() => this.productos.update(productos => productos.filter(producto => producto._id !== id))),
+        map(() => true),
+        catchError((error: ErrorResponse) => of(error.error.msg))
+      )
+  }
 }

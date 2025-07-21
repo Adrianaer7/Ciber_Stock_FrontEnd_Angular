@@ -10,11 +10,11 @@ const productoRoutes: Routes = [
         component: LayoutComponent,
         children: [
             {
-                path: ':token',
+                path: ':id',
                 component: VerProductoComponent
             },
             {
-                path: 'editar/:token',
+                path: 'editar/:id',
                 component: EditarProductoComponent
             },
         ]

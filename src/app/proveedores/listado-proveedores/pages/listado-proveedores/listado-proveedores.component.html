@@ -130,7 +130,7 @@
                 >
                 </proveedor>
         } 
-        @if(!this.filtrados()) {
+        @if(!this.filtrando()) {
             @for (proveedor of proveedores(); track proveedor._id) {
                 <!--la class contents hace que angular no añada al DOM el "div" <proveedor></proveedor> entonces del tbody va directo al tr-->
                 <proveedor class="contents"

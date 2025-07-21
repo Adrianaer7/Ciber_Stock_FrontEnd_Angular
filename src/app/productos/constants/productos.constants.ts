@@ -1,6 +1,43 @@
 import { Toast } from "@constantes/general.constants"
 import Swal from "sweetalert2"
 
+
+export const PRODUCTO_VACIO = {
+    _id: "",
+    nombre: "",
+    marca: "",
+    modelo: "",
+    codigo: 0,
+    barras: "",
+    rubro: "",
+    rubroValor: 0,
+    precio_venta: 0,
+    precio_venta_conocidos: 0,
+    precio_venta_efectivo: 0,
+    precio_venta_tarjeta: 0,
+    precio_venta_ahoraDoce: 0,
+    precio_venta_cuotas: 0,
+    precio_compra_dolar: 0,
+    precio_compra_peso: 0,
+    valor_dolar_compra: 0,
+    proveedor: "",
+    todos_proveedores: [],
+    factura: "",
+    garantia: "",
+    fecha_compra: new Date(),
+    disponibles: 0,
+    imagen: "",
+    notas: "",
+    faltante: false,
+    limiteFaltante: 0,
+    añadirFaltante: false,
+    visibilidad: true,
+    creado: new Date(),
+    creador: "",
+    descripcion: ""
+}
+
+
 export function ErrorValor() {
     return Swal.fire({
         icon: 'error',

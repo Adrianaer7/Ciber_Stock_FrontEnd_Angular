@@ -1,4 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { Router } from '@angular/router';
 import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 import { FaltantesService } from 'app/faltantes/services/faltantes.service';
 import { Producto } from 'app/productos/interfaces/productos.interface';
@@ -14,11 +15,12 @@ export class FaltanteComponent {
   faltantesService = inject(FaltantesService)
   faltante = input.required<Producto>()
   proveedores = input.required<Proveedor[]>()
+  router = inject(Router);
 
   proveedoresIguales = computed(() => this.proveedores().filter(proveedor => this.faltante().todos_proveedores.includes(proveedor._id!)))
 
   verFaltante() {
-
+    this.router.navigate([`/producto/${this.faltante()._id}`]);
   }
 
 
