@@ -1,1 +1,289 @@
-<p>formulario works!</p>,
+<h1 
+    class="font-black text-3xl sm:text-4xl text-center"
+    [ngClass]="productoEditar()._id ? 'text-green-600' : 'text-blue-900'"
+>
+  {{ productoEditar()._id ? 'Editar Producto' : 'Agregar Producto' }}
+</h1>
+
+<p class="mt-3 text-center text-black"> Llena los siguientes campos para {{ productoEditar()._id ? 'editar' : 'agregar' }} un producto</p>
+
+<div class="bg-white  mt-10 px-5 pt-1 pb-5 rounded-md shadow-md xl:w-auto 2xl:w-11/12 mx-auto">
+    <form 
+        [formGroup]="formProducto" 
+        (ngSubmit)="onSubmit()" 
+        class="mt-10 "
+    >
+        <div class="grid lg:grid-cols-2 xl:grid-cols-2 lg:gap-2 xl:gap-4 ">
+
+            <div class="mb-4">
+                <label class="text-gray-800  font-bold">Nombre *</label>
+                <input 
+                    type="text" 
+                    formControlName="nombre" 
+                    placeholder="Ej. Pendrive 8Gb 3.0"
+                    class="mt-2 uppercase block w-full p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                />
+            </div>
+        
+            <!-- Marca -->
+            <div class="mb-4">
+                <label class="text-gray-800  font-bold">Marca</label>
+                <input 
+                    type="text" 
+                    formControlName="marca" 
+                    placeholder="Ej. Kingston"
+                    class="mt-2 uppercase block w-full p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                />
+            </div>
+        
+            <!-- Modelo -->
+            <div class="mb-4">
+                <label class="text-gray-800  font-bold">Modelo</label>
+                <input 
+                    type="text" 
+                    formControlName="modelo" 
+                    placeholder="DTKN/64GB"
+                    class="mt-2 uppercase block w-full p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                />
+            </div>
+        
+            <!-- Código & Barras -->
+            <div class="mb-4 flex gap-1">
+                <div class="w-1/5">
+                    <label class="text-gray-800  font-bold">Código *</label>
+                    <select 
+                        formControlName="codigo"
+                        class="uppercase text-center w-full mt-2 block p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                    >
+                        <option value="">Vacío</option>
+                        @for (code of codigos(); track code) {
+                            <option [value]="code">{{ code }}</option>
+                        }
+                    </select>
+                </div>
+        
+                <div class="w-4/5">
+                    <label class="text-gray-800  font-bold">Cod. barras</label>
+                    <input 
+                        type="tel" 
+                        formControlName="barras" 
+                        placeholder="893247539457"
+                        class="mt-2 p-3 uppercase w-full rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                    />
+                </div>
+            </div>
+        
+            <!-- Garantía & Factura -->
+            <div class="mb-4 flex gap-1">
+                <div class="basis-1/2">
+                    <label class="text-gray-800  font-bold">Garantía</label>
+                    <input 
+                        type="text" 
+                        formControlName="garantia" 
+                        placeholder="2 meses"
+                        class="mt-2 block w-full p-3 uppercase rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                    />
+                </div>
+        
+                <div class="basis-1/2">
+                    <label class="text-gray-800  font-bold">Nro. factura compra</label>
+                    <input 
+                        type="text" 
+                        formControlName="factura" 
+                        placeholder="0014-232322"
+                        class="mt-2 block w-full p-3 uppercase rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                    />
+                </div>
+            </div>
+        
+            <!-- Dólares -->
+            <div class="mb-4 flex gap-1">
+            <div class="basis-1/2">
+                <label class="text-gray-800  font-bold">Cotización U$S</label>
+                <input 
+                    type="tel" 
+                    formControlName="valor_dolar_compra" 
+                    placeholder="$130"
+                    class="mt-2 block w-full p-3 uppercase rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                />
+            </div>
+        
+            <div class="basis-1/2">
+                <label class="text-gray-800  font-bold">Precio compra dólar</label>
+                <input 
+                    type="tel" 
+                    formControlName="precio_compra_dolar" 
+                    placeholder="$20.23"
+                    class="mt-2 block w-full p-3 uppercase rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                />
+            </div>
+            </div>
+        
+            <!-- Pesos & Precio venta -->
+            <div class="mb-4 flex gap-1">
+                <div class="basis-1/2">
+                    <label class="text-gray-800  font-bold">Precio compra AR$</label>
+                    <input 
+                        type="tel" 
+                        formControlName="precio_compra_peso" 
+                        placeholder="$1250"
+                        class="mt-2 block w-full p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                    />
+                </div>
+        
+                <div class="basis-1/2">
+                    <label class="text-gray-800  font-bold">Precio de venta</label>
+                    <input 
+                        type="tel" 
+                        formControlName="precio_venta" 
+                        readonly [value]="'$ ' + formProducto.get('precio_venta')?.value"
+                        class="mt-2 block w-full p-3 font-black rounded-md bg-gray-50 text-red-600 hover:cursor-pointer focus:ring focus:ring-blue-300 placeholder-gray-500"
+                    />
+                </div>
+            </div>
+        
+            <!-- Fecha & Faltante -->
+            <div class="mb-4 flex gap-1">
+                <div class="basis-1/2">
+                    <label class="text-gray-800  font-bold">Fecha de compra</label>
+                    <input 
+                        type="date" 
+                        formControlName="fecha_compra"
+                        class="mt-2 block w-full p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
+                    />
+                </div>
+        
+                <div class="basis-1/2">
+                    <label  class="text-gray-800 font-bold">Añadir como faltante a las:</label>
+                    <div class="flex gap-1">
+                        <input 
+                            type="button" 
+                            class="w-2/4 lg:w-1/4 rounded-md mt-2 p-3 hover:cursor-pointer"
+                            (click)="formProducto.get('añadirFaltante')!.setValue(!formProducto.get('añadirFaltante')!.value)"
+                            [value]="formProducto.get('añadirFaltante')?.value ? 'Sí' : 'No'"
+                            [ngClass]="formProducto.get('añadirFaltante')?.value ? 'bg-blue-200' : 'bg-gray-400'"
+                        />
+        
+                        <input 
+                            type="tel" 
+                            formControlName="limiteFaltante"
+                            class="mt-2 block w-full p-3 rounded-md bg-gray-50  placeholder-gray-500"
+                            placeholder="2 UNIDADES"
+                            [ngClass]="formProducto.get('añadirFaltante')?.value ? '' : 'cursor-not-allowed outline-none ring-0 focus:outline-none focus:ring-0'"
+                            [readOnly]="!formProducto.get('añadirFaltante')?.value"
+                        />
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Cantidad, Proveedor, Rubro -->
+            <div>
+                <div class="grid grid-cols-9">
+                    <label htmlFor="cantidad" class="text-gray-800 font-bold grid-cols-4 ">Cant.</label>
+                    <label htmlFor="selectp" class="text-gray-800 font-bold  col-span-4 col-start-2 col-end-4">Proveedores</label>
+                    <label htmlFor="rubro" class="text-gray-800 font-bold  col-span-4 col-start-6 col-end-9">Rubro</label>
+                </div>
+                <div class="grid grid-cols-9 gap-1">
+                    <div class="col-span-1">
+                        <input 
+                            type="tel" 
+                            formControlName="disponibles" 
+                            placeholder="Cant."
+                            id="cantidad"
+                            name="cantidad"
+                            class="text-center mt-2 block w-full p-3 rounded-md bg-gray-50 focus:outline-none  focus:ring-1 focus:ring-blue-300"
+                        />
+                    </div>
+                    <div class="col-span-4">
+                        <select 
+                            formControlName="proveedor" 
+                            class="uppercase text-center mt-2 w-full block col-span-4 p-3 rounded-md bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300"
+                            id="selectp"
+                            name="selectp"
+                        >
+                        <option value="">-- Seleccione --</option>
+                        @for (proveedor of proveedores(); track proveedor._id) {
+                            <option [value]="proveedor._id">{{ proveedor.empresa }} ({{ proveedor.nombre }})</option>
+                        }
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <select 
+                            formControlName="rubro" 
+                            class="uppercase text-center mt-2 w-full block col-span-4 p-3 rounded-md bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300"
+                            id="rubro"
+                            name="rubro"
+                        > 
+                            <option value="">--Seleccione--</option> 
+                            @for (rubro of rubros(); track rubro.nombre) { 
+                                <option [value]="rubro.nombre">
+                                    {{ rubro.nombre }} {{ rubro.rentabilidad }}%
+                                </option> 
+                            } 
+                        </select> 
+                    </div>
+                </div> 
+            </div>
+        
+            <!-- Visibilidad --> 
+            <div class="mb-4"> 
+                <label class="text-gray-800 font-bold">Visibilidad</label> 
+                <input 
+                    type="button" 
+                    class="w-full rounded-md mt-2 block p-3 hover:cursor-pointer" 
+                    [ngClass]="formProducto.get('visibilidad')?.value ? 'bg-blue-200' : 'bg-gray-400'" 
+                    [value]="formProducto.get('visibilidad')?.value ? 'Visible' : 'Oculto'" 
+                    (click)="formProducto.get('visibilidad')!.setValue(!formProducto.get('visibilidad')!.value)"
+                /> 
+            </div>
+        </div>
+
+
+        <!-- Subir imagen --> 
+         <!-- <div class="mb-4"> 
+            <label class="inline-block w-1/4 rounded-md bg-red-200 text-center font-semibold p-3">Subir imagen</label> 
+            <input 
+                type="file" 
+                class="hidden" 
+                accept="image/*" 
+                (change)="onImagenChange($event.target.files[0])" 
+            /> 
+            @if(imagenSeleccionada()) { 
+                <p class="mt-2 text-sm text-gray-800">Imagen: {{ imagenSeleccionada()?.name }}</p> 
+                <img 
+                    [src]="previewUrl()" 
+                    alt="preview" 
+                    width="200" 
+                    height="200" 
+                    class="mt-2 object-contain" 
+                /> 
+                <button 
+                    type="button" 
+                    class="p-3 mt-4 w-1/4 rounded-md bg-red-200 text-center font-semibold" 
+                    (click)="eliminarImagen()" 
+                > Eliminar imagen 
+                </button> 
+            } 
+        </div> -->
+
+        <!-- Notas --> 
+        <div class="mb-4"> 
+            <label class="text-gray-800 font-bold">Notas</label> 
+            <textarea 
+                formControlName="notas" 
+                class="mt-2 block w-full h-28 p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500" 
+                placeholder="Ingresa tus notas"
+            >
+            </textarea> 
+        </div>
+
+
+        <!-- Botón Submit --> 
+        <input 
+            type="submit" 
+            [value]="productoEditar()._id ? 'Guardar cambios' : 'Agregar producto'" 
+            [ngClass]="productoEditar()._id ? 'bg-green-600 active:bg-green-700' : 'bg-blue-800 active:bg-blue-900'" 
+            class="mt-5 w-full p-3 text-white uppercase font-bold text-lg rounded-md cursor-pointer" 
+        /> 
+    </form> 
+</div>

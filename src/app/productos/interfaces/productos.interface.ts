@@ -1,3 +1,4 @@
+import { hoy } from '../../utils/general.utils';
 export interface ResponseDolar {
     _id:        string;
     precio:     number;
@@ -28,7 +29,7 @@ export interface Producto {
     todos_proveedores:      string[];
     factura:                string;
     garantia:               string;
-    fecha_compra:           Date;
+    fecha_compra:           string;
     disponibles:            number;
     imagen:                 string;
     notas:                  string;
@@ -36,7 +37,7 @@ export interface Producto {
     limiteFaltante:         number;
     añadirFaltante:         boolean;
     visibilidad:            boolean;
-    creado:                 Date;
+    creado:                 string;
     creador:                string;
     descripcion:            string;
 }

@@ -32,7 +32,7 @@ export class ListadoComprasComponent {
 
   comprasResource = rxResource({
     stream: () => forkJoin({
-      compras: this.comprasService.traerFaltantes(),
+      compras: this.comprasService.traerCompras(),
       proveedores: this.proveedoresService.traerProveedores()
     })
   });

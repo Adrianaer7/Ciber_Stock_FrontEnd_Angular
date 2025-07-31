@@ -1,4 +1,5 @@
 import { Toast } from "@constantes/general.constants"
+import { hoy } from "app/utils/general.utils"
 import Swal from "sweetalert2"
 
 
@@ -24,7 +25,7 @@ export const PRODUCTO_VACIO = {
     todos_proveedores: [],
     factura: "",
     garantia: "",
-    fecha_compra: new Date(),
+    fecha_compra: hoy,
     disponibles: 0,
     imagen: "",
     notas: "",
@@ -32,7 +33,7 @@ export const PRODUCTO_VACIO = {
     limiteFaltante: 0,
     añadirFaltante: false,
     visibilidad: true,
-    creado: new Date(),
+    creado: hoy,
     creador: "",
     descripcion: ""
 }
@@ -65,5 +66,14 @@ export const ToastVentaExito = async (unidades: number, nombre: string) => {
         background: "white",
         width: "25%",
         color: "#545454",
+    })
+}
+
+export function ModalError(html: string) {
+    return Swal.fire({
+        icon: 'error',
+        title: '<h1 style="color:#545454">Error</h3>',
+        html,
+        background: "white",
     })
 }

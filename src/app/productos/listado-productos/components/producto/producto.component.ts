@@ -32,6 +32,8 @@ export class ProductoComponent {
   producto = input.required<Producto>()
   faltante = input.required<boolean>()
   resta = signal(0)
+  cantidad = 0
+  desdeForm = false
 
   proveedores = this.proveedoresService.proveedores
   garantias = this.garantiasService.garantias
@@ -117,7 +119,7 @@ export class ProductoComponent {
       }
       //editar producto
       this.producto().disponibles = this.producto().disponibles - unidades
-      this.productosService.editarProducto(this.producto()).subscribe(res => {
+      this.productosService.editarProducto(this.producto(), this.cantidad, this.desdeForm).subscribe(res => {
         if (typeof res === 'string') return ToastError(res)
       })
       //añadir nueva venta

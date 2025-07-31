@@ -11,7 +11,7 @@
             }
         }
     </td>
-    <td class="p-1 text-center uppercase dark:text-gray-50">
+    <td class="p-1 text-center uppercase">
         @if (faltante().disponibles && faltante().faltante) {
             <span class="font-bold text-red-600 p-1">{{ faltante().disponibles }}</span>
         } @else if (faltante().disponibles && !faltante().faltante) {

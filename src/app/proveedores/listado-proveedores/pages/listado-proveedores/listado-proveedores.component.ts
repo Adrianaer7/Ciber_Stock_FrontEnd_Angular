@@ -136,6 +136,7 @@ export class ListadoProveedoresComponent {
         this.formProveedor.reset();
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
+        ToastExito(AGREGAR_EXITO)
         return
       })
     }
