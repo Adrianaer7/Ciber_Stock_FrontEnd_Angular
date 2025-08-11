@@ -3,7 +3,7 @@ import { AuthService } from '../services/auth.service';
 import { MensajeComponent } from '../components/mensaje/mensaje.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormUtils } from '../../utils/forms.utils';
+import { FormUtils } from '../../shared/utils/forms.utils';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({

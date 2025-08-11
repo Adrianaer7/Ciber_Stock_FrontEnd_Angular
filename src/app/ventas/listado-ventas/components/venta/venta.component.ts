@@ -2,19 +2,18 @@ import { Component, inject, input } from '@angular/core';
 import { ELIMINAR_EXITO, ModalCantidad, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 import { Venta } from 'app/ventas/interfaces/ventas.interface';
 import { VentasService } from 'app/ventas/services/ventas.service';
-import { generarFecha } from 'app/utils/general.utils';
 import { ErrorCantidad, ErrorValor, ToastExitoEditar } from 'app/ventas/constants/ventas.constants';
+import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
+import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
 
 @Component({
   selector: 'venta',
-  imports: [],
+  imports: [FormatImportPipe, FormatDatePipe],
   templateUrl: './venta.component.html',
 })
 export class VentaComponent {
-
   ventaService = inject(VentasService)
   venta = input.required<Venta>()
-  generarFecha = generarFecha //guardo la funcion aca asi puedo usarla en el html
 
   async editarVenta() {
     const valor = await ModalCantidad()

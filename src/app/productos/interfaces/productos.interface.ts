@@ -1,4 +1,4 @@
-import { hoy } from '../../utils/general.utils';
+import { hoy } from '../../shared/utils/general.utils';
 export interface ResponseDolar {
     _id:        string;
     precio:     number;

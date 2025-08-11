@@ -30,27 +30,27 @@
 
                 <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA CONOCIDOS</th>
-                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_conocidos || '-'}}</td>
+                    <td class="px-6 py-4 text-left">{{producto().precio_venta_conocidos || '-' | formatImport}}</td>
                 </tr>
 
                 <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA EN EFECTIVO</th>
-                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_efectivo || '-'}}</td>
+                    <td class="px-6 py-4 text-left">{{producto().precio_venta_efectivo || '-' | formatImport}}</td>
                 </tr>
 
                 <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA CON TARJETA</th>
-                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_tarjeta || '-'}}</td>
+                    <td class="px-6 py-4 text-left">{{producto().precio_venta_tarjeta || '-' | formatImport}}</td>
                 </tr>
 
                 <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA AHORA 12</th>
-                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_ahoraDoce || '-'}}</td>
+                    <td class="px-6 py-4 text-left">{{producto().precio_venta_ahoraDoce || '-' | formatImport}}</td>
                 </tr>
 
                 <tr class=" odd:bg-white even:bg-gray-50  justify-between grid  grid-cols-1 lg:grid-cols-2">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE VENTA CUOTAS AHORA 12</th>
-                    <td class="px-6 py-4 text-left">{{'$' + producto().precio_venta_cuotas || '-'}}</td>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE CUOTA AHORA 12</th>
+                    <td class="px-6 py-4 text-left">{{producto().precio_venta_cuotas || '-' | formatImport}}</td>
                 </tr>
 
                 <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
@@ -92,7 +92,7 @@
 
                 <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">VALOR DEL DÓLAR AL COMPRARLO</th>
-                    <td class="px-6 py-4 text-left">${{producto().valor_dolar_compra}}</td>
+                    <td class="px-6 py-4 text-left">{{producto().valor_dolar_compra | formatImport}}</td>
                 </tr>
 
 
@@ -104,7 +104,7 @@
 
                 <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">PRECIO DE LA COMPRA EN PESOS</th>
-                    <td class="px-6 py-4 text-left">{{producto().precio_compra_peso || '-'}}</td>
+                    <td class="px-6 py-4 text-left">{{producto().precio_compra_peso || '-' | formatImport}}</td>
                 </tr>
 
                 <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
@@ -115,7 +115,7 @@
 
                 <tr class=" odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">FECHA DE LA ULTIMA COMPRA</th>
-                    <td class="px-6 py-4 uppercase">{{fecha() || '-'}}</td>
+                    <td class="px-6 py-4 uppercase">{{producto().fecha_compra || '-' | formatDate}}</td>
                 </tr>
 
 

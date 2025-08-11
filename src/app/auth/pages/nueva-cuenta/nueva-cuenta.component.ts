@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { FormUtils } from '../../../utils/forms.utils';
+import { FormUtils } from '../../../shared/utils/forms.utils';
 import { MensajeComponent } from '../../components/mensaje/mensaje.component';
 
 @Component({

@@ -1,16 +1,16 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { Compra } from 'app/compras/interfaces/compras.interfaces';
 import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
-import { generarFecha } from '../../../../utils/general.utils';
 import { CommonModule } from '@angular/common';
+import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
+import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
 
 @Component({
   selector: 'compra',
-  imports: [CommonModule],
+  imports: [CommonModule, FormatImportPipe, FormatDatePipe],
   templateUrl: './compra.component.html',
 })
 export class CompraComponent { 
-  generarFecha = generarFecha
 
   compra = input.required<Compra>()
   proveedores = input.required<Proveedor[]>()

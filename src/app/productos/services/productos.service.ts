@@ -22,15 +22,16 @@ export class ProductosService {
     return this.http.post<{ producto: Producto }>(`${environment.backendURL}/productos`, producto )
       .pipe(
         tap(res => this.productos.update(productos => [...productos, res.producto])),
-       /*  tap(() => {
+        /* tap(() => {
           if (formData) this.subirImagen(formData)
         }),
+          */
         tap(() => {
-          if (desdeForm && cantidad > 0) this.comprasService.crearCompra(producto, cantidad, desdeForm)
+          if (desdeForm && cantidad > 0) this.comprasService.crearCompra(producto, cantidad, desdeForm).subscribe()
         }),
-        tap(() => () => {
-          if (cantidad > 0 && producto.proveedor && producto.garantia) this.garantiasService.crearGarantia(producto.codigo, producto.garantia, producto.proveedor)
-        }), */
+        tap(() => {
+          if (cantidad > 0 && producto.proveedor && producto.garantia) this.garantiasService.crearGarantia(producto.codigo, producto.garantia, producto.proveedor).subscribe()
+        }), 
         map(res => res.producto),
         catchError((error: ErrorResponse) => of(error.error.msg))
       )

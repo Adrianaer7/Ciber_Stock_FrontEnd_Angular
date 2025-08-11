@@ -1,5 +1,5 @@
 <tr
-  class="hover:bg-gray-50 active:bg-gray-100   cursor-pointer"
+  class="hover:bg-gray-50 active:bg-gray-100 align-middle  cursor-pointer"
   [ngClass]="{ 'font-semibold': !detalles() }"
   (click)="verDetalles()"
 >
@@ -23,7 +23,7 @@
     <ul>
       @if (detalles()) {
         @for (historia of compra().historial; track $index) {
-          <li>{{ mostrar(generarFecha(historia.fecha_compra)) }}</li>
+          <li>{{ mostrar(historia.fecha_compra) | formatDate}}</li>
         }
       } @else {
         +
@@ -68,7 +68,7 @@
   </td>
 
   <!-- proveedores -->
-    <td class="p-3 text-center break-words align-middle">
+    <td class="p-3 text-center break-words">
         @if (detalles()) {
             @if (proveedoresIguales().length > 0) {
                 @for (p of proveedoresIguales(); track p._id) {
@@ -76,7 +76,7 @@
                 }
             }
         } @else {
-        -
+        +
         }
     </td>
 
@@ -84,7 +84,7 @@
     <ul>
       @if (detalles()) {
         @for (historia of compra().historial; track $index) {
-          <li>{{ mostrar(historia.valor_dolar_compra) }}</li>
+          <li>{{ historia.valor_dolar_compra | formatImport}}</li>
         }
       } @else {
         +
@@ -96,11 +96,7 @@
     <ul>
       @if (detalles()) {
         @for (historia of compra().historial; track $index) {
-          <li>
-            {{
-              mostrar(historia.precio_compra_dolar || historia.arsAdolar)
-            }}
-          </li>
+          <li>{{ mostrar(historia.precio_compra_dolar || historia.arsAdolar) | formatImport}}</li>
         }
       } @else {
         +

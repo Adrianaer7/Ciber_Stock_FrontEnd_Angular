@@ -12,8 +12,8 @@ export class GarantiasService {
     private http = inject(HttpClient)
     garantias = signal<Garantia[]>([])
 
-    crearGarantia(codigo: number, garantia: string, proveedorId: string): Observable<Garantia | string> {
-        return this.http.post<Garantia>(`${environment.backendURL}/garantias`, {codigo, garantia, proveedorId})
+    crearGarantia(codigo: number, garantia: string, proveedor: string): Observable<Garantia | string> {
+        return this.http.post<Garantia>(`${environment.backendURL}/garantias`, {codigo, garantia, proveedor})
             .pipe(
                 map(res => res),
                 catchError((error: ErrorResponse) => of(error.error.msg))

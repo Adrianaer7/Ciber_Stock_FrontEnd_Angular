@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MensajeComponent } from '../../components/mensaje/mensaje.component';
 import {AuthService} from '../../services/auth.service';
-import { FormUtils } from '../../../utils/forms.utils';
+import { FormUtils } from '../../../shared/utils/forms.utils';
 
 @Component({
   selector: 'login',

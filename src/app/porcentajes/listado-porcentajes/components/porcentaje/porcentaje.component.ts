@@ -2,10 +2,11 @@ import { Component, inject, input } from '@angular/core';
 import { Porcentaje } from 'app/porcentajes/interfaces/porcentajes.intercaces';
 import { PorcentajesService } from '../../../services/porcentajes.service';
 import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
+import { FormatPercentPipe } from 'app/shared/pipes/formatPercent.pipe';
 
 @Component({
   selector: 'porcentaje',
-  imports: [],
+  imports: [FormatPercentPipe],
   templateUrl: './porcentaje.component.html',
 })
 export class PorcentajeComponent {

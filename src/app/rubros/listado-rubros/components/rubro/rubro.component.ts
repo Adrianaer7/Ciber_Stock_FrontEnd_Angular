@@ -3,10 +3,11 @@ import { Component, inject, input } from '@angular/core';
 import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 import { Rubro } from 'app/rubros/interfaces/rubros.intefaces';
 import { RubrosService } from 'app/rubros/services/rubros.service';
+import { FormatPercentPipe } from 'app/shared/pipes/formatPercent.pipe';
 
 @Component({
   selector: 'rubro',
-  imports: [CommonModule],
+  imports: [CommonModule, FormatPercentPipe],
   templateUrl: './rubro.component.html',
 })
 export class RubroComponent {

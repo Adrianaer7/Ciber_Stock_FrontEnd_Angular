@@ -1,5 +1,5 @@
 import { Toast } from "@constantes/general.constants"
-import { hoy } from "app/utils/general.utils"
+import { hoy } from "app/shared/utils/general.utils"
 import Swal from "sweetalert2"
 
 

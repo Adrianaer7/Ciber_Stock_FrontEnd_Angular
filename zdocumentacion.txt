@@ -35,6 +35,11 @@ dentro de la carpeta .vscode -> settings.json ->
         }
     }
 
+
+para usar Pipes personalizados con pipes de @angular/common tengo que configurar el main.ts y el app.config.ts
+
+
+
 atajos CLI:
 ng g c nombre-componente
 ng g service nombre-servicio

@@ -15,6 +15,7 @@ export interface Historial {
     cantidad:            string;
     fecha_compra:        string;
     precio_compra_dolar: number;
+    precio_compra_peso:  number;
     arsAdolar:           null;
     valor_dolar_compra:  number;
     proveedor:           string;

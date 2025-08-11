@@ -4,10 +4,10 @@
     <td class="p-1  text-center break-words ">{{venta().marca || '-'}}</td>
     <td class="p-1  text-center break-words ">{{venta().modelo || '-'}}</td>
     <td class="p-1  text-center break-words ">{{venta().barras || '-'}}</td>
-    <td class="p-1  text-center break-words ">{{generarFecha(venta().fecha) || '-'}}</td>
-    <td class="p-1  text-center break-words ">$ {{venta().dolar || '-'}}</td>
-    <td class="p-1  text-center break-words ">$ {{venta().precioEnDolar || '-'}}</td>
-    <td class="p-1  text-center break-words ">$ {{venta().precioEnArs || '-'}}</td>
+    <td class="p-1  text-center break-words ">{{venta().fecha || '-' | formatDate}}</td>
+    <td class="p-1  text-center break-words ">{{venta().dolar || '-' | formatImport}}</td>
+    <td class="p-1  text-center break-words ">{{venta().precioEnDolar || '-' | formatImport}}</td>
+    <td class="p-1  text-center break-words ">{{venta().precioEnArs || '-' | formatImport}}</td>
     <td class="p-1  text-center break-words ">{{venta().unidades || '-'}}</td>
     <td class="p-1 w-40 ">
         @if(venta().existeProducto) {

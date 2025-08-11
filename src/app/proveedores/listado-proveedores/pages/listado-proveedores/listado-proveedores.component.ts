@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProveedoresService } from '../../../services/proveedores.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Proveedor } from '../../../interfaces/proveedores.interface';
-import { FormUtils } from '../../../../utils/forms.utils';
+import { FormUtils } from '../../../../shared/utils/forms.utils';
 import { ProveedorComponent } from '../../components/proveedor/proveedor.component';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../auth/services/auth.service';

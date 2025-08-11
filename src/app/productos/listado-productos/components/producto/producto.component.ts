@@ -12,12 +12,13 @@ import { ErrorCantidad, ErrorValor, ToastVentaExito } from 'app/productos/consta
 import { VentasService } from 'app/ventas/services/ventas.service';
 import { Venta } from 'app/ventas/interfaces/ventas.interface';
 import { DolaresService } from 'app/productos/services/dolares.service';
-import { hoy } from '../../../../utils/general.utils';
+import { hoy } from '../../../../shared/utils/general.utils';
 import { ToastFaltanteExito } from 'app/faltantes/constants/faltantes.constants';
+import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
 
 @Component({
   selector: 'producto',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormatImportPipe],
   templateUrl: './producto.component.html',
 })
 export class ProductoComponent {

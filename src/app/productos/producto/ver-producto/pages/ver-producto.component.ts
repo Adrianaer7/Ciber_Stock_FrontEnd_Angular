@@ -9,16 +9,15 @@ import { GarantiasService } from 'app/productos/services/garantias.service';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { forkJoin } from 'rxjs';
-import { generarFecha } from '../../../../utils/general.utils';
+import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
+import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
 
 @Component({
   selector: 'ver-producto',
-  imports: [CommonModule],
+  imports: [CommonModule, FormatImportPipe, FormatDatePipe],
   templateUrl: './ver-producto.component.html',
 })
 export class VerProductoComponent {
-
-  generarFecha = generarFecha
 
   router = inject(Router);
   activatedRoute = inject(ActivatedRoute);
@@ -26,7 +25,6 @@ export class VerProductoComponent {
   garantiasService = inject(GarantiasService);
   proveedoresService = inject(ProveedoresService);
   producto = signal<Producto>(PRODUCTO_VACIO)
-  fecha = signal<string>('');
 
   url = this.activatedRoute.snapshot.params['id'];
 
@@ -50,11 +48,7 @@ export class VerProductoComponent {
       if (typeof respuesta.producto === 'string') return ToastError(respuesta.producto);
       if (typeof respuesta.garantias === 'string') return ToastError(respuesta.garantias);
       if (typeof respuesta.proveedores === 'string') return ToastError(respuesta.proveedores);
-
       this.producto.set(respuesta.producto);
-      if (respuesta.producto.fecha_compra) {
-        this.fecha.set(generarFecha(respuesta.producto.fecha_compra.toString()));
-      }
     }
   })
 

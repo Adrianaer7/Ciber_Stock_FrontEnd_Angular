@@ -9,6 +9,7 @@ import { Producto } from 'app/productos/interfaces/productos.interface';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { RubrosService } from 'app/rubros/services/rubros.service';
+import { hoy } from 'app/shared/utils/general.utils';
 import { forkJoin, merge } from 'rxjs';
 import { SweetAlertResult } from 'sweetalert2';
 
@@ -73,19 +74,19 @@ export class FormularioComponent {
     precio_venta_tarjeta: [this.productoEditar().precio_venta_tarjeta || 0],
     precio_venta_ahoraDoce: [this.productoEditar().precio_venta_ahoraDoce || 0],
     precio_venta_cuotas: [this.productoEditar().precio_venta_cuotas || 0],
-    precio_compra_dolar: [this.productoEditar().precio_compra_dolar || 0],
-    precio_compra_peso: [this.productoEditar().precio_compra_peso || 0],
-    valor_dolar_compra: [this.productoEditar().valor_dolar_compra || 0],
+    precio_compra_dolar: [this.productoEditar().precio_compra_dolar || ''],
+    precio_compra_peso: [this.productoEditar().precio_compra_peso || ''],
+    valor_dolar_compra: [this.productoEditar().valor_dolar_compra ||''],
     proveedor: [this.productoEditar().proveedor || ''],
     todos_proveedores: [this.productoEditar().todos_proveedores || []],
     factura: [this.productoEditar().factura || ''],
     garantia: [this.productoEditar().garantia || ''],
-    fecha_compra: [this.productoEditar().fecha_compra],
-    disponibles: [this.productoEditar().disponibles || 0],
+    fecha_compra: [this.productoEditar().fecha_compra || hoy],
+    disponibles: [this.productoEditar().disponibles || ''],
     imagen: [this.productoEditar().imagen || ''],
     notas: [this.productoEditar().notas || ''],
     faltante: [this.productoEditar()?.faltante || false],
-    limiteFaltante: [this.productoEditar().limiteFaltante || 0],
+    limiteFaltante: [this.productoEditar().limiteFaltante || ''],
     añadirFaltante: [this.productoEditar()?.añadirFaltante || false],
     visibilidad: [this.productoEditar()?.visibilidad ?? true],
     creado: [this.productoEditar().creado || new Date()],
@@ -149,58 +150,31 @@ export class FormularioComponent {
     this.formProducto.get('precio_venta')?.setValue(Number(precioVenta.toFixed(2)));
   }
 
+
+
   onSubmit(): void | Promise<SweetAlertResult<any>> {
-    const nombre = this.formProducto.get('nombre')?.value;
-    const codigo = Number(this.formProducto.get('codigo')?.value);
-    const disponibles = this.formProducto.get('disponibles')?.value ?? 0;
-    const valorDeVenta = this.formProducto.get('precio_venta')?.value ?? 0;
-    const valor_dolar_compra = this.formProducto.get('valor_dolar_compra')?.value ?? 0;
-    const precio_compra_dolar = this.formProducto.get('precio_compra_dolar')?.value ?? 0;
-    const precio_compra_peso = this.formProducto.get('precio_compra_peso')?.value ?? 0;
-    const limiteFaltante = this.formProducto.get('limiteFaltante')?.value ?? 0;
-    const proveedor = this.formProducto.get('proveedor')?.value ?? '';
-    const proveedores = this.formProducto.get('todos_proveedores')?.value ?? [];
 
-    //console.log(Object.entries(this.formProducto.value));
+    const producto = this.validarCampos()
+    if (producto) {  //si se validó correctamente
 
-    if (!nombre) return ModalError(this.formatearHTML('nombre'));
-    if (!codigo || codigo < 1 || isNaN(codigo) || !Number.isInteger(codigo) || codigo > 999) return ModalError(this.formatearHTML('codigo'));
-    if (disponibles < 0 || isNaN(disponibles) || !Number.isInteger(disponibles)) return ModalError(this.formatearHTML('disponibles'));
-    if (!valorDeVenta && (isNaN(valor_dolar_compra) || (valor_dolar_compra !== 0 && valor_dolar_compra < 1))) return ModalError(this.formatearHTML('todosLosPrecios'));
-    if (precio_compra_dolar && precio_compra_peso) return ModalError(this.formatearHTML('preciosDobles'));
-    if (isNaN(precio_compra_dolar) || precio_compra_dolar < 0) return ModalError(this.formatearHTML('precio_compra_dolar'));
-    if (isNaN(precio_compra_peso) || precio_compra_peso < 0) return ModalError(this.formatearHTML('precio_compra_peso'));
-    if (isNaN(valorDeVenta) || valorDeVenta < 0) return ModalError(this.formatearHTML('valorDeVenta'));
-    if (isNaN(limiteFaltante) || limiteFaltante < 0 || !Number.isInteger(limiteFaltante)) return ModalError(this.formatearHTML('limiteFaltante'));
 
-    if (proveedor) {
-      if (!this.productoEditar()._id) {
-        this.formProducto.get('todos_proveedores')?.setValue([proveedor]);
+      if (!this.productoEditar()._id) { //si es producto nuevo
+        this.productosService.agregarProducto(producto, producto.disponibles.toString(), this.desdeForm, this.formData).subscribe(res => {
+          if (typeof res === 'string') return ToastError(res) //si hay error
+          ToastExito(AGREGAR_EXITO)
+          this.productosService.traerCodigos().subscribe()
+        })
+        this.formProducto.reset(PRODUCTO_VACIO)
+        this.mejorarInputs()
+        this.formProducto.get('codigo')?.setValue('') //cambio el 0 por '' para que el selector me muestre VACIO por default
+        this.valorFaltante.set(false);
+        this.formData = new FormData();
+        console.log(Object.entries(this.formProducto.value));
       } else {
-        const proveedorIgual = proveedores.find(p => p === proveedor);
-        if (!proveedorIgual) {
-          this.formProducto.get('todos_proveedores')?.setValue([...proveedores, proveedor]);
-        }
+        this.productosService.editarProducto(producto, producto.disponibles, this.desdeForm, undefined);
       }
     }
 
-    //if(imagen) {}
-
-    const producto: Producto = this.formProducto.value as Producto;
-    producto.codigo = codigo  // Asegurar que el código sea un número
-    console.log(producto)
-
-    if (this.productoEditar()._id) {
-      this.productosService.editarProducto(producto, disponibles, this.desdeForm, undefined);
-    } else {
-      this.productosService.agregarProducto(producto, disponibles, this.desdeForm, this.formData).subscribe(res => {
-         if (typeof res === 'string') return ToastError(res) //si hay error
-          this.formProducto.reset();
-          this.valorFaltante.set(false);
-          this.formData = new FormData();
-          ToastExito(AGREGAR_EXITO)
-      })
-    }
 
   }
 
@@ -227,5 +201,105 @@ export class FormularioComponent {
         return '<p style="color:#545454">El <b>limite de faltantes</b> es inválido.</p>'
       default: return '<p style="color:#545454">Campo inválido</p>'
     }
+  }
+
+  validarCampos(): any {
+    const nombre = this.formProducto.get('nombre')?.value;
+    const codigo = Number(this.formProducto.get('codigo')?.value);
+    const disponibles = Number(this.formProducto.get('disponibles')?.value) ?? 0;
+    const valorDeVenta = Number(this.formProducto.get('precio_venta')?.value) ?? 0;
+    const valor_dolar_compra = Number(this.formProducto.get('valor_dolar_compra')?.value) ?? 0;
+    const precio_compra_dolar = Number(this.formProducto.get('precio_compra_dolar')?.value) ?? 0;
+    const precio_compra_peso = Number(this.formProducto.get('precio_compra_peso')?.value) ?? 0;
+    const limiteFaltante = Number(this.formProducto.get('limiteFaltante')?.value) ?? 0;
+    const proveedor = this.formProducto.get('proveedor')?.value ?? '';
+    const proveedores = this.formProducto.get('todos_proveedores')?.value ?? [];
+
+    if (!nombre) {
+      ModalError(this.formatearHTML('nombre'));
+      return
+    }
+    if (!codigo || codigo < 1 || isNaN(codigo) || !Number.isInteger(codigo) || codigo > 999) {
+      ModalError(this.formatearHTML('codigo'));
+      return
+    }
+    if (disponibles < 0 || isNaN(disponibles) || !Number.isInteger(disponibles)) {
+      ModalError(this.formatearHTML('disponibles'));
+      return
+    }
+
+    if (!valorDeVenta && (isNaN(valor_dolar_compra) || (valor_dolar_compra !== 0 && valor_dolar_compra < 1))) {
+      ModalError(this.formatearHTML('todosLosPrecios'));
+      return
+    }
+    if (precio_compra_dolar && precio_compra_peso) {
+      ModalError(this.formatearHTML('preciosDobles'));
+      return
+    }
+    if (isNaN(precio_compra_dolar) || precio_compra_dolar < 0) {
+      ModalError(this.formatearHTML('precio_compra_dolar'));
+      return
+    }
+    if (isNaN(precio_compra_peso) || precio_compra_peso < 0) {
+      ModalError(this.formatearHTML('precio_compra_peso'));
+      return
+    }
+    if (isNaN(valorDeVenta) || valorDeVenta < 0) {
+      ModalError(this.formatearHTML('valorDeVenta'));
+      return
+    }
+    if (isNaN(limiteFaltante) || limiteFaltante < 0 || !Number.isInteger(limiteFaltante)) {
+      ModalError(this.formatearHTML('limiteFaltante'));
+      return
+    }
+
+    return this.darFormato({
+      codigo,
+      proveedor,
+      proveedores,
+      disponibles,
+      valor_dolar_compra,
+      precio_compra_dolar,
+      precio_compra_peso,
+      limiteFaltante
+    })
+
+
+  }
+
+
+  darFormato(param: any): any {
+    const { codigo, proveedor, proveedores, disponibles, valor_dolar_compra, precio_compra_dolar, precio_compra_peso, limiteFaltante } = param;
+
+    if (proveedor) {
+      if (!this.productoEditar()._id) { //si es producto nuevo
+        this.formProducto.get('todos_proveedores')?.setValue([proveedor]);
+      } else {
+        const proveedorIgual = proveedores.find((p: string) => p === proveedor);
+        if (!proveedorIgual) {
+          this.formProducto.get('todos_proveedores')?.setValue([...proveedores, proveedor]);
+        }
+      }
+    }
+
+    //if(imagen) {}
+
+    const producto: Producto = this.formProducto.value as Producto;
+    producto.codigo = codigo  // Asegurar que el código sea un número
+    producto.disponibles = disponibles;
+    producto.valor_dolar_compra = valor_dolar_compra;
+    producto.precio_compra_dolar = precio_compra_dolar;
+    producto.limiteFaltante = limiteFaltante
+    producto.precio_compra_peso = precio_compra_peso;
+    return producto
+  }
+
+  mejorarInputs() {
+    this.formProducto.get('codigo')?.setValue('') //cambio el 0 por '' para mejor visualizacion en el html
+    this.formProducto.get('precio_compra_dolar')?.setValue('')
+    this.formProducto.get('precio_compra_peso')?.setValue('')
+    this.formProducto.get('valor_dolar_compra')?.setValue('')
+    this.formProducto.get('disponibles')?.setValue('')
+    this.formProducto.get('limiteFaltante')?.setValue('')
   }
 }
