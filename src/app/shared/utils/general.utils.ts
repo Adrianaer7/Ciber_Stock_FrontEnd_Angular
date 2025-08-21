@@ -6,3 +6,7 @@ export const generarFecha = (fecha: string) => { //tomo la fecha del producto
 }
 
 export const hoy = new Date(Date.now()).toISOString().slice(0, 10);
+
+export const formatImport = (pesos: number): string => {
+    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(pesos)
+}

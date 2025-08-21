@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, map, Observable, of, tap } from 'rxjs';
-import { Producto } from '../interfaces/productos.interface';
+import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { Producto, ResponseImagen } from '../interfaces/productos.interface';
 import { environment } from '../../../environments/environment.development';
 import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 import { ComprasService } from 'app/compras/services/compras.service';
@@ -18,24 +18,42 @@ export class ProductosService {
   productos = signal<Producto[]>([])
   codigos = signal<number[]>([]);
 
-  agregarProducto(producto: Producto, cantidad: number, desdeForm: boolean = true, formData?: FormData): Observable<Producto | string> {
-    return this.http.post<{ producto: Producto }>(`${environment.backendURL}/productos`, producto )
-      .pipe(
-        tap(res => this.productos.update(productos => [...productos, res.producto])),
-        /* tap(() => {
-          if (formData) this.subirImagen(formData)
-        }),
-          */
-        tap(() => {
-          if (desdeForm && cantidad > 0) this.comprasService.crearCompra(producto, cantidad, desdeForm).subscribe()
-        }),
-        tap(() => {
-          if (cantidad > 0 && producto.proveedor && producto.garantia) this.garantiasService.crearGarantia(producto.codigo, producto.garantia, producto.proveedor).subscribe()
-        }), 
-        map(res => res.producto),
-        catchError((error: ErrorResponse) => of(error.error.msg))
+  agregarProducto(
+  producto: Producto,
+  cantidad: number,
+  desdeForm: boolean = true,
+  formData?: FormData
+): Observable<Producto | string> {
+  const subirImagen = formData
+    ? this.subirImagen(formData).pipe(
+        tap((fileName) => producto.imagen = fileName)
       )
-  }
+    : of(''); // null en vez de '' para mantener tipo compatible
+
+  return subirImagen.pipe(
+    switchMap(() => this.http.post<{ producto: Producto }>(`${environment.backendURL}/productos`, producto)),
+    switchMap(res => {
+      const nuevoProducto = res.producto;
+      this.productos.update(productos => [...productos, nuevoProducto]);
+
+      const acciones: Observable<any>[] = [];
+
+      if (desdeForm && cantidad > 0) {
+        acciones.push(this.comprasService.crearCompra(nuevoProducto, cantidad, desdeForm));
+      }
+
+      if (cantidad > 0 && nuevoProducto.proveedor && nuevoProducto.garantia) {
+        acciones.push(this.garantiasService.crearGarantia(nuevoProducto.codigo, nuevoProducto.garantia, nuevoProducto.proveedor));
+      }
+
+      return acciones.length
+        ? forkJoin(acciones).pipe(map(() => nuevoProducto))
+        : of(nuevoProducto);
+    }),
+    catchError((error: ErrorResponse) => of(error.error.msg))
+  );
+}
+
 
 
   traerProductos(): Observable<Producto[] | string> {
@@ -51,14 +69,14 @@ export class ProductosService {
     return this.http.put<Producto>(`${environment.backendURL}/productos/${producto._id}`, { producto, desdeForm })
       .pipe(
         tap(res => this.productos.update(productos => productos.map(producto => producto._id == res._id ? res : producto))),
-        tap(() => {
+        /* tap(() => {
           if (formData) this.subirImagen(formData)
+        }), */
+        tap(() => {
+          if (desdeForm && producto.disponibles > 0) this.comprasService.crearCompra(producto, cantidad, desdeForm).subscribe()
         }),
         tap(() => {
-          if (desdeForm && producto.disponibles > 0) this.comprasService.crearCompra(producto, cantidad, desdeForm)
-        }),
-        tap(() => {
-          if (cantidad > 0 && producto.proveedor && producto.garantia && desdeForm) this.garantiasService.crearGarantia(producto.codigo, producto.garantia, producto.proveedor)
+          if (cantidad > 0 && producto.proveedor && producto.garantia && desdeForm) this.garantiasService.crearGarantia(producto.codigo, producto.garantia, producto.proveedor).subscribe()
         }),
         map(res => res),
         catchError((error: ErrorResponse) => of(error.error.msg))
@@ -92,9 +110,9 @@ export class ProductosService {
   }
 
   subirImagen(formData: FormData): Observable<string> {
-    return this.http.post<string>(`${environment.backendURL}/imagenes`, formData)
+    return this.http.post<ResponseImagen>(`${environment.backendURL}/imagenes`, formData)
       .pipe(
-        map(res => res),
+        map((res: ResponseImagen) => res.fileName),
         catchError((error: ErrorResponse) => of(error.error.msg))
       )
   }

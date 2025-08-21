@@ -1,5 +1,6 @@
+import { formatImport } from './../../../shared/utils/general.utils';
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
@@ -7,11 +8,14 @@ import { ComprasService } from 'app/compras/services/compras.service';
 import { ModalError, PRODUCTO_VACIO } from 'app/productos/constants/productos.constants';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { ProductosService } from 'app/productos/services/productos.service';
+import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { RubrosService } from 'app/rubros/services/rubros.service';
 import { hoy } from 'app/shared/utils/general.utils';
+import { environment } from 'environments/environment.development';
 import { forkJoin, merge } from 'rxjs';
 import { SweetAlertResult } from 'sweetalert2';
+
 
 @Component({
   selector: 'formulario',
@@ -19,9 +23,9 @@ import { SweetAlertResult } from 'sweetalert2';
   templateUrl: './formulario.component.html',
 })
 export class FormularioComponent {
-
+  formatImport = formatImport
   fb = inject(FormBuilder);
-  productoEditar = signal<Producto>(PRODUCTO_VACIO)
+  productoEditar = input<Producto>(PRODUCTO_VACIO)
   productosService = inject(ProductosService);
   proveedoresService = inject(ProveedoresService);
   comprasService = inject(ComprasService);
@@ -37,6 +41,11 @@ export class FormularioComponent {
   valorFaltante = signal<boolean>(false);
   desdeForm: boolean = true;
   formData: FormData = new FormData()
+  disponibles: number = 0
+  proveedoresProducto = signal<Proveedor[]>([]);
+  tempImages = signal<string[]>([]); //para mostrar las imagenes que se suben antes de guardar el producto
+  imageFileList: FileList | undefined = undefined; 
+  urlImagen = signal('')
 
   formularioResource = rxResource({
     stream: () => forkJoin({
@@ -44,8 +53,8 @@ export class FormularioComponent {
       proveedores: this.proveedoresService.traerProveedores(),
       compras: this.comprasService.traerCompras(),
       rubros: this.rubrosService.traerRubros(),
-      codigos: this.productosService.traerCodigos()
-    }
+      codigos: this.productosService.traerCodigos(),
+    },
     )
   })
 
@@ -59,39 +68,51 @@ export class FormularioComponent {
     }
   })
 
+  productoEditarEffect = effect(() => {
+    this.formProducto.patchValue(this.productoEditar())
+    const todosProveedores = this.productoEditar().todos_proveedores ?? [];
+    const proveedoresFiltrados = this.proveedores().filter(
+      proveedor => proveedor._id && todosProveedores.includes(proveedor._id)
+    );
+    this.proveedoresProducto.set(proveedoresFiltrados)
+    if(this.productoEditar().imagen) {
+      this.urlImagen.set(`${environment.backendURL}/static/productos/${this.productoEditar().imagen}`);
+    }
+  })
+
   formProducto = this.fb.group({
-    _id: [this.productoEditar()._id || ''],
-    nombre: [this.productoEditar().nombre || ''],
-    marca: [this.productoEditar().marca || ''],
-    modelo: [this.productoEditar().modelo || ''],
-    codigo: [this.productoEditar().codigo || ''],
-    barras: [this.productoEditar().barras || ''],
-    rubro: [this.productoEditar().rubro || ''],
-    rubroValor: [this.productoEditar().rubroValor || 0],
-    precio_venta: [this.productoEditar().precio_venta || 0],
-    precio_venta_conocidos: [this.productoEditar().precio_venta_conocidos || 0],
-    precio_venta_efectivo: [this.productoEditar().precio_venta_efectivo || 0],
-    precio_venta_tarjeta: [this.productoEditar().precio_venta_tarjeta || 0],
-    precio_venta_ahoraDoce: [this.productoEditar().precio_venta_ahoraDoce || 0],
-    precio_venta_cuotas: [this.productoEditar().precio_venta_cuotas || 0],
-    precio_compra_dolar: [this.productoEditar().precio_compra_dolar || ''],
-    precio_compra_peso: [this.productoEditar().precio_compra_peso || ''],
-    valor_dolar_compra: [this.productoEditar().valor_dolar_compra ||''],
-    proveedor: [this.productoEditar().proveedor || ''],
-    todos_proveedores: [this.productoEditar().todos_proveedores || []],
-    factura: [this.productoEditar().factura || ''],
-    garantia: [this.productoEditar().garantia || ''],
-    fecha_compra: [this.productoEditar().fecha_compra || hoy],
-    disponibles: [this.productoEditar().disponibles || ''],
-    imagen: [this.productoEditar().imagen || ''],
-    notas: [this.productoEditar().notas || ''],
-    faltante: [this.productoEditar()?.faltante || false],
-    limiteFaltante: [this.productoEditar().limiteFaltante || ''],
-    añadirFaltante: [this.productoEditar()?.añadirFaltante || false],
-    visibilidad: [this.productoEditar()?.visibilidad ?? true],
-    creado: [this.productoEditar().creado || new Date()],
-    creador: [this.productoEditar().creador || ''],
-    descripcion: [this.productoEditar().descripcion || ''],
+    _id: [''],
+    nombre: [''],
+    marca: [''],
+    modelo: [''],
+    codigo: [0],
+    barras: [''],
+    rubro: [''],
+    rubroValor: [0],
+    precio_venta: [0],
+    precio_venta_conocidos: [0],
+    precio_venta_efectivo: [0],
+    precio_venta_tarjeta: [0],
+    precio_venta_ahoraDoce: [0],
+    precio_venta_cuotas: [0],
+    precio_compra_dolar: [0],
+    precio_compra_peso: [0],
+    valor_dolar_compra: [0],
+    proveedor: [''],
+    todos_proveedores: [['']],
+    factura: [''],
+    garantia: [''],
+    fecha_compra: [hoy],
+    disponibles: [0],
+    imagen: [''],
+    notas: [''],
+    faltante: [false],
+    limiteFaltante: [0],
+    añadirFaltante: [false],
+    visibilidad: [true],
+    creado: [''],
+    creador: [''],
+    descripcion: [''],
   })
 
 
@@ -146,10 +167,31 @@ export class FormularioComponent {
     if (precioPeso > 0 && rentabilidad > 0 && valorDolar > 0 && precioDolar === 0) {
       precioVenta = (precioPeso * (100 + rentabilidad)) / 100;
     }
-
     this.formProducto.get('precio_venta')?.setValue(Number(precioVenta.toFixed(2)));
   }
 
+
+
+  eliminarProveedor(id: string) {
+    //actualizo la señal
+    this.proveedoresProducto.update(proveedores => proveedores.filter(proveedor => proveedor._id !== id));
+    //elimino de los proveedores del formulario
+    const proveedoresForm = this.formProducto.get('todos_proveedores')?.value ?? [];
+    const noEliminados = proveedoresForm.filter(proveedorId => proveedorId !== id);
+    this.formProducto.get('todos_proveedores')?.setValue(noEliminados);
+    this.formProducto.get('proveedor')?.setValue(noEliminados[noEliminados.length - 1]);
+  }
+
+
+  nuevaImagen(event: Event) {
+    const fileList = (event.target as HTMLInputElement).files;  //obtiene los archivos seleccionados desde el input de tipo file
+    this.imageFileList = fileList ?? undefined; //de momento permito subir solo una imagen pero lo dejo preparado para varias
+
+    const imageUrls = Array.from(fileList ?? []).map((file) =>  //el array.from convierte el FileList a un arreglo de JS
+      URL.createObjectURL(file)  //crea una URL temporal para cada archivo seleccionado
+    );
+    this.tempImages.set(imageUrls);  //actualiza las imagenes temporales con las URLs creadas
+  }
 
 
   onSubmit(): void | Promise<SweetAlertResult<any>> {
@@ -157,21 +199,31 @@ export class FormularioComponent {
     const producto = this.validarCampos()
     if (producto) {  //si se validó correctamente
 
-
-      if (!this.productoEditar()._id) { //si es producto nuevo
-        this.productosService.agregarProducto(producto, producto.disponibles.toString(), this.desdeForm, this.formData).subscribe(res => {
+      //si es producto nuevo
+      if (!this.productoEditar()._id) { 
+        this.productosService.agregarProducto(producto, producto.disponibles, this.desdeForm, this.formData).subscribe(res => {
           if (typeof res === 'string') return ToastError(res) //si hay error
           ToastExito(AGREGAR_EXITO)
           this.productosService.traerCodigos().subscribe()
         })
         this.formProducto.reset(PRODUCTO_VACIO)
-        this.mejorarInputs()
-        this.formProducto.get('codigo')?.setValue('') //cambio el 0 por '' para que el selector me muestre VACIO por default
         this.valorFaltante.set(false);
-        this.formData = new FormData();
+        this.imageFileList = undefined
+        this.tempImages.set([])
         console.log(Object.entries(this.formProducto.value));
       } else {
-        this.productosService.editarProducto(producto, producto.disponibles, this.desdeForm, undefined);
+        if (this.productoEditar().disponibles !== producto.disponibles) {
+          this.disponibles = producto.disponibles
+        }
+        console.log(Object.entries(this.formProducto.value));
+        /* this.productosService.editarProducto(producto, this.disponibles, this.desdeForm, this.formData).subscribe(res => {
+          if (typeof res === 'string') return ToastError(res) //si hay error
+          ToastExito(AGREGAR_EXITO)
+          this.productosService.traerCodigos().subscribe()
+          this.formData = new FormData();
+          console.log(Object.entries(this.formProducto.value));
+
+        }) */
       }
     }
 
@@ -268,9 +320,8 @@ export class FormularioComponent {
   }
 
 
-  darFormato(param: any): any {
+  darFormato(param: any): Producto {
     const { codigo, proveedor, proveedores, disponibles, valor_dolar_compra, precio_compra_dolar, precio_compra_peso, limiteFaltante } = param;
-
     if (proveedor) {
       if (!this.productoEditar()._id) { //si es producto nuevo
         this.formProducto.get('todos_proveedores')?.setValue([proveedor]);
@@ -282,24 +333,25 @@ export class FormularioComponent {
       }
     }
 
-    //if(imagen) {}
+    if(this.imageFileList && this.imageFileList.length > 0) {
+      this.formData.append('archivo', this.imageFileList?.[0])
+    }
 
     const producto: Producto = this.formProducto.value as Producto;
     producto.codigo = codigo  // Asegurar que el código sea un número
-    producto.disponibles = disponibles;
     producto.valor_dolar_compra = valor_dolar_compra;
     producto.precio_compra_dolar = precio_compra_dolar;
     producto.limiteFaltante = limiteFaltante
     producto.precio_compra_peso = precio_compra_peso;
+    if(this.productoEditar()._id) {
+      producto.disponibles = Number(this.productoEditar().disponibles + disponibles)
+    } else {
+      producto.disponibles = Number(disponibles)
+    }
+
+    
     return producto
   }
 
-  mejorarInputs() {
-    this.formProducto.get('codigo')?.setValue('') //cambio el 0 por '' para mejor visualizacion en el html
-    this.formProducto.get('precio_compra_dolar')?.setValue('')
-    this.formProducto.get('precio_compra_peso')?.setValue('')
-    this.formProducto.get('valor_dolar_compra')?.setValue('')
-    this.formProducto.get('disponibles')?.setValue('')
-    this.formProducto.get('limiteFaltante')?.setValue('')
-  }
+
 }

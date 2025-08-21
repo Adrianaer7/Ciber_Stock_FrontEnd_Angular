@@ -15,6 +15,7 @@ import { DolaresService } from 'app/productos/services/dolares.service';
 import { hoy } from '../../../../shared/utils/general.utils';
 import { ToastFaltanteExito } from 'app/faltantes/constants/faltantes.constants';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
+import { environment } from 'environments/environment.development';
 
 @Component({
   selector: 'producto',
@@ -35,6 +36,7 @@ export class ProductoComponent {
   resta = signal(0)
   cantidad = 0
   desdeForm = false
+  urlImagen = ''
 
   proveedores = this.proveedoresService.proveedores
   garantias = this.garantiasService.garantias
@@ -46,11 +48,15 @@ export class ProductoComponent {
   todasGarantias = computed(() => {
     const garantias = this.garantias();
     const proveedores = this.proveedores();
-    const productos = this.producto();
+    const producto = this.producto();
 
-    if (!garantias || !proveedores || !productos) return [];
+    if(this.producto().imagen) {
+      this.urlImagen = `${environment.backendURL}/static/productos/${this.producto().imagen}`
+    }
 
-    const garantiaProducto = garantias.find(garantia => garantia.idProducto === productos._id); //garantia que coincide con el id de este producto
+    if (!garantias || !proveedores || !producto) return [];
+
+    const garantiaProducto = garantias.find(garantia => garantia.idProducto === producto._id); //garantia que coincide con el id de este producto
     if (!garantiaProducto) return [];
 
     return garantiaProducto.detalles.flatMap(detalle => //recorro el array de detalles
@@ -94,13 +100,6 @@ export class ProductoComponent {
     Copiado('¡copiado!')
 
   };
-
-
-
-  copiarPrecioTarjeta() { }
-  copiarPrecioEfectivo() { }
-  copiarPrecioConocidos() { }
-  copiarAhoraDoce() { }
 
 
   async venderElProducto() {
@@ -168,8 +167,4 @@ export class ProductoComponent {
       creador: ""
     }
   }
-
-
-
-  mostrarElModal() { }
 }

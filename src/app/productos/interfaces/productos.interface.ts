@@ -58,3 +58,8 @@ export interface DetalleGarantia {
 }
 
 export type Tipos = 'tarjeta' | 'efectivo' | 'conocidos' | 'ahoraDoce'
+
+export interface ResponseImagen {
+    secureUrl: string;
+    fileName:  string;
+}

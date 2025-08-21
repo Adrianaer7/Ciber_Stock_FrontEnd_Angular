@@ -136,7 +136,7 @@
                     <input 
                         type="tel" 
                         formControlName="precio_venta" 
-                        readonly [value]="'$ ' + formProducto.get('precio_venta')?.value"
+                        readonly [value]="formatImport(formProducto.get('precio_venta')!.value || 0)"
                         class="mt-2 block w-full p-3 font-black rounded-md bg-gray-50 text-red-600 hover:cursor-pointer focus:ring focus:ring-blue-300 placeholder-gray-500"
                     />
                 </div>
@@ -206,6 +206,23 @@
                             <option [value]="proveedor._id">{{ proveedor.empresa }} ({{ proveedor.nombre }})</option>
                         }
                         </select>
+                        <div>
+                            <ul>
+                                @for (proveedor of proveedoresProducto(); track $index) {
+                                    <div class="flex">
+                                        <li class="uppercase  mt-2 ml-1 block px-2 rounded-md  bg-gray-50  focus:outline-none   focus:ring-blue-300">
+                                            {{proveedor.empresa}} ({{proveedor.nombre}})
+                                        </li>
+                                        <div
+                                            class="uppercase text-center mt-2 ml-1 block px-2 text-gray-600  rounded-full bg-gray-50 hover:bg-gray-200 focus:outline-none  focus:ring-1 focus:ring-blue-300 cursor-pointer"
+                                            (click)="eliminarProveedor(proveedor._id!)"
+                                        >
+                                            X
+                                        </div>
+                                    </div>
+                                    }
+                            </ul>
+                        </div>
                     </div>
                     <div class="col-span-4">
                         <select 
@@ -240,31 +257,40 @@
 
 
         <!-- Subir imagen --> 
-         <!-- <div class="mb-4"> 
-            <label class="inline-block w-1/4 rounded-md bg-red-200 text-center font-semibold p-3">Subir imagen</label> 
-            <input 
-                type="file" 
-                class="hidden" 
-                accept="image/*" 
-                (change)="onImagenChange($event.target.files[0])" 
-            /> 
-            @if(imagenSeleccionada()) { 
-                <p class="mt-2 text-sm text-gray-800">Imagen: {{ imagenSeleccionada()?.name }}</p> 
-                <img 
-                    [src]="previewUrl()" 
-                    alt="preview" 
-                    width="200" 
-                    height="200" 
-                    class="mt-2 object-contain" 
+          <div class="mb-4"> 
+            <div class="mt-4">
+                <label for="imagen" class="inline-block w-1/4 rounded-md bg-red-200 text-center font-semibold p-3 cursor-pointer">Subir imagen</label> 
+                <input 
+                    type="file" 
+                    id="imagen"
+                    class="hidden" 
+                    accept="image/jpeg, image/png, image/jpg, image/webp, image/avif"
+                    (change)="nuevaImagen($event)"
                 /> 
-                <button 
-                    type="button" 
-                    class="p-3 mt-4 w-1/4 rounded-md bg-red-200 text-center font-semibold" 
-                    (click)="eliminarImagen()" 
-                > Eliminar imagen 
-                </button> 
-            } 
-        </div> -->
+            </div>
+            <div
+                class="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2"
+            >
+            @if (tempImages().length > 0) {
+                @for (image of tempImages(); track image) {
+                    <img 
+                        [src]="image" 
+                        alt="Imagen temporal" 
+                        class="w-full object-cover rounded-md"
+                    />
+                }
+            } @else {
+                @if (productoEditar().imagen) {
+                    <img 
+                        [src]="urlImagen()"
+                        alt="Imagen producto" 
+                        class="w-full object-cover rounded-md"
+                    />
+                }
+            }
+            </div>
+            
+        </div> 
 
         <!-- Notas --> 
         <div class="mb-4"> 

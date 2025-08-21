@@ -1,17 +1,18 @@
 <tr class="  hover:bg-gray-50 hover:cursor-pointer active:bg-gray-100 align-middle">
     <td class="p-3  text-center font-semibold break-words" >{{producto().codigo}}</td>
-    <td class=" text-center">IMAGEN
-        <!-- @if (producto().imagen) {
+    <td class=" text-center">
+         @if (producto().imagen) {
             <img
-                [src]="'src/imagenes/' + producto().imagen "
+                [src]="urlImagen"
                 width="100"
                 height="100"
                 quality="50"
                 alt="img"
                 style="object-fit: contain; width: auto; height: auto"
-                (click)="mostrarElModal()"
+                
             />
-        } -->
+        } 
+    
     </td>
     <td class=" p-3 text-center break-words">{{producto().nombre}}</td>
     <td class="p-3  text-center break-words">{{producto().marca || '-'}}</td>
