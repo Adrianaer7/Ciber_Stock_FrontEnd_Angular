@@ -77,3 +77,12 @@ export function ModalError(html: string) {
         background: "white",
     })
 }
+
+export function ModalInfo() {
+    return Swal.fire({
+        icon: 'info',
+        html: '<p style="color:#545454">No hay cambios en el formulario.</p>',
+        background: "white",
+        timer: 5000
+    })
+}

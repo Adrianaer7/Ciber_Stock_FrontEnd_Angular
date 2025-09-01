@@ -5,6 +5,7 @@ import { environment } from 'environments/environment.development';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { Compra } from '../interfaces/compras.interfaces';
 import { Producto } from 'app/productos/interfaces/productos.interface';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
     providedIn: 'root'
@@ -19,7 +20,7 @@ export class ComprasService {
         return this.http.post<{ compra: Compra }>(`${environment.backendURL}/compras`, {producto, cantidad, desdeForm})
             .pipe(
                 map(res => res.compra),
-                catchError((error: ErrorResponse) => of(error.error.msg))
+                manejarHttpError()
             );
     }
 

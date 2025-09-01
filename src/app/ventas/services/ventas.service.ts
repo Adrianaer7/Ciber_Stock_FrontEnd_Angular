@@ -4,6 +4,7 @@ import { Venta } from '../interfaces/ventas.interface';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from 'environments/environment.development';
 import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,7 @@ export class VentasService {
       .pipe(
         tap(res => this.ventas.update(ventas => [...ventas, res.venta])),
         map(res => res.venta),
-        catchError((error: ErrorResponse) => of(error.error.msg))
+        manejarHttpError()
       );
   }
 

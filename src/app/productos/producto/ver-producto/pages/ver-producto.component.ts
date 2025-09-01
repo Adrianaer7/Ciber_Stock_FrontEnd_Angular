@@ -11,6 +11,7 @@ import { ProveedoresService } from 'app/proveedores/services/proveedores.service
 import { forkJoin } from 'rxjs';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
 import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
+import { environment } from 'environments/environment.development';
 
 @Component({
   selector: 'ver-producto',
@@ -25,13 +26,13 @@ export class VerProductoComponent {
   garantiasService = inject(GarantiasService);
   proveedoresService = inject(ProveedoresService);
   producto = signal<Producto>(PRODUCTO_VACIO)
-
   url = this.activatedRoute.snapshot.params['id'];
 
   proveedores = this.proveedoresService.proveedores
   garantias = this.garantiasService.garantias
 
 
+  urlImagen = computed(() => `${environment.backendURL}/static/productos/${this.producto().imagen}`)
   proveedoresIguales = computed(() => this.proveedores().filter(proveedor => this.producto().todos_proveedores.includes(proveedor._id!)))
 
   productoResource = rxResource({

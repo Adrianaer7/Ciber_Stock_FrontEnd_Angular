@@ -51,11 +51,12 @@
             <div class="mb-4 flex gap-1">
                 <div class="w-1/5">
                     <label class="text-gray-800  font-bold">Código *</label>
-                    <select 
-                        formControlName="codigo"
+                    <select
+                        #codigoSelect
+                        (change)="cambioDeCodigo(codigoSelect.value)"
                         class="uppercase text-center w-full mt-2 block p-3 rounded-md bg-gray-50 focus:ring focus:ring-blue-300 placeholder-gray-500"
                     >
-                        <option value="">Vacío</option>
+                        <option [value]="codigo()">{{selectorCodigo()}}</option>
                         @for (code of codigos(); track code) {
                             <option [value]="code">{{ code }}</option>
                         }
@@ -180,21 +181,29 @@
             <div>
                 <div class="grid grid-cols-9">
                     <label htmlFor="cantidad" class="text-gray-800 font-bold grid-cols-4 ">Cant.</label>
-                    <label htmlFor="selectp" class="text-gray-800 font-bold  col-span-4 col-start-2 col-end-4">Proveedores</label>
-                    <label htmlFor="rubro" class="text-gray-800 font-bold  col-span-4 col-start-6 col-end-9">Rubro</label>
+                    <label htmlFor="cantidad" class="text-gray-800 font-bold grid-cols-4 ">Stock</label>
+                    <label htmlFor="selectp" class="text-gray-800 font-bold  col-span-3 col-start-3 col-end-4">Proveedores</label>
+                    <label htmlFor="rubro" class="text-gray-800 font-bold  col-span-3 col-start-7 col-end-9">Rubro</label>
                 </div>
-                <div class="grid grid-cols-9 gap-1">
-                    <div class="col-span-1">
+                <div class="grid grid-cols-9 gap-1 items-start"> <!--items-start alinea el contenido de cada celda al inicio (top) en lugar de estirarlo para igualar la altura de la celda más alta -->
+                    <div class="col-span-2 flex gap-2">
                         <input 
+                            #cantidad
                             type="tel" 
-                            formControlName="disponibles" 
-                            placeholder="10"
+                            autocomplete="off"
+                            placeholder="0"
                             id="cantidad"
                             name="cantidad"
                             class="text-center mt-2 block w-full p-3 rounded-md bg-gray-50 focus:outline-none  focus:ring-1 focus:ring-blue-300"
+                            (change)="disponibles.set(cantidad.value)"
+                            [value]="disponibles()"
                         />
+                        <div class="text-center mt-2 block w-full p-3 rounded-md bg-gray-50 focus:outline-none  focus:ring-1 focus:ring-blue-300 cursor-pointer">
+                            {{formProducto.get('disponibles')?.value || 0}}
+                        </div>
+                        
                     </div>
-                    <div class="col-span-4">
+                    <div class="col-span-3">
                         <select 
                             formControlName="proveedor" 
                             class="uppercase text-center mt-2 w-full block col-span-4 p-3 rounded-md bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300"
@@ -264,7 +273,6 @@
                     type="file" 
                     id="imagen"
                     class="hidden" 
-                    accept="image/jpeg, image/png, image/jpg, image/webp, image/avif"
                     (change)="nuevaImagen($event)"
                 /> 
             </div>

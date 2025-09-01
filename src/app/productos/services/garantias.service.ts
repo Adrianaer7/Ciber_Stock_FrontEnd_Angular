@@ -4,6 +4,7 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { Garantia } from '../interfaces/productos.interface';
 import { environment } from 'environments/environment.development';
 import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
     providedIn: 'root'
@@ -16,7 +17,7 @@ export class GarantiasService {
         return this.http.post<Garantia>(`${environment.backendURL}/garantias`, {codigo, garantia, proveedor})
             .pipe(
                 map(res => res),
-                catchError((error: ErrorResponse) => of(error.error.msg))
+                manejarHttpError()
             );
     }
 

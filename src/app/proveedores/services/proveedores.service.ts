@@ -5,6 +5,7 @@ import { Proveedor } from '../interfaces/proveedores.interface';
 import { environment } from '../../../environments/environment.development';
 import { ErrorResponse } from '../../shared/interfaces/error-response.interface';
 import { PROVEEDOR_VACIO } from '../constants/proveedor.constants';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,7 @@ export class ProveedoresService {
       .pipe(
         tap(res => this.proveedores.update(proveedores => [...proveedores, res.proveedor])),
         map(res => res.proveedor),
-        catchError((error: ErrorResponse) => of(error.error.msg))
+        manejarHttpError()
       );
   }
 

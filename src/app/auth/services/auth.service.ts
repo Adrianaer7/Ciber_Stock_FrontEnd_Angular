@@ -4,6 +4,7 @@ import { ErrorResponse } from '../../shared/interfaces/error-response.interface'
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
   providedIn: 'root'
@@ -80,7 +81,7 @@ export class AuthService {
     return this.http.post<RegistroUsuarioResponse>(`${environment.backendURL}/usuarios`, { nombre, email, password })
       .pipe(
         map(resp => resp.msg),
-        catchError((error: ErrorResponse) => of(error.error.msg))
+        manejarHttpError()
       );
   }
 
@@ -88,7 +89,7 @@ export class AuthService {
     return this.http.post<{ msg: string }>(`${environment.backendURL}/usuarios/olvide-password`, { email })
       .pipe(
         map(resp => resp.msg),
-        catchError((error: ErrorResponse) => of(error.error.msg))
+        manejarHttpError()
       );
   }
 
@@ -104,14 +105,14 @@ export class AuthService {
     return this.http.post<{ msg: string }>(`${environment.backendURL}/usuarios/olvide-password/${token}`, { contraseña })
       .pipe(
         map(resp => resp.msg),
-        catchError((error: ErrorResponse) => of(error.error.msg))
+        manejarHttpError()
       );
   }
   confirmarCuenta(token: string): Observable<string> {
     return this.http.get<{ msg: string }>(`${environment.backendURL}/usuarios/confirmar/${token}`)
       .pipe(
         map(resp => resp.msg),
-        catchError((error: ErrorResponse) => of(error.error.msg))
+        manejarHttpError()
       );
   }
 

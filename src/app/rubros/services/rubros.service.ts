@@ -5,6 +5,7 @@ import { RUBRO_VACIO } from '../constants/rubros.constants';
 import { environment } from 'environments/environment.development';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
     providedIn: 'root'
@@ -22,7 +23,7 @@ export class RubrosService {
             .pipe(
                 tap(res => this.rubros.update(rubros => [...rubros, res.rubro])),
                 map(res => res.rubro),
-                catchError((error: ErrorResponse) => of(error.error.msg))
+                manejarHttpError()
             );
     }
 

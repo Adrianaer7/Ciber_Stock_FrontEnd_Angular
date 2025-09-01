@@ -3,6 +3,16 @@
     <div class=" overflow-x-auto shadow-md sm:rounded-lg">
         <table class=" sm:table-fixed w-screen sm:w-full text-sm lg:text-lg  text-gray-500 ">
             <tbody>
+                <tr class="odd:bg-white even:bg-gray-50 grid  grid-cols-1 lg:grid-cols-2 ">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left align-middle">IMAGEN</th>
+                    @if (producto().imagen) {
+                        <img 
+                            [src]="urlImagen()"
+                            alt="Imagen producto" 
+                            class="w-1/2 object-cover rounded-md"
+                        />
+                    }
+                </tr>
                 <tr class="odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2 ">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left">NOMBRE</th>
                     <td class="px-6 py-4 text-left break-words">{{producto().nombre}}</td>

@@ -5,7 +5,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { ComprasService } from 'app/compras/services/compras.service';
-import { ModalError, PRODUCTO_VACIO } from 'app/productos/constants/productos.constants';
+import { ModalError, ModalInfo, PRODUCTO_VACIO } from 'app/productos/constants/productos.constants';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
@@ -13,9 +13,8 @@ import { ProveedoresService } from 'app/proveedores/services/proveedores.service
 import { RubrosService } from 'app/rubros/services/rubros.service';
 import { hoy } from 'app/shared/utils/general.utils';
 import { environment } from 'environments/environment.development';
-import { forkJoin, merge } from 'rxjs';
+import { firstValueFrom, forkJoin, merge } from 'rxjs';
 import { SweetAlertResult } from 'sweetalert2';
-
 
 @Component({
   selector: 'formulario',
@@ -25,12 +24,11 @@ import { SweetAlertResult } from 'sweetalert2';
 export class FormularioComponent {
   formatImport = formatImport
   fb = inject(FormBuilder);
-  productoEditar = input<Producto>(PRODUCTO_VACIO)
+  productoEditar = input<Producto>(PRODUCTO_VACIO);
   productosService = inject(ProductosService);
   proveedoresService = inject(ProveedoresService);
   comprasService = inject(ComprasService);
   rubrosService = inject(RubrosService);
-
 
   productos = this.productosService.productos;
   proveedores = this.proveedoresService.proveedores;
@@ -40,12 +38,16 @@ export class FormularioComponent {
 
   valorFaltante = signal<boolean>(false);
   desdeForm: boolean = true;
-  formData: FormData = new FormData()
-  disponibles: number = 0
+  formData = new FormData()
+  disponibles = signal<string>('');
   proveedoresProducto = signal<Proveedor[]>([]);
   tempImages = signal<string[]>([]); //para mostrar las imagenes que se suben antes de guardar el producto
-  imageFileList: FileList | undefined = undefined; 
+  imageFileList: FileList | undefined = undefined;
   urlImagen = signal('')
+  codigo = signal<string>('')
+  selectorCodigo = signal<string>('VACÍO'); //para el selector de codigo
+
+
 
   formularioResource = rxResource({
     stream: () => forkJoin({
@@ -70,12 +72,16 @@ export class FormularioComponent {
 
   productoEditarEffect = effect(() => {
     this.formProducto.patchValue(this.productoEditar())
+    if (this.productoEditar()._id) {
+      this.codigo.set(this.productoEditar().codigo.toString()); //utilizo codigo() en el value del selector
+      this.selectorCodigo.set(this.codigo())  //utilizo selectorCodigo() para mostrar el código seleccionado o 'VACIO'
+    }
     const todosProveedores = this.productoEditar().todos_proveedores ?? [];
     const proveedoresFiltrados = this.proveedores().filter(
       proveedor => proveedor._id && todosProveedores.includes(proveedor._id)
     );
     this.proveedoresProducto.set(proveedoresFiltrados)
-    if(this.productoEditar().imagen) {
+    if (this.productoEditar().imagen) {
       this.urlImagen.set(`${environment.backendURL}/static/productos/${this.productoEditar().imagen}`);
     }
   })
@@ -149,6 +155,13 @@ export class FormularioComponent {
     });
   })
 
+
+  cambioDeCodigo(value: string) {
+    this.formProducto.get('codigo')?.setValue(Number(value));
+    this.selectorCodigo.set(value);
+  }
+
+
   actualizarPrecioVenta(): void {
     const valorDolar = Number(this.formProducto.get('valor_dolar_compra')?.value) || 0;
     const precioDolar = Number(this.formProducto.get('precio_compra_dolar')?.value) || 0;
@@ -194,40 +207,65 @@ export class FormularioComponent {
   }
 
 
-  onSubmit(): void | Promise<SweetAlertResult<any>> {
-
+  async onSubmit(): Promise<void | SweetAlertResult<any>> {
+    console.log(Object.entries(this.formProducto.value));
     const producto = this.validarCampos()
     if (producto) {  //si se validó correctamente
-
       //si es producto nuevo
-      if (!this.productoEditar()._id) { 
-        this.productosService.agregarProducto(producto, producto.disponibles, this.desdeForm, this.formData).subscribe(res => {
-          if (typeof res === 'string') return ToastError(res) //si hay error
+      if (!this.productoEditar()._id) {
+        try {
+          //agregar producto
+          await this.agregarProducto(producto)
           ToastExito(AGREGAR_EXITO)
-          this.productosService.traerCodigos().subscribe()
-        })
-        this.formProducto.reset(PRODUCTO_VACIO)
-        this.valorFaltante.set(false);
-        this.imageFileList = undefined
-        this.tempImages.set([])
-        console.log(Object.entries(this.formProducto.value));
-      } else {
-        if (this.productoEditar().disponibles !== producto.disponibles) {
-          this.disponibles = producto.disponibles
+          //traer codigos
+          await this.traerCodigos()
+          //limpiar formulario
+          this.formProducto.reset(PRODUCTO_VACIO)
+          this.valorFaltante.set(false);
+          this.imageFileList = undefined
+          this.tempImages.set([])
+          this.codigo.set('')
+          this.selectorCodigo.set('VACÍO')
+          this.disponibles.set('')
+        } catch (error) {
+          ToastError(error as string)
         }
-        console.log(Object.entries(this.formProducto.value));
-        /* this.productosService.editarProducto(producto, this.disponibles, this.desdeForm, this.formData).subscribe(res => {
-          if (typeof res === 'string') return ToastError(res) //si hay error
+      } else {
+        try {
+          //comparo con version anterior
+          const prodString = JSON.stringify(producto);
+          const prodEditarString = JSON.stringify(this.productoEditar());
+          if ((prodString == prodEditarString) && !this.imageFileList?.length && !this.disponibles()) {
+            ModalInfo()
+            return
+          }; //si no hubo cambios, no hago nada
+          //editar producto
+          const productoEditado = await this.editarProducto(producto)
           ToastExito(AGREGAR_EXITO)
-          this.productosService.traerCodigos().subscribe()
+          //traer codigos
+          await this.traerCodigos()
+          //actualizar formulario con el producto editado
+          this.formProducto.patchValue(productoEditado)
+          //actualizo la lista de proveedores del producto
+          const proveedoresFiltrados = this.proveedores().filter(
+            proveedor => proveedor._id && productoEditado.todos_proveedores.includes(proveedor._id)
+          );
+          this.proveedoresProducto.set(proveedoresFiltrados)
+          //actualizo la vista previa de la imagen por si hubo algun cambio
+          if (productoEditado.imagen) {
+            this.urlImagen.set(`${environment.backendURL}/static/productos/${productoEditado.imagen}`);
+          }
+          //limpiar imagen temporal
           this.formData = new FormData();
-          console.log(Object.entries(this.formProducto.value));
+          this.imageFileList = undefined
+          this.tempImages.set([])
+          this.disponibles.set('')
+        } catch (error) {
+          ToastError(error as string)
+        }
 
-        }) */
       }
     }
-
-
   }
 
 
@@ -258,7 +296,6 @@ export class FormularioComponent {
   validarCampos(): any {
     const nombre = this.formProducto.get('nombre')?.value;
     const codigo = Number(this.formProducto.get('codigo')?.value);
-    const disponibles = Number(this.formProducto.get('disponibles')?.value) ?? 0;
     const valorDeVenta = Number(this.formProducto.get('precio_venta')?.value) ?? 0;
     const valor_dolar_compra = Number(this.formProducto.get('valor_dolar_compra')?.value) ?? 0;
     const precio_compra_dolar = Number(this.formProducto.get('precio_compra_dolar')?.value) ?? 0;
@@ -266,6 +303,7 @@ export class FormularioComponent {
     const limiteFaltante = Number(this.formProducto.get('limiteFaltante')?.value) ?? 0;
     const proveedor = this.formProducto.get('proveedor')?.value ?? '';
     const proveedores = this.formProducto.get('todos_proveedores')?.value ?? [];
+    const disponibles = Number(this.disponibles()) || 0
 
     if (!nombre) {
       ModalError(this.formatearHTML('nombre'));
@@ -333,7 +371,7 @@ export class FormularioComponent {
       }
     }
 
-    if(this.imageFileList && this.imageFileList.length > 0) {
+    if (this.imageFileList && this.imageFileList.length > 0 && !Array.from(this.formData.entries()).length) { //si hay imagen seleccionada y el formData está vacío, agrego
       this.formData.append('archivo', this.imageFileList?.[0])
     }
 
@@ -343,15 +381,23 @@ export class FormularioComponent {
     producto.precio_compra_dolar = precio_compra_dolar;
     producto.limiteFaltante = limiteFaltante
     producto.precio_compra_peso = precio_compra_peso;
-    if(this.productoEditar()._id) {
-      producto.disponibles = Number(this.productoEditar().disponibles + disponibles)
-    } else {
-      producto.disponibles = Number(disponibles)
+    if (disponibles > 0) {
+      producto.disponibles = Number(this.disponibles()) + producto.disponibles
     }
 
-    
     return producto
   }
 
+  async agregarProducto(producto: Producto) {
+    return firstValueFrom(this.productosService.agregarProducto(producto, Number(this.disponibles()), this.desdeForm, this.formData))
+  }
+
+  async editarProducto(producto: Producto) {
+    return firstValueFrom(this.productosService.editarProducto(producto, Number(this.disponibles()), this.desdeForm, this.formData))
+  }
+
+  async traerCodigos() {
+    return firstValueFrom(this.productosService.traerCodigos())
+  }
 
 }

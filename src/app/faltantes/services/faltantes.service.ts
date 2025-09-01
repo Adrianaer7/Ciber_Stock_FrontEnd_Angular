@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 import { environment } from 'environments/environment.development';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 
@@ -21,7 +22,7 @@ export class FaltantesService {
                 tap(res => this.faltantes.update(faltantes => faltantes.filter(faltante => faltante._id !== res.producto._id))),
                 tap(res => this.productosService.productos.update(productos => productos.map(producto => producto._id === res.producto._id ? res.producto : producto))),
                 map(res => res.producto),
-                catchError((error: ErrorResponse) => of(error.error.msg))
+                manejarHttpError()
             );
     }
 
