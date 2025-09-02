@@ -3,6 +3,7 @@ import { Porcentaje } from 'app/porcentajes/interfaces/porcentajes.intercaces';
 import { PorcentajesService } from '../../../services/porcentajes.service';
 import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 import { FormatPercentPipe } from 'app/shared/pipes/formatPercent.pipe';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'porcentaje',
@@ -23,10 +24,11 @@ export class PorcentajeComponent {
     const { isConfirmed } = await Warning();  //muestro la la alerta para que confirme
     if (!isConfirmed) return; //si no confirma 
 
-    this.porcentajeService.eliminarUnPorcentaje(this.porcentaje()._id!).subscribe(res => { //si confirma
-      typeof res === 'string'
-        ? ToastError(res)
-        : ToastExito(ELIMINAR_EXITO);
-    });
+    try {
+      await firstValueFrom(this.porcentajeService.eliminarUnPorcentaje(this.porcentaje()._id!))
+      ToastExito(ELIMINAR_EXITO)
+    } catch (error) {
+      ToastError(error as string)
+    }
   }
  }

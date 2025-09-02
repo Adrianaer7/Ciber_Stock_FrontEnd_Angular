@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { RegistroUsuarioResponse, Usuario } from '../interfaces/auth.interface';
 import { ErrorResponse } from '../../shared/interfaces/error-response.interface';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
@@ -35,7 +35,7 @@ export class AuthService {
       return this.http.get(`${environment.backendURL}/auth`) //mando el token en el interceptor
         .pipe(
           map(() => true),  //en el interceptor -> exitoAlAutenticar()
-          catchError((error: ErrorResponse) => this.errorAlAutenticar(error))
+          catchError((error: HttpErrorResponse) => this.errorAlAutenticar(error))
         );
     }
   }
@@ -55,9 +55,13 @@ export class AuthService {
     return true;
   }
 
-  errorAlAutenticar(error: ErrorResponse): Observable<boolean> {
+  errorAlAutenticar(error: HttpErrorResponse): Observable<boolean> {
     this.logout()
-    this._mensaje.set(error.error.msg);
+    if(error.status == 0) { //si no hay respuesta del servidor
+      this._mensaje.set('No se pudo conectar con el servidor');
+    } else {
+      this._mensaje.set(error.error?.msg);
+    }
     return of(false);
   }
 
@@ -73,7 +77,7 @@ export class AuthService {
     return this.http.post<Usuario>(`${environment.backendURL}/auth`, { email, password })
       .pipe(
         map((usuario) => this.exitoAlAutenticar(usuario)),
-        catchError((error: ErrorResponse) => this.errorAlAutenticar(error))
+        catchError((error: HttpErrorResponse) => this.errorAlAutenticar(error))
       );
   }
 

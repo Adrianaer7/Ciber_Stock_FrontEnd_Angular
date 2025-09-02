@@ -8,7 +8,7 @@ import { Producto } from 'app/productos/interfaces/productos.interface';
 import { GarantiasService } from 'app/productos/services/garantias.service';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
-import { forkJoin } from 'rxjs';
+import { first, firstValueFrom, forkJoin } from 'rxjs';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
 import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
 import { environment } from 'environments/environment.development';
@@ -79,11 +79,13 @@ export class VerProductoComponent {
     const { isConfirmed } = await Warning();  //muestro la la alerta para que confirme
     if (!isConfirmed) return; //si no confirma 
 
-    this.productosService.eliminarProducto(this.producto()._id!).subscribe(res => {
-      typeof res === 'string'
-        ? ToastError(res)
-        : ToastExito(ELIMINAR_EXITO);
-    });
+    try {
+      await firstValueFrom(this.productosService.eliminarProducto(this.producto()._id!))
+      ToastExito(ELIMINAR_EXITO)
+    } catch (error) {
+      ToastError(error as string)
+      return
+    }
 
     this.router.navigate(['/productos']);
   }

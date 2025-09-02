@@ -4,7 +4,7 @@ import { ProductosService } from '../../../services/productos.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Producto } from '../../../interfaces/productos.interface';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../auth/services/auth.service';
 import { ProductoComponent } from "../../components/producto/producto.component";
@@ -127,21 +127,27 @@ export class ListadoProductosComponent {
     this.oculto.set(!this.oculto())
   }
 
-  setDolarAutomatico() {
-    this.dolaresService.editarDolarDB("", true).subscribe(() => {
+  async setDolarAutomatico() {
+    try {
+      await firstValueFrom(this.dolaresService.editarDolarDB("", true))
       this.formDolar.reset()
       this.mostrarFormDolar.set(false);
-    })
+    } catch (error) {
+      ToastError(error as string)
+    }
   }
 
-
-  onSubmitDolar() {
+  //dolar manual
+  async onSubmitDolar() {
     const precio = this.formDolar.value.precio
     if (typeof precio !== 'string' || !precio.trim()) return
-    this.dolaresService.editarDolarDB(precio, false).subscribe(() => {
+    try {
+      await firstValueFrom(this.dolaresService.editarDolarDB(precio, false))
       this.formDolar.reset()
       this.mostrarFormDolar.set(false)
-    })
+    } catch (error) {
+      ToastError(error as string)
+    }
   }
 
   ordenarPor(campo: propiedades) {

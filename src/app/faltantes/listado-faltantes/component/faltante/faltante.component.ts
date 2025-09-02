@@ -4,6 +4,7 @@ import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/gen
 import { FaltantesService } from 'app/faltantes/services/faltantes.service';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'faltante',
@@ -28,11 +29,12 @@ export class FaltanteComponent {
     const { isConfirmed } = await Warning();  //muestro la la alerta para que confirme
     if (!isConfirmed) return; //si no confirma 
 
-    this.faltantesService.editarFaltante(this.faltante()._id!).subscribe(res => { //si confirma
-      typeof res === 'string'
-        ? ToastError(res)
-        : ToastExito(ELIMINAR_EXITO);
-    });
+    try {
+      await firstValueFrom(this.faltantesService.editarFaltante(this.faltante()._id))
+      ToastExito(ELIMINAR_EXITO)
+    } catch (error) {
+      ToastError(error as string)
+    }
   }
 
 }

@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { Proveedor } from '../interfaces/proveedores.interface';
 import { environment } from '../../../environments/environment.development';
-import { ErrorResponse } from '../../shared/interfaces/error-response.interface';
 import { PROVEEDOR_VACIO } from '../constants/proveedor.constants';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
@@ -33,7 +32,7 @@ export class ProveedoresService {
       .pipe(
         tap(res => this.proveedores.set(res.proveedores)),
         map(res => res.proveedores),
-        catchError((error: ErrorResponse) => error.error.msg)
+        manejarHttpError()
       )
   }
 
@@ -44,7 +43,7 @@ export class ProveedoresService {
         tap(res => this.proveedores.update(proveedores => proveedores.map(proveedor => proveedor._id === res.proveedor._id ? res.proveedor : proveedor))),
         tap(() => this.limpiarSeleccionado()),
         map(res => res.proveedor),
-        catchError((error: ErrorResponse) => error.error.msg)
+        manejarHttpError()
       )
 
   }
@@ -55,7 +54,7 @@ export class ProveedoresService {
       .pipe(
         tap(() => this.proveedores.update(proveedores => proveedores.filter(proveedor => proveedor._id !== id))),
         map(() => true),
-        catchError((error: ErrorResponse) => error.error.msg)
+        manejarHttpError()
       );
   }
 

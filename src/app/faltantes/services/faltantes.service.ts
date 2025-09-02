@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { ProductosService } from 'app/productos/services/productos.service';
-import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 import { environment } from 'environments/environment.development';
 import { catchError, map, Observable, of, tap } from 'rxjs';
@@ -32,7 +31,7 @@ export class FaltantesService {
             .pipe(
                 tap(res => this.faltantes.set(res.faltantes)),
                 map(res => res.faltantes),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             )
     }
 }

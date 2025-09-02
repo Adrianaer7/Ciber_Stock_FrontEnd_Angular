@@ -4,6 +4,7 @@ import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/gen
 import { Rubro } from 'app/rubros/interfaces/rubros.intefaces';
 import { RubrosService } from 'app/rubros/services/rubros.service';
 import { FormatPercentPipe } from 'app/shared/pipes/formatPercent.pipe';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'rubro',
@@ -26,10 +27,11 @@ export class RubroComponent {
     const { isConfirmed } = await Warning();  //muestro la la alerta para que confirme
     if (!isConfirmed) return; //si no confirma 
 
-    this.rubrosService.eliminarUnRubro(this.rubro()._id!).subscribe(res => { //si confirma
-      typeof res === 'string'
-        ? ToastError(res)
-        : ToastExito(ELIMINAR_EXITO);
-    });
+    try {
+      await firstValueFrom(this.rubrosService.eliminarUnRubro(this.rubro()._id!))
+      ToastExito(ELIMINAR_EXITO)
+    } catch (error) {
+      ToastError(error as string)
+    }
   }
 }

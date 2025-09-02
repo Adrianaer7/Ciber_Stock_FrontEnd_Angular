@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Porcentaje } from '../interfaces/porcentajes.intercaces';
 import { environment } from 'environments/environment.development';
-import { catchError, map, Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 import { PORCENTAJE_VACIO } from '../constants/porcentajes.contants';
+import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
     providedIn: 'root'
@@ -20,7 +20,7 @@ export class PorcentajesService {
             .pipe(
                 tap(res => this.porcentajes.set(res.porcentajes)),
                 map(res => res.porcentajes),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             )
     }
 
@@ -32,7 +32,7 @@ export class PorcentajesService {
                 tap(res => this.porcentajes.update(porcentajes => porcentajes.map(porcentaje => porcentaje._id === res.porcentaje._id ? res.porcentaje : porcentaje))),
                 tap(() => this.limpiarSeleccionado()),
                 map(res => res.porcentaje),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             )
 
     }
@@ -42,7 +42,7 @@ export class PorcentajesService {
             .pipe(
                 tap(() => this.porcentajes.update(porcentajes => porcentajes.filter(porcentaje => porcentaje._id !== id))),
                 map(() => true),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             );
     }
 

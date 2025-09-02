@@ -7,6 +7,7 @@ import { AlertErrorComision, AlertErrorNombre } from 'app/porcentajes/constants/
 import { Porcentaje } from 'app/porcentajes/interfaces/porcentajes.intercaces';
 import { PorcentajesService } from 'app/porcentajes/services/porcentajes.service';
 import { PorcentajeComponent } from '../../components/porcentaje/porcentaje.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'listado-porcentajes',
@@ -79,12 +80,14 @@ export class ListadoPorcentajesComponent {
       let porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
 
       //llamar al endpoint para editar el porcentaje seleccionado
-      this.porcentajesService.editarPorcentaje(porcentajeEditado).subscribe(res => {
-        if (typeof res === 'string') return ToastError(res) //si hay error
+      try {
+        await firstValueFrom(this.porcentajesService.editarPorcentaje(porcentajeEditado))
         this.formPorcentaje.reset();
         this.mostrarForm.set(false);
         ToastExito(AGREGAR_EXITO)
-      })
+      } catch (error) {
+        ToastError(error as string)
+      }
     }
 
   }

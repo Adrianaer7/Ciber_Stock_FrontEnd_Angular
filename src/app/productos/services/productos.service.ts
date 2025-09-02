@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { Producto, ResponseImagen } from '../interfaces/productos.interface';
 import { environment } from '../../../environments/environment.development';
-import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 import { ComprasService } from 'app/compras/services/compras.service';
 import { GarantiasService } from './garantias.service';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
@@ -87,7 +86,7 @@ export class ProductosService {
   }
 
 
-  
+
   traerProductos(): Observable<Producto[] | string> {
     return this.http.get<{ productos: Producto[] }>(`${environment.backendURL}/productos`)
       .pipe(

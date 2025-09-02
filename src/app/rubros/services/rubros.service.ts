@@ -3,8 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Rubro } from '../interfaces/rubros.intefaces';
 import { RUBRO_VACIO } from '../constants/rubros.constants';
 import { environment } from 'environments/environment.development';
-import { catchError, map, Observable, of, tap } from 'rxjs';
-import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
+import { map, Observable, tap } from 'rxjs';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
@@ -32,7 +31,7 @@ export class RubrosService {
             .pipe(
                 tap(res => this.rubros.set(res.rubros)),
                 map(res => res.rubros),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             )
     }
 
@@ -43,7 +42,7 @@ export class RubrosService {
                 tap(res => this.rubros.update(rubros => rubros.map(rubro => rubro._id === res.rubro._id ? res.rubro : rubro))),
                 tap(() => this.limpiarSeleccionado()),
                 map(res => res.rubro),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             )
 
     }
@@ -54,7 +53,7 @@ export class RubrosService {
             .pipe(
                 tap(() => this.rubros.update(rubros => rubros.filter(rubro => rubro._id !== id))),
                 map(() => true),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             );
     }
 

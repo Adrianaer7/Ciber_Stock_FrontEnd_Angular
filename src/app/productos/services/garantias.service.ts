@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { Garantia } from '../interfaces/productos.interface';
 import { environment } from 'environments/environment.development';
-import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
@@ -25,8 +24,8 @@ export class GarantiasService {
         return this.http.get<{ garantias: Garantia[] }>(`${environment.backendURL}/garantias`)
             .pipe(
                 tap(res => this.garantias.set(res.garantias)),
-                map(res => res.garantias)
-                //catchError((error: ErrorResponse) => of(error.error.statusCode))
+                map(res => res.garantias),
+                manejarHttpError()
             )
             
     }

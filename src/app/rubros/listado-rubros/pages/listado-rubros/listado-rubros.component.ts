@@ -8,6 +8,7 @@ import { AlertErrorNombre, AlertErrorRentabilidad } from 'app/rubros/constants/r
 import { Rubro } from 'app/rubros/interfaces/rubros.intefaces';
 import { RubrosService } from 'app/rubros/services/rubros.service';
 import { RubroComponent } from '../../components/rubro/rubro.component';
+import { firstValueFrom } from 'rxjs';
 
 
 @Component({
@@ -89,26 +90,32 @@ export class ListadoRubrosComponent {
       let nuevoRubro: Rubro = this.estructurarRubro()
 
       //llamar al endpoint para crear un nuevo rubro
-      this.rubrosService.crearRubro(nuevoRubro).subscribe(res => { //mando al back
-        if (typeof res === 'string') return ToastError(res) //si hay error
+      try {
+        await firstValueFrom(this.rubrosService.crearRubro(nuevoRubro))
+        ToastExito(AGREGAR_EXITO)
         this.formRubro.reset();
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
         return
-      })
+      } catch (error) {
+        ToastError(error as string)
+        return
+      }
     }
     //EDITAR 
     if (this.rubroSeleccionado()?._id) {
       let rubroEditado: Rubro = this.estructurarRubro()
 
       //llamar al endpoint para editar el rubro seleccionado
-      this.rubrosService.editarRubro(rubroEditado).subscribe(res => {
-        if (typeof res === 'string') return ToastError(res) //si hay error
+      try {
+        await firstValueFrom(this.rubrosService.editarRubro(rubroEditado))
+        ToastExito(AGREGAR_EXITO)
         this.formRubro.reset();
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
-        ToastExito(AGREGAR_EXITO)
-      })
+      } catch (error) {
+        ToastError(error as string)
+      }
     }
   }
 

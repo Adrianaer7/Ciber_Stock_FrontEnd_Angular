@@ -16,6 +16,7 @@ import { hoy } from '../../../../shared/utils/general.utils';
 import { ToastFaltanteExito } from 'app/faltantes/constants/faltantes.constants';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
 import { environment } from 'environments/environment.development';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'producto',
@@ -119,31 +120,39 @@ export class ProductoComponent {
       }
       //editar producto
       this.producto().disponibles = this.producto().disponibles - unidades
-      this.productosService.editarProducto(this.producto(), this.cantidad, this.desdeForm).subscribe(res => {
-        if (typeof res === 'string') return ToastError(res)
-      })
-      //añadir nueva venta
-      const venta: Venta = this.estructurarVenta(unidades)
-      this.ventasService.crearVenta(venta).subscribe(res => {
-        if (typeof res === 'string') return ToastError(res)
-      })
-
-      await ToastVentaExito(unidades, this.producto().nombre)
-      if (this.producto().limiteFaltante) {
-        this.resta.set(this.producto().disponibles - unidades)
+      try {
+        await firstValueFrom(this.productosService.editarProducto(this.producto(), this.cantidad, this.desdeForm))
+      } catch (error) {
+        ToastError(error as string)
+        return
       }
-      if (this.resta() <= this.producto().limiteFaltante) {
-        ToastFaltanteExito()
+      
+      //añadir nueva venta
+      try {
+        const venta: Venta = this.estructurarVenta(unidades)
+        await firstValueFrom(this.ventasService.crearVenta(venta))
+        //alertas de venta y faltante
+        await ToastVentaExito(unidades, this.producto().nombre)
+        if (this.producto().limiteFaltante) {
+          this.resta.set(this.producto().disponibles - unidades)
+        }
+        if (this.resta() <= this.producto().limiteFaltante) {
+          ToastFaltanteExito()
+        }
+      } catch (error) {
+        ToastError(error as string)
       }
     }
 
   }
 
-  cambiarFaltante() {
-    this.faltantesService.editarFaltante(this.producto()._id).subscribe(res => {
-      if (typeof res === 'string') return ToastError(res)
+  async cambiarFaltante() {
+    try {
+      await firstValueFrom(this.faltantesService.editarFaltante(this.producto()._id))
       !this.producto().faltante ? ToastExito(AGREGAR_EXITO) : ToastExito(ELIMINAR_EXITO)
-    })
+    } catch (error) {
+      ToastError(error as string)
+    }
   }
 
   estructurarVenta(unidades: number) {

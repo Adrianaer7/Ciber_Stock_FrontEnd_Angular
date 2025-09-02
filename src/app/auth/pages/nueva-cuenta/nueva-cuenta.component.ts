@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormUtils } from '../../../shared/utils/forms.utils';
 import { MensajeComponent } from '../../components/mensaje/mensaje.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'nueva-cuenta',
@@ -29,7 +30,7 @@ export class NuevaCuentaComponent {
 
 
 
-  onSubmit() {
+  async onSubmit() {
     if (this.nuevoUsuario.invalid) {
 
       const primerError = FormUtils.getFirstError(this.nuevoUsuario);
@@ -46,14 +47,15 @@ export class NuevaCuentaComponent {
     //por si me llega vacio
     const { nombre = '', email = '', password = '' } = this.nuevoUsuario.value; 
 
-    this.authService.registrarUsuario(nombre!, email!, password!).subscribe((msg) => {
-
+    try {
+      const msg = await firstValueFrom(this.authService.registrarUsuario(nombre!, email!, password!))
       this.mensajeForm.set(msg)
-  
-      setTimeout(() => {
-        this.mensajeForm.set('');
-      }, 3000);
-    })
+    } catch (error) {
+      this.mensajeForm.set(error as string) 
+    }
+    setTimeout(() => {
+      this.mensajeForm.set('');
+    }, 3000);
   }
 
 }

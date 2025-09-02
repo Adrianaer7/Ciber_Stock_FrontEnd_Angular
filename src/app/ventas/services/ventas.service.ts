@@ -1,9 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Venta } from '../interfaces/ventas.interface';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { environment } from 'environments/environment.development';
-import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Injectable({
@@ -29,7 +28,7 @@ export class VentasService {
       .pipe(
         tap(res => this.ventas.set(res.ventas)),
         map(res => res.ventas),
-        catchError((error: ErrorResponse) => error.error.msg)
+        manejarHttpError()
       )
   }
 
@@ -39,7 +38,7 @@ export class VentasService {
       .pipe(
         tap(res => this.ventas.update(ventas => ventas.map(venta => venta._id === res.venta._id ? res.venta : venta))),
         map(res => res.venta),
-        catchError((error: ErrorResponse) => error.error.msg)
+        manejarHttpError()
       )
   }
 
@@ -49,7 +48,7 @@ export class VentasService {
       .pipe(
         tap(() => this.ventas.update(ventas => ventas.filter(venta => venta._id !== id))),
         map(() => true),
-        catchError((error: ErrorResponse) => error.error.msg)
+        manejarHttpError()
       );
   }
 }

@@ -40,12 +40,12 @@ export class FormularioComponent {
   desdeForm: boolean = true;
   formData = new FormData()
   disponibles = signal<string>('');
-  proveedoresProducto = signal<Proveedor[]>([]);
+  proveedoresProducto = signal<Proveedor[]>([]);  //listado de proveedores que tiene el producto. Se usa para mostrar los nombres y eliminar alguno
   tempImages = signal<string[]>([]); //para mostrar las imagenes que se suben antes de guardar el producto
   imageFileList: FileList | undefined = undefined;
   urlImagen = signal('')
-  codigo = signal<string>('')
-  selectorCodigo = signal<string>('VACÍO'); //para el selector de codigo
+  codigo = signal<string>('') //value del select
+  selectorCodigo = signal<string>('VACÍO'); //descripcion para el select de codigo
 
 
 
@@ -67,6 +67,7 @@ export class FormularioComponent {
       if (typeof respuesta.proveedores === 'string') return ToastError(respuesta.proveedores)
       if (typeof respuesta.compras === 'string') return ToastError(respuesta.compras)
       if (typeof respuesta.rubros === 'string') return ToastError(respuesta.rubros)
+      if (typeof respuesta.codigos === 'string') return ToastError(respuesta.codigos)
     }
   })
 
@@ -235,10 +236,10 @@ export class FormularioComponent {
           //comparo con version anterior
           const prodString = JSON.stringify(producto);
           const prodEditarString = JSON.stringify(this.productoEditar());
-          if ((prodString == prodEditarString) && !this.imageFileList?.length && !this.disponibles()) {
+          if ((prodString == prodEditarString) && !this.imageFileList?.length && !this.disponibles()) { //si no hubo cambios, no hago nada
             ModalInfo()
             return
-          }; //si no hubo cambios, no hago nada
+          }; 
           //editar producto
           const productoEditado = await this.editarProducto(producto)
           ToastExito(AGREGAR_EXITO)

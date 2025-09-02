@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { ErrorResponse } from 'app/shared/interfaces/error-response.interface';
 import { environment } from 'environments/environment.development';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { Compra } from '../interfaces/compras.interfaces';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
@@ -30,7 +29,7 @@ export class ComprasService {
             .pipe(
                 tap(res => this.compras.set(res.todas)),
                 map(res => res.todas),
-                catchError((error: ErrorResponse) => error.error.msg)
+                manejarHttpError()
             )
     }
 

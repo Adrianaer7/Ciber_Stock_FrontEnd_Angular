@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../auth/services/auth.service';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { AlertError } from '../../../constants/proveedor.constants';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'listado-proveedores',
@@ -131,14 +132,16 @@ export class ListadoProveedoresComponent {
       nuevoProveedor.datos = this.cargarDatos(nuevoProveedor);
 
       //llamar al endpoint para crear un nuevo proveedor
-      this.proveedorService.crearProveedor(nuevoProveedor).subscribe(res => { //mando al back
-        if (typeof res === 'string') return ToastError(res) //si hay error
+      try {
+        await firstValueFrom(this.proveedorService.crearProveedor(nuevoProveedor))
         this.formProveedor.reset();
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
         ToastExito(AGREGAR_EXITO)
+      } catch (error) {
+        ToastError(error as string)
         return
-      })
+      }
     }
     //EDITAR 
     if (this.proveedorSeleccionado()?._id) {
@@ -146,13 +149,15 @@ export class ListadoProveedoresComponent {
       proveedorEditado.datos = this.cargarDatos(proveedorEditado);
 
       //llamar al endpoint para editar el proveedor seleccionado
-      this.proveedorService.editarProveedor(proveedorEditado).subscribe(res => {
-        if (typeof res === 'string') return ToastError(res) //si hay error
+      try {
+        await firstValueFrom(this.proveedorService.editarProveedor(proveedorEditado))
         this.formProveedor.reset();
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
         ToastExito(AGREGAR_EXITO)
-      })
+      } catch (error) {
+        ToastError(error as string)
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormUtils } from '../../shared/utils/forms.utils';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'nueva-contraseña',
@@ -46,7 +47,7 @@ export class NuevaContraseñaComponent {
     validators: FormUtils.camposIguales('password', 'confirmar')
   });
 
-  onSubmit() {
+  async onSubmit() {
     if (this.formNuevaPassword.invalid) {
       const primerError = FormUtils.getFirstError(this.formNuevaPassword);
       this.mensajeForm.set(primerError ?? '');
@@ -61,17 +62,16 @@ export class NuevaContraseñaComponent {
     const { password = '' } = this.formNuevaPassword.value;
 
     //envio el nuevo password
-    this.authService.nuevaPassword(password!, this.token,).subscribe((msg) => {
-      if (msg) {
-        this.cambioCorrecto.set("Contraseña cambiada correctamente")
+    try {
+      await firstValueFrom(this.authService.nuevaPassword(password!, this.token))
+      this.cambioCorrecto.set("Contraseña cambiada correctamente")
+      setTimeout(() => {
+        this.mensajeForm.set("")
 
-        setTimeout(() => {
-          this.mensajeForm.set("")
-          
-        }, 10000);
-      } else {
-        this.router.navigate(["/"]);
-      }
-    });
+      }, 10000);
+    } catch (error) {
+      this.router.navigate(["/"]);
+    }
+
   }
 }
