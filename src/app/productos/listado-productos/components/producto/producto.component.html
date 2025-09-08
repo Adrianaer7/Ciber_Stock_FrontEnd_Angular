@@ -6,10 +6,9 @@
                 [src]="urlImagen"
                 width="100"
                 height="100"
-                quality="50"
                 alt="img"
                 style="object-fit: contain; width: auto; height: auto"
-                
+                (click)="imagenModal.set(urlImagen)"
             />
         } 
     
@@ -108,3 +107,24 @@
 
     </td>
 </tr>
+@if (imagenModal()) {
+    <div
+        class="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
+        (click)="imagenModal.set(null)"
+    >
+        <img
+            [src]="imagenModal()"
+            alt="Imagen ampliada"
+            class="max-w-full max-h-full rounded-2xl shadow-lg"
+            (click)="$event.stopPropagation()"
+        />
+    </div>
+}
+
+<!-- 
+    backdrop-blur-sm: aplica un desenfoque suave al fondo detrás del modal
+    fixed inset-0: el fixed hace que quede fijo en la pantalla, y inset-0 lo estira para que ocupe toda la pantalla
+    z-50: hace que se superponga a todo
+    click en el div: cierra el modal
+    click.stopPropagation() en la imagen: evita que se cierre si tocás la imagen
+ -->

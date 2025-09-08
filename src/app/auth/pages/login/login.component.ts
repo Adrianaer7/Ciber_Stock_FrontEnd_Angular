@@ -3,12 +3,12 @@ import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MensajeComponent } from '../../components/mensaje/mensaje.component';
-import {AuthService} from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { FormUtils } from '../../../shared/utils/forms.utils';
 
 @Component({
   selector: 'login',
-  imports: [ MensajeComponent, ReactiveFormsModule, RouterLink],
+  imports: [MensajeComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
@@ -23,13 +23,13 @@ export class LoginComponent {
     email: ['', [Validators.required, Validators.pattern(FormUtils.emailPattern)]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   })
-  
+
 
   onSubmit() {
-    if(this.login.invalid) {
+    if (this.login.invalid) {
       const primerError = FormUtils.getFirstError(this.login);
       this.mensajeForm.set(primerError ?? '')
-      
+
       setTimeout(() => {
         this.mensajeForm.set('');
       }, 3000);
@@ -41,7 +41,7 @@ export class LoginComponent {
 
     //me logeo
     this.authService.login(email!, password!).subscribe((usuario) => {
-      if(usuario) {
+      if (usuario) {
         this.router.navigate(['/productos']);
       } else {
         this.mensajeForm.set(this.mensaje());

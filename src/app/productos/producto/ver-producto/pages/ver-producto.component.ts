@@ -8,7 +8,7 @@ import { Producto } from 'app/productos/interfaces/productos.interface';
 import { GarantiasService } from 'app/productos/services/garantias.service';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
-import { first, firstValueFrom, forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
 import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
 import { environment } from 'environments/environment.development';
@@ -27,6 +27,7 @@ export class VerProductoComponent {
   proveedoresService = inject(ProveedoresService);
   producto = signal<Producto>(PRODUCTO_VACIO)
   url = this.activatedRoute.snapshot.params['id'];
+  imagenModal = signal<string | null>(null);  //al hacer click en la imagen, se abre el modal con la imagen ampliada
 
   proveedores = this.proveedoresService.proveedores
   garantias = this.garantiasService.garantias

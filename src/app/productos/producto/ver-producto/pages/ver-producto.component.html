@@ -6,11 +6,7 @@
                 <tr class="odd:bg-white even:bg-gray-50 grid  grid-cols-1 lg:grid-cols-2 ">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-left align-middle">IMAGEN</th>
                     @if (producto().imagen) {
-                        <img 
-                            [src]="urlImagen()"
-                            alt="Imagen producto" 
-                            class="w-1/2 object-cover rounded-md"
-                        />
+                        <button (click)="imagenModal.set(urlImagen())" class="px-6 py-4 mr-20 text-left break-words cursor-pointer">VER IMAGEN</button>
                     }
                 </tr>
                 <tr class="odd:bg-white even:bg-gray-50 justify-between grid  grid-cols-1 lg:grid-cols-2 ">
@@ -144,3 +140,17 @@
     >Eliminar Producto
     </button>
 </div>
+
+@if (imagenModal()) {
+    <div
+        class="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
+        (click)="imagenModal.set(null)"
+    >
+        <img
+            [src]="imagenModal()"
+            alt="Imagen ampliada"
+            class="max-w-full max-h-full rounded-2xl shadow-lg"
+            (click)="$event.stopPropagation()"
+        />
+    </div>
+}

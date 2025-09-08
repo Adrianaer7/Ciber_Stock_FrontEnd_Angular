@@ -49,8 +49,6 @@ ng g environments
 snippets
 a-routes
 
-
-agregar los click de el orden del listado
 agregar paginacion
 agregar webSockets
 

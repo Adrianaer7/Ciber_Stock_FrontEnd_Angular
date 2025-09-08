@@ -38,6 +38,7 @@ export class ProductoComponent {
   cantidad = 0
   desdeForm = false
   urlImagen = ''
+  imagenModal = signal<string | null>(null);  //al hacer click en la imagen, se abre el modal con la imagen ampliada
 
   proveedores = this.proveedoresService.proveedores
   garantias = this.garantiasService.garantias
