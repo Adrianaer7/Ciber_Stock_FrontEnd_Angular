@@ -10,6 +10,7 @@ import { AuthService } from '../../../../auth/services/auth.service';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { AlertError } from '../../../constants/proveedor.constants';
 import { firstValueFrom } from 'rxjs';
+import { limpiarBusqueda } from 'app/shared/utils/general.utils';
 
 @Component({
   selector: 'listado-proveedores',
@@ -92,7 +93,7 @@ export class ListadoProveedoresComponent {
 
   //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(this.limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
   }
 
   manejarFiltro() {
@@ -182,10 +183,6 @@ export class ListadoProveedoresComponent {
 
   cargarDatos(proveedor: Proveedor): string {
     return `${proveedor.nombre}${proveedor.empresa}${proveedor.telPersonal}${proveedor.telEmpresa}${proveedor.email}`.toUpperCase()
-  }
-
-  limpiarBusqueda(value: string): string {
-    return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   }
 
   ordenarPor() {

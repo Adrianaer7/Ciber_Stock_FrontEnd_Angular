@@ -7,6 +7,7 @@ import { Producto } from 'app/productos/interfaces/productos.interface';
 import { FaltanteComponent } from '../../component/faltante/faltante.component';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { forkJoin } from 'rxjs';
+import { limpiarBusqueda } from 'app/shared/utils/general.utils';
 
 type propiedades = 'codigo' | 'nombre' | 'marca' | 'modelo' | 'rubro' | 'proveedor' | 'disponibles';
 @Component({
@@ -71,17 +72,13 @@ export class ListadoFaltantesComponent {
 
   //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(this.limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
   }
 
   manejarFiltro() {
     if (this.filtrando()) {
       this.filtrando.set('')
     }
-  }
-
-  limpiarBusqueda(value: string): string {
-    return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   }
 
   ordenarPor(campo: propiedades) {

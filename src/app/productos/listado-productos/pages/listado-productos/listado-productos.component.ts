@@ -12,6 +12,7 @@ import { DolaresService } from 'app/productos/services/dolares.service';
 import { GarantiasService } from 'app/productos/services/garantias.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { ToastError } from '@constantes/general.constants';
+import { limpiarBusqueda } from 'app/shared/utils/general.utils';
 
 type propiedades = 'codigo' | 'nombre' | 'marca' | 'modelo' | 'disponibles' | 'precio_venta_tarjeta';
 
@@ -106,17 +107,13 @@ export class ListadoProductosComponent {
 
   //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(this.limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
   }
 
   manejarFiltro() {
     if (this.filtrando()) {
       this.filtrando.set('')
     }
-  }
-
-  limpiarBusqueda(value: string): string {
-    return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   }
 
   setConStock() {

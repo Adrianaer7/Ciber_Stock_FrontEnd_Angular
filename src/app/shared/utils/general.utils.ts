@@ -10,3 +10,7 @@ export const hoy = new Date(Date.now()).toISOString().slice(0, 10);
 export const formatImport = (pesos: number): string => {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(pesos)
 }
+
+export const limpiarBusqueda = (value: string): string => {
+    return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}

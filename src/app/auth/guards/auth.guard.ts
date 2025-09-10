@@ -3,6 +3,7 @@ import { AuthService } from "../services/auth.service";
 import { inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+//se ejecuta cuando el usuario ingresa a una ruta de solo acceso autenticado
 export const AuthGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);

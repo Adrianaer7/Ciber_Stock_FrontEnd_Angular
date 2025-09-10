@@ -3,14 +3,15 @@ import { AuthService } from "../services/auth.service";
 import { inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+//se ejecuta cuando el usuario ingresa a una ruta que no se necesita estar autenticado
 export const NotAuthenticatedGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.estaAutenticado()) {
+  /* if (authService.estaAutenticado()) {
     router.navigateByUrl('/productos');
     return false;
-  }
+  } */
 
   const autenticado = await firstValueFrom(authService.usuarioAutenticado());
 

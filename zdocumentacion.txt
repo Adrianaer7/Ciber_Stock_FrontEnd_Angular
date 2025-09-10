@@ -51,5 +51,8 @@ a-routes
 
 agregar paginacion
 agregar webSockets
+crear pipe para ordenar productos
+crear pipe para filtrar
+crear pipe para mostrar url imagen
 
 npm i @angular/cdk -- para copiar texto en el portapapeles

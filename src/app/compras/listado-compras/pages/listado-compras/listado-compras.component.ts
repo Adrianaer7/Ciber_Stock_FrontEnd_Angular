@@ -7,6 +7,7 @@ import { ComprasService } from 'app/compras/services/compras.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { forkJoin } from 'rxjs';
 import { CompraComponent } from '../../components/compra/compra.component';
+import { limpiarBusqueda } from 'app/shared/utils/general.utils';
 
 type propiedades = 'nombre' | 'marca' | 'modelo';
 
@@ -71,17 +72,13 @@ export class ListadoComprasComponent {
 
   //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(this.limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
   }
 
   manejarFiltro() {
     if (this.filtrando()) {
       this.filtrando.set('')
     }
-  }
-
-  limpiarBusqueda(value: string): string {
-    return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   }
 
   ordenarPor(campo: propiedades) {
