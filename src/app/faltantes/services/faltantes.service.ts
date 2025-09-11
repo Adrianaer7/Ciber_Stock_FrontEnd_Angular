@@ -16,7 +16,7 @@ export class FaltantesService {
     faltantes = signal<Producto[]>([])
 
     editarFaltante(id: string): Observable<Producto | string> {
-        return this.http.put<{ producto: Producto }>(`${environment.backendURL}/faltantes/${id}`, {} )
+        return this.http.get<{ producto: Producto }>(`${environment.backendURL}/faltantes/${id}`)
             .pipe(
                 tap(res => this.faltantes.update(faltantes => faltantes.filter(faltante => faltante._id !== res.producto._id))),
                 tap(res => this.productosService.productos.update(productos => productos.map(producto => producto._id === res.producto._id ? res.producto : producto))),

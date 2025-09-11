@@ -3,7 +3,7 @@ import { AbstractControl, FormGroup, ValidationErrors } from "@angular/forms";
 
 export class FormUtils {
 
-  static emailPattern = '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$';
+  static emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$';
 
   //a medida que escribo se va validando el campo
   static camposIguales(campo1: string, campo2: string) {
