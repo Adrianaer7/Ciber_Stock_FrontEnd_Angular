@@ -49,7 +49,7 @@ export class VentaComponent {
     if (!isConfirmed) return; //si no confirma 
 
     try {
-      await firstValueFrom(this.ventaService.eliminarUnaVenta(this.venta()._id!))
+      await firstValueFrom(this.ventaService.eliminarUnaVenta(this.venta()._id))
       ToastExito(ELIMINAR_EXITO)
     } catch (error) {
       ToastError(error as string)

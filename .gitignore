@@ -42,3 +42,5 @@ testem.log
 Thumbs.db
 
 /zconfiguracion.txt
+connectedMode.json
+settings.json
