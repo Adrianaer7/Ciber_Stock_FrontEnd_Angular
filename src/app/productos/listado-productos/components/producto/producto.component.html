@@ -40,7 +40,7 @@
     <td class="p-2  text-center text-lg hover:cursor-pointer break-words">
         <div class="flex flex-col">
             <p 
-                class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-3xl font-black " 
+                class="mb-4 pb-2 pt-2 px-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-2xl font-black " 
                 (click)="copiar('tarjeta')"
             >
                 {{producto().precio_venta_tarjeta | formatImport}}
@@ -66,7 +66,7 @@
                 (click)="copiar('ahoraDoce')"
             >
                 Un pago
-                <span class="block font-black text-3xl">{{producto().precio_venta_ahoraDoce | formatImport}}</span>
+                <span class="block font-black text-2xl">{{producto().precio_venta_ahoraDoce | formatImport}}</span>
             </p>
             <p 
                 class="pb-2 pt-2 hover:rounded-md hover:cursor-pointer hover:bg-gray-200  text-xl font-normal " 

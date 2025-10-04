@@ -1,9 +1,9 @@
 import { formatImport } from './../../../shared/utils/general.utils';
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, ElementRef, inject, input, signal, ViewChild } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
+import { AGREGAR_EXITO, EDITAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { ComprasService } from 'app/compras/services/compras.service';
 import { ModalError, ModalInfo, PRODUCTO_VACIO } from 'app/productos/constants/productos.constants';
 import { Producto } from 'app/productos/interfaces/productos.interface';
@@ -36,8 +36,8 @@ export class FormularioComponent {
   rubros = this.rubrosService.rubros;
   codigos = this.productosService.codigos;
 
+  @ViewChild('inputImagen') inputImagen!: ElementRef<HTMLInputElement>;
   valorFaltante = signal<boolean>(false);
-  desdeForm: boolean = true;
   formData = new FormData()
   disponibles = signal<string>('');
   proveedoresProducto = signal<Proveedor[]>([]);  //listado de proveedores que tiene el producto. Se usa para mostrar los nombres y eliminar alguno
@@ -191,13 +191,18 @@ export class FormularioComponent {
     this.proveedoresProducto.update(proveedores => proveedores.filter(proveedor => proveedor._id !== id));
     //elimino de los proveedores del formulario
     const proveedoresForm = this.formProducto.get('todos_proveedores')?.value ?? [];
-    const noEliminados = proveedoresForm.filter(proveedorId => proveedorId !== id);
-    this.formProducto.get('todos_proveedores')?.setValue(noEliminados);
-    this.formProducto.get('proveedor')?.setValue(noEliminados[noEliminados.length - 1]);
+    const provRestantes = proveedoresForm.filter(proveedorId => proveedorId !== id);
+    this.formProducto.get('todos_proveedores')?.setValue(provRestantes);
+    if(provRestantes.length) {
+      this.formProducto.get('proveedor')?.setValue(provRestantes[provRestantes.length - 1]);
+    } else {
+      this.formProducto.get('proveedor')?.setValue('');
+    }
   }
 
 
   nuevaImagen(event: Event) {
+    this.limpiarImagenProducto()
     const fileList = (event.target as HTMLInputElement).files;  //obtiene los archivos seleccionados desde el input de tipo file
     this.imageFileList = fileList ?? undefined; //de momento permito subir solo una imagen pero lo dejo preparado para varias
 
@@ -205,6 +210,19 @@ export class FormularioComponent {
       URL.createObjectURL(file)  //crea una URL temporal para cada archivo seleccionado
     );
     this.tempImages.set(imageUrls);  //actualiza las imagenes temporales con las URLs creadas
+    this.inputImagen.nativeElement.value = '';  //limpio el input para que se detecte el evento change si se carga la misma imagen otra vez
+  }
+
+  limpiarImagenTemporal() {
+    this.formData = new FormData();
+    this.imageFileList = undefined
+    this.tempImages.update(() => [])
+  }
+
+  limpiarImagenProducto() {
+    this.formProducto.get('imagen')?.setValue('');
+    this.urlImagen.set('');
+    this.productoEditar().imagen = ''
   }
 
 
@@ -223,8 +241,7 @@ export class FormularioComponent {
           //limpiar formulario
           this.formProducto.reset(PRODUCTO_VACIO)
           this.valorFaltante.set(false);
-          this.imageFileList = undefined
-          this.tempImages.set([])
+          this.limpiarImagenTemporal()
           this.codigo.set('')
           this.selectorCodigo.set('VACÍO')
           this.disponibles.set('')
@@ -239,10 +256,10 @@ export class FormularioComponent {
           if ((prodString == prodEditarString) && !this.imageFileList?.length && !this.disponibles()) { //si no hubo cambios, no hago nada
             ModalInfo()
             return
-          }; 
+          };
           //editar producto
           const productoEditado = await this.editarProducto(producto)
-          ToastExito(AGREGAR_EXITO)
+          ToastExito(EDITAR_EXITO)
           //traer codigos
           await this.traerCodigos()
           //actualizar formulario con el producto editado
@@ -257,9 +274,7 @@ export class FormularioComponent {
             this.urlImagen.set(`${environment.backendURL}/static/productos/${productoEditado.imagen}`);
           }
           //limpiar imagen temporal
-          this.formData = new FormData();
-          this.imageFileList = undefined
-          this.tempImages.set([])
+          this.limpiarImagenTemporal()
           this.disponibles.set('')
         } catch (error) {
           ToastError(error as string)
@@ -390,11 +405,11 @@ export class FormularioComponent {
   }
 
   async agregarProducto(producto: Producto) {
-    return firstValueFrom(this.productosService.agregarProducto(producto, Number(this.disponibles()), this.desdeForm, this.formData))
+    return firstValueFrom(this.productosService.agregarProducto(producto, Number(this.disponibles()), this.formData))
   }
 
   async editarProducto(producto: Producto) {
-    return firstValueFrom(this.productosService.editarProducto(producto, Number(this.disponibles()), this.desdeForm, this.formData))
+    return firstValueFrom(this.productosService.editarProducto(producto, Number(this.disponibles()), this.formData))
   }
 
   async traerCodigos() {

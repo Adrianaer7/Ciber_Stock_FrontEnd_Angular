@@ -19,7 +19,7 @@ export class ProductosService {
   codigos = signal<number[]>([]);
 
 
-  agregarProducto(producto: Producto, cantidad: number, desdeForm: boolean = true, formData: FormData): Observable<Producto | string> {
+  agregarProducto(producto: Producto, cantidad: number, formData: FormData): Observable<Producto | string> {
     //subo la imagen
     const subirImagen = Array.from(formData.entries()).length // convierto el formData en un array y verifico si tiene propiedades
       ? this.subirImagen(formData).pipe(tap((fileName) => producto.imagen = fileName))
@@ -35,8 +35,8 @@ export class ProductosService {
 
         const acciones: Observable<any>[] = [];
 
-        if (desdeForm && cantidad > 0) {
-          acciones.push(this.comprasService.crearCompra(nuevoProducto, cantidad, desdeForm));
+        if (cantidad > 0) {
+          acciones.push(this.comprasService.crearCompra(nuevoProducto, cantidad));
         }
 
         if (cantidad > 0 && nuevoProducto.proveedor && nuevoProducto.garantia) {
@@ -53,7 +53,7 @@ export class ProductosService {
 
 
 
-  editarProducto(producto: Producto, cantidad: number, desdeForm: boolean = false, formData?: FormData): Observable<Producto> {
+  editarProducto(producto: Producto, cantidad: number, formData?: FormData): Observable<Producto> {
     //subo la imagen
     const subirImagen = formData && Array.from(formData.entries()).length // convierto el formData en un array y verifico si tiene propiedades
       ? this.subirImagen(formData).pipe(tap((fileName) => producto.imagen = fileName))
@@ -61,7 +61,7 @@ export class ProductosService {
     //luego de subir la imagen
     return subirImagen.pipe(
       //actualizo el producto
-      switchMap(() => this.http.put<{ producto: Producto }>(`${environment.backendURL}/productos/${producto._id}`, { producto, desdeForm })),
+      switchMap(() => this.http.put<{ producto: Producto }>(`${environment.backendURL}/productos/${producto._id}`, { producto })),
       //luego actualizo la compra y/o garantia si corresponde
       switchMap(res => {
         const productoEditado = res.producto;
@@ -69,11 +69,11 @@ export class ProductosService {
 
         const acciones: Observable<any>[] = [];
 
-        if (desdeForm && cantidad > 0) {  //si cantidad es mayor a 0 entonces compré
-          acciones.push(this.comprasService.crearCompra(productoEditado, cantidad, desdeForm));
+        if (cantidad > 0) {  //si cantidad es mayor a 0 entonces compré
+          acciones.push(this.comprasService.crearCompra(productoEditado, cantidad));
         }
 
-        if (cantidad > 0 && productoEditado.proveedor && productoEditado.garantia && desdeForm) { //si cantidad es mayor a 0 entonces compré
+        if (cantidad > 0 && productoEditado.proveedor && productoEditado.garantia) { //si cantidad es mayor a 0 entonces compré
           acciones.push(this.garantiasService.crearGarantia(productoEditado.codigo, productoEditado.garantia, productoEditado.proveedor));
         }
         //si tengo que crear una compra o garantia

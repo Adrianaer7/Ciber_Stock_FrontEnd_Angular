@@ -15,8 +15,8 @@ export class ComprasService {
     private http = inject(HttpClient)
     compras = signal<Compra[]>([])
 
-    crearCompra(producto: Producto, cantidad: number, desdeForm: boolean): Observable<Compra | string> {
-        return this.http.post<{ compra: Compra }>(`${environment.backendURL}/compras`, {producto, cantidad, desdeForm})
+    crearCompra(producto: Producto, cantidad: number): Observable<Compra | string> {
+        return this.http.post<{ compra: Compra }>(`${environment.backendURL}/compras`, {producto, cantidad})
             .pipe(
                 map(res => res.compra),
                 manejarHttpError()

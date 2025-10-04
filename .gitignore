@@ -41,6 +41,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-/zconfiguracion.txt
+zdocumentacion.txt
 connectedMode.json
 settings.json

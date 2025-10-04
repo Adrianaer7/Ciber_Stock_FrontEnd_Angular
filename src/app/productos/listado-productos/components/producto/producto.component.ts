@@ -36,7 +36,6 @@ export class ProductoComponent {
   faltante = input.required<boolean>()
   resta = signal(0)
   cantidad = 0
-  desdeForm = false
   urlImagen = ''
   imagenModal = signal<string | null>(null);  //al hacer click en la imagen, se abre el modal con la imagen ampliada
 
@@ -122,7 +121,7 @@ export class ProductoComponent {
       //editar producto
       this.producto().disponibles = this.producto().disponibles - unidades
       try {
-        await firstValueFrom(this.productosService.editarProducto(this.producto(), this.cantidad, this.desdeForm))
+        await firstValueFrom(this.productosService.editarProducto(this.producto(), this.cantidad))
       } catch (error) {
         ToastError(error as string)
         return

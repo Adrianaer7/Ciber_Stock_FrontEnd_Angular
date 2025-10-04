@@ -223,7 +223,7 @@
                                             {{proveedor.empresa}} ({{proveedor.nombre}})
                                         </li>
                                         <div
-                                            class="uppercase text-center mt-2 ml-1 block px-2 text-gray-600  rounded-full bg-gray-50 hover:bg-gray-200 focus:outline-none  focus:ring-1 focus:ring-blue-300 cursor-pointer"
+                                            class="flex items-center justify-center uppercase text-center mt-2 ml-1 px-2 text-gray-600  rounded-full bg-gray-50 hover:bg-gray-200 focus:outline-none  focus:ring-1 focus:ring-blue-300 cursor-pointer"
                                             (click)="eliminarProveedor(proveedor._id!)"
                                         >
                                             X
@@ -266,13 +266,15 @@
 
 
         <!-- Subir imagen --> 
-          <div class="mb-4"> 
+        <div class="mb-4"> 
             <div class="mt-4">
                 <label for="imagen" class="inline-block w-1/4 rounded-md bg-red-200 text-center font-semibold p-3 cursor-pointer">Subir imagen</label> 
                 <input 
+                    #inputImagen
                     type="file" 
                     id="imagen"
                     class="hidden" 
+                    accept="image/*"
                     (change)="nuevaImagen($event)"
                 /> 
             </div>
@@ -281,19 +283,36 @@
             >
             @if (tempImages().length > 0) {
                 @for (image of tempImages(); track image) {
-                    <img 
-                        [src]="image" 
-                        alt="Imagen temporal" 
-                        class="w-full object-cover rounded-md"
-                    />
+                    <div class="flex relative">
+                        <img 
+                            [src]="image" 
+                            alt="Imagen temporal" 
+                            class="w-full object-cover rounded-md"
+                        />
+                        <div
+                            class="absolute top-1 right-1 flex items-center justify-center w-6 h-6 text-sm text-white bg-red-500 rounded-full cursor-pointer"
+                            (click)="limpiarImagenTemporal()"
+                        >
+                            X
+                        </div>
+                    </div>
+
                 }
             } @else {
-                @if (productoEditar().imagen) {
-                    <img 
-                        [src]="urlImagen()"
-                        alt="Imagen producto" 
-                        class="w-full object-cover rounded-md"
-                    />
+                @if (urlImagen()) {
+                    <div class="flex relative">
+                        <img 
+                            [src]="urlImagen()"
+                            alt="Imagen producto" 
+                            class="w-full object-cover rounded-md"
+                        />
+                        <div
+                            class="absolute top-1 right-1 flex items-center justify-center w-6 h-6 text-sm text-white bg-red-500 rounded-full cursor-pointer"
+                            (click)="limpiarImagenProducto()"
+                        >
+                            X
+                        </div>
+                    </div>
                 }
             }
             </div>
