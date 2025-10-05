@@ -6,7 +6,7 @@ export interface Venta {
     modelo:         string;
     barras:         string;
     dolar:          number;
-    precioEnDolar:  string;
+    precioEnDolar:  number;
     precioEnArs:    number;
     unidades:       number;
     fecha:          string;

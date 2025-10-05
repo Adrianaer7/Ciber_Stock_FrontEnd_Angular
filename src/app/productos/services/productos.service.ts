@@ -53,7 +53,7 @@ export class ProductosService {
 
 
 
-  editarProducto(producto: Producto, cantidad: number, formData?: FormData): Observable<Producto> {
+  editarProducto(producto: Producto, cantidad: number = 0, formData?: FormData): Observable<Producto> {
     //subo la imagen
     const subirImagen = formData && Array.from(formData.entries()).length // convierto el formData en un array y verifico si tiene propiedades
       ? this.subirImagen(formData).pipe(tap((fileName) => producto.imagen = fileName))

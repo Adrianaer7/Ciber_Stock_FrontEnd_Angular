@@ -119,9 +119,13 @@ export class ProductoComponent {
         return
       }
       //editar producto
+      let mostrarFaltante = false
       this.producto().disponibles = this.producto().disponibles - unidades
+      if(this.producto().disponibles <= this.producto().limiteFaltante && !this.producto().faltante) {
+        mostrarFaltante = true
+      }
       try {
-        await firstValueFrom(this.productosService.editarProducto(this.producto(), this.cantidad))
+        await firstValueFrom(this.productosService.editarProducto(this.producto()))
       } catch (error) {
         ToastError(error as string)
         return
@@ -133,10 +137,7 @@ export class ProductoComponent {
         await firstValueFrom(this.ventasService.crearVenta(venta))
         //alertas de venta y faltante
         await ToastVentaExito(unidades, this.producto().nombre)
-        if (this.producto().limiteFaltante) {
-          this.resta.set(this.producto().disponibles - unidades)
-        }
-        if (this.resta() <= this.producto().limiteFaltante) {
+        if(mostrarFaltante) {
           ToastFaltanteExito()
         }
       } catch (error) {
@@ -165,7 +166,7 @@ export class ProductoComponent {
       modelo,
       barras,
       dolar: this.dolarDB(),
-      precioEnDolar: (precio_venta_tarjeta / this.dolarDB()).toFixed(2),
+      precioEnDolar: Number((precio_venta_tarjeta / this.dolarDB()).toFixed(2)),
       precioEnArs: precio_venta_tarjeta,
       unidades,
       fecha: hoy,
