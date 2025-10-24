@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ToastError } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
-import { Compra } from 'app/compras/interfaces/compras.interfaces';
+import { Compra } from 'app/compras/interfaces/compras.interface';
 import { ComprasService } from 'app/compras/services/compras.service';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { forkJoin } from 'rxjs';

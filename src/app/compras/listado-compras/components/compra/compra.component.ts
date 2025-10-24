@@ -1,5 +1,5 @@
 import { Component, computed, input, signal } from '@angular/core';
-import { Compra } from 'app/compras/interfaces/compras.interfaces';
+import { Compra } from 'app/compras/interfaces/compras.interface';
 import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
 import { CommonModule } from '@angular/common';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';

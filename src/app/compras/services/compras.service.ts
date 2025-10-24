@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment.development';
 import { map, Observable, tap } from 'rxjs';
-import { Compra } from '../interfaces/compras.interfaces';
+import { Compra } from '../interfaces/compras.interface';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
