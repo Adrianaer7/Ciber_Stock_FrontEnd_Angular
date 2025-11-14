@@ -228,60 +228,81 @@ export class FormularioComponent {
 
   async onSubmit(): Promise<void | SweetAlertResult<any>> {
     console.log(Object.entries(this.formProducto.value));
-    const producto = this.validarCampos()
-    if (producto) {  //si se validó correctamente
-      //si es producto a editar
-      if (this.productoEditar()._id) {
-        try {
-          //comparo con version anterior
-          const prodString = JSON.stringify(producto);
-          const prodEditarString = JSON.stringify(this.productoEditar());
-          if ((prodString == prodEditarString) && !this.imageFileList?.length && !this.disponibles()) { //si no hubo cambios, no hago nada
-            ModalInfo()
-            return
-          };
-          //editar producto
-          const productoEditado = await this.editarProducto(producto)
-          ToastExito(EDITAR_EXITO)
-          //traer codigos
-          await this.traerCodigos()
-          //actualizar formulario con el producto editado
-          this.formProducto.patchValue(productoEditado)
-          //actualizo la lista de proveedores del producto
-          const proveedoresFiltrados = this.proveedores().filter(
-            proveedor => proveedor._id && productoEditado.todos_proveedores.includes(proveedor._id)
-          );
-          this.proveedoresProducto.set(proveedoresFiltrados)
-          //actualizo la vista previa de la imagen por si hubo algun cambio
-          if (productoEditado.imagen) {
-            this.urlImagen.set(`${environment.backendURL}/static/productos/${productoEditado.imagen}`);
-          }
-          //limpiar imagen temporal
-          this.limpiarImagenTemporal()
-          this.disponibles.set('')
-        } catch (error) {
-          ToastError(error as string)
-        }
-      } else {
-        try {
-          //agregar producto
-          await this.agregarProducto(producto)
-          ToastExito(AGREGAR_EXITO)
-          //traer codigos
-          await this.traerCodigos()
-          //limpiar formulario
-          this.formProducto.reset(PRODUCTO_VACIO)
-          this.valorFaltante.set(false);
-          this.limpiarImagenTemporal()
-          this.codigo.set('')
-          this.selectorCodigo.set('VACÍO')
-          this.disponibles.set('')
-        } catch (error) {
-          ToastError(error as string)
-        }
-      }
+    const producto = this.validarCampos();
+
+    if (!producto) return;
+
+    // si es producto a editar
+    if (this.productoEditar()._id) {
+      await this.submitEditarProducto(producto);
+    } else {
+      await this.submitAgregarProducto(producto);
     }
   }
+
+  async submitEditarProducto(producto: any): Promise<void> {
+    try {
+      // comparo con versión anterior
+      const prodString = JSON.stringify(producto);
+      const prodEditarString = JSON.stringify(this.productoEditar());
+
+      // si no hubo cambios, no hago nada
+      const sinCambios = (prodString === prodEditarString) && !this.imageFileList?.length && !this.disponibles();
+      if (sinCambios) {
+        ModalInfo();
+        return;
+      }
+
+      // editar producto
+      const productoEditado = await this.editarProducto(producto);
+      ToastExito(EDITAR_EXITO);
+
+      // traer códigos
+      await this.traerCodigos();
+
+      // actualizar formulario con el producto editado
+      this.formProducto.patchValue(productoEditado);
+
+      // actualizo la lista de proveedores del producto
+      const proveedoresFiltrados = this.proveedores().filter(
+        p => p._id && productoEditado.todos_proveedores.includes(p._id)
+      );
+      this.proveedoresProducto.set(proveedoresFiltrados);
+
+      // actualizo la vista previa de la imagen por si hubo algún cambio
+      if (productoEditado.imagen) {
+        this.urlImagen.set(`${environment.backendURL}/static/productos/${productoEditado.imagen}`);
+      }
+
+      // limpiar imagen temporal
+      this.limpiarImagenTemporal();
+      this.disponibles.set('');
+    } catch (error) {
+      ToastError(error as string);
+    }
+  }
+
+  async submitAgregarProducto(producto: any): Promise<void> {
+    try {
+      // agregar producto
+      await this.agregarProducto(producto);
+      ToastExito(AGREGAR_EXITO);
+
+      // traer códigos
+      await this.traerCodigos();
+
+      // limpiar formulario
+      this.formProducto.reset(PRODUCTO_VACIO);
+      this.valorFaltante.set(false);
+      this.limpiarImagenTemporal();
+      this.codigo.set('');
+      this.selectorCodigo.set('VACÍO');
+      this.disponibles.set('');
+    } catch (error) {
+      ToastError(error as string);
+    }
+  }
+
 
 
   formatearHTML(campo: string): string {
