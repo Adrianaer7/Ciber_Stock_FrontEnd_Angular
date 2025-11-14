@@ -11,7 +11,7 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 })
 export class PorcentajesService {
 
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
     porcentajes = signal<Porcentaje[]>([])
     porcentajeSeleccionado = signal<Porcentaje>(PORCENTAJE_VACIO)
 

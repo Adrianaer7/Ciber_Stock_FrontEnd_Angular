@@ -1,4 +1,5 @@
-import { hoy } from '../../shared/utils/general.utils';
+export type Tipos = 'tarjeta' | 'efectivo' | 'conocidos' | 'ahoraDoce'
+
 export interface ResponseDolar {
     _id:        string;
     precio:     number;
@@ -52,12 +53,12 @@ export interface Garantia {
     creado:     Date;
 }
 
+
 export interface DetalleGarantia {
     caducidad: string;
     proveedor: string;
 }
 
-export type Tipos = 'tarjeta' | 'efectivo' | 'conocidos' | 'ahoraDoce'
 
 export interface ResponseImagen {
     secureUrl: string;

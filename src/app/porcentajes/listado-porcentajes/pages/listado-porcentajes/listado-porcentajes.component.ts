@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
@@ -111,9 +111,8 @@ export class ListadoPorcentajesComponent {
     } 
 
     const comisionCambiada = Number(this.formPorcentaje.get('comision')?.value)
-    if (!comisionCambiada || comisionCambiada < 1 || isNaN(comisionCambiada) || !Number(comisionCambiada))  {
+    if (!comisionCambiada || comisionCambiada < 1 || Number.isNaN(comisionCambiada) || !Number(comisionCambiada))  {
       AlertErrorComision()
-      return
     }
   }
 }

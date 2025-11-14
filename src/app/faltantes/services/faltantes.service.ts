@@ -4,14 +4,14 @@ import { Producto } from 'app/productos/interfaces/productos.interface';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 import { environment } from 'environments/environment.development';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class FaltantesService {
 
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
     productosService = inject(ProductosService)
     faltantes = signal<Producto[]>([])
 

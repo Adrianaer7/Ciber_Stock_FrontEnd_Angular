@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
@@ -138,9 +137,8 @@ export class ListadoRubrosComponent {
     }
 
     const rentabilidadCambiada = Number(rentabilidad)
-    if (!rentabilidad || rentabilidad < 1 || isNaN(rentabilidad) || !Number(rentabilidadCambiada)) {
+    if (!rentabilidad || rentabilidad < 1 || Number.isNaN(rentabilidad) || !Number(rentabilidadCambiada)) {
       AlertErrorRentabilidad()
-      return
     }
   }
 

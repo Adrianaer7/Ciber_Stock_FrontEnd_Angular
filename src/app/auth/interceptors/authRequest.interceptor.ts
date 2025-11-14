@@ -1,4 +1,4 @@
-import type { HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import type { HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 

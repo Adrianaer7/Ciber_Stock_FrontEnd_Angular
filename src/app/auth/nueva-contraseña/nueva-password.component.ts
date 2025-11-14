@@ -10,9 +10,9 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'nueva-contraseña',
   imports: [MensajeComponent, ReactiveFormsModule, RouterLink],
-  templateUrl: './nueva-contraseña.component.html',
+  templateUrl: './nueva-password.component.html',
 })
-export class NuevaContraseñaComponent {
+export class NuevaPasswordComponent {
 
   fb = inject(FormBuilder);
   router = inject(Router);
@@ -69,7 +69,8 @@ export class NuevaContraseñaComponent {
         this.mensajeForm.set("")
 
       }, 10000);
-    } catch (error) {
+    } catch (e) {
+      console.log(e)
       this.router.navigate(["/"]);
     }
 

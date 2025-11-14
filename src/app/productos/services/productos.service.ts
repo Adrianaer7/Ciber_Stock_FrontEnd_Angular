@@ -12,7 +12,7 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 })
 export class ProductosService {
 
-  private http = inject(HttpClient)
+  private readonly http = inject(HttpClient)
   comprasService = inject(ComprasService)
   garantiasService = inject(GarantiasService)
   productos = signal<Producto[]>([])

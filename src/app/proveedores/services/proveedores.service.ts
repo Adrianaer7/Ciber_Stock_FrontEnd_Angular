@@ -11,7 +11,7 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 })
 export class ProveedoresService {
 
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   proveedores = signal<Proveedor[]>([]);
   proveedoresFiltrados = signal<Proveedor[]>([])

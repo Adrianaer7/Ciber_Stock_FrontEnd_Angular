@@ -5,15 +5,15 @@ import { PercentPipe } from '@angular/common';
   name: 'formatPercent'
 })
 export class FormatPercentPipe implements PipeTransform {
-  private percentPipe: PercentPipe;
+  private readonly percentPipe: PercentPipe;
 
-  constructor(@Inject(LOCALE_ID) private locale: string) {
+  constructor(@Inject(LOCALE_ID) private readonly locale: string) {
     this.percentPipe = new PercentPipe(this.locale);  //aunque no use el parametro locale, lo necesito para instanciar el pipe
   }
 
   transform(valor: number | string, format: string = '1.2-2', alreadyPercent: boolean = true): string {
     const numero = Number(valor);
-    if (isNaN(numero)) return '';
+    if (Number.isNaN(numero)) return '';
 
     const normalizado = alreadyPercent ? numero / 100 : numero;
     return this.percentPipe.transform(normalizado, format, this.locale) ?? '';

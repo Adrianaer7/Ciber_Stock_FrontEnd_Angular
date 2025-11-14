@@ -7,9 +7,9 @@ import { CurrencyPipe } from '@angular/common';
 
 //para que esto funcione tengo que configurar el main.ts y el app.config.ts
 export class FormatImportPipe implements PipeTransform {
-    private currencyPipe: CurrencyPipe;
+    private readonly currencyPipe: CurrencyPipe;
 
-    constructor(@Inject(LOCALE_ID) private locale: string) {    //traigo el locale del app.config.ts
+    constructor(@Inject(LOCALE_ID) private readonly locale: string) {    //traigo el locale del app.config.ts
         this.currencyPipe = new CurrencyPipe(this.locale)
     }
 

@@ -10,7 +10,7 @@ import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
   imports: [CommonModule, FormatImportPipe, FormatDatePipe],
   templateUrl: './compra.component.html',
 })
-export class CompraComponent { 
+export class CompraComponent {
 
   compra = input.required<Compra>()
   proveedores = input.required<Proveedor[]>()
@@ -24,7 +24,7 @@ export class CompraComponent {
 
   //me quedo con los proveedores que estén en el historial de compra y utilizo nombre y empresa
   proveedoresIguales = computed(() =>
-    this.proveedores().filter(p =>this.historialProveedores().includes(p._id!))
+    this.proveedores().filter(p => this.historialProveedores().includes(p._id!))
   );
 
   verDetalles() {
@@ -32,7 +32,6 @@ export class CompraComponent {
   }
 
   mostrar(valor: any): string {
-    return valor ? valor : '-';
+    return valor || '-';
   }
-
 }

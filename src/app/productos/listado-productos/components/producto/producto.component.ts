@@ -51,7 +51,7 @@ export class ProductoComponent {
     const proveedores = this.proveedores();
     const producto = this.producto();
 
-    if(this.producto().imagen) {
+    if (this.producto().imagen) {
       this.urlImagen = `${environment.backendURL}/static/productos/${this.producto().imagen}`
     }
 
@@ -70,11 +70,11 @@ export class ProductoComponent {
     );
   });
 
-  private limpiarTexto(texto: string): string {
-    return texto.trim().replace(/\s\s+/g, ' ');
+  limpiarTexto(texto: string): string {
+    return texto.trim().replaceAll(/\s\s+/g, ' ');
   }
 
-  private textoBase = computed(() =>
+  textoBase = computed(() =>
     this.limpiarTexto(`${this.producto().nombre} ${this.producto().marca ?? ''} ${this.producto().modelo ?? ''}`)
   );
 
@@ -108,7 +108,7 @@ export class ProductoComponent {
     if (valor.isConfirmed) {
       //validaciones
       const unidades = Number(valor.value[0])
-      if (unidades < 1 || !unidades || isNaN(unidades) || !Number.isInteger(unidades)) {
+      if (unidades < 1 || !unidades || Number.isNaN(unidades) || !Number.isInteger(unidades)) {
         await ErrorValor()
         this.venderElProducto()
         return
@@ -121,7 +121,7 @@ export class ProductoComponent {
       //editar producto
       let mostrarFaltante = false
       this.producto().disponibles = this.producto().disponibles - unidades
-      if(this.producto().disponibles <= this.producto().limiteFaltante && !this.producto().faltante) {
+      if (this.producto().disponibles <= this.producto().limiteFaltante && !this.producto().faltante) {
         mostrarFaltante = true
       }
       try {
@@ -130,14 +130,14 @@ export class ProductoComponent {
         ToastError(error as string)
         return
       }
-      
+
       //añadir nueva venta
       try {
         const venta: Venta = this.estructurarVenta(unidades)
         await firstValueFrom(this.ventasService.crearVenta(venta))
         //alertas de venta y faltante
         await ToastVentaExito(unidades, this.producto().nombre)
-        if(mostrarFaltante) {
+        if (mostrarFaltante) {
           ToastFaltanteExito()
         }
       } catch (error) {
@@ -150,7 +150,7 @@ export class ProductoComponent {
   async cambiarFaltante() {
     try {
       await firstValueFrom(this.faltantesService.editarFaltante(this.producto()._id))
-      !this.producto().faltante ? ToastExito(AGREGAR_EXITO) : ToastExito(ELIMINAR_EXITO)
+      this.producto().faltante ? ToastExito(ELIMINAR_EXITO) : ToastExito(AGREGAR_EXITO);
     } catch (error) {
       ToastError(error as string)
     }

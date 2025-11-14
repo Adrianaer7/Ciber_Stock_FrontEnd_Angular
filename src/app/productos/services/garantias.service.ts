@@ -9,7 +9,7 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
     providedIn: 'root'
 })
 export class GarantiasService {
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
     garantias = signal<Garantia[]>([])
 
     crearGarantia(codigo: number, garantia: string, proveedor: string): Observable<Garantia | string> {

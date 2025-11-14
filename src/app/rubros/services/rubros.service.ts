@@ -12,7 +12,7 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 export class RubrosService {
 
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
     rubros = signal<Rubro[]>([])
     rubroSeleccionado = signal<Rubro>(RUBRO_VACIO)
 

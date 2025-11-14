@@ -1,8 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { RegistroUsuarioResponse, Usuario } from '../interfaces/auth.interface';
-import { ErrorResponse } from '../../shared/interfaces/error-response.interface';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
@@ -10,13 +9,13 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
   providedIn: 'root'
 })
 export class AuthService {
-  
-  private http = inject(HttpClient)
-  private _usuario = signal<Usuario | null>(null)
-  private _token = signal<string | null | undefined>(localStorage.getItem('token') ?? '');
-  private _cargando = signal<boolean>(false);
-  private _mensaje = signal<string>('');
-  private autenticado = signal<boolean>(false);
+
+  private readonly http = inject(HttpClient)
+  private readonly _usuario = signal<Usuario | null>(null)
+  private readonly _token = signal<string | null | undefined>(localStorage.getItem('token') ?? '');
+  private readonly _cargando = signal<boolean>(false);
+  private readonly _mensaje = signal<string>('');
+  private readonly autenticado = signal<boolean>(false);
 
   //guardo en mis signals de solo lectura para que nadie pueda modificar
   user = computed(() => this._usuario());
@@ -28,15 +27,15 @@ export class AuthService {
   //envio el token al backend
   usuarioAutenticado(): Observable<boolean> {
     if (this.autenticado()) return of(true)
-    if (!this._token()) {
-      this.logout();
-      return of(false);
-    } else {
+    if (this._token()) {
       return this.http.get(`${environment.backendURL}/auth`) //mando el token en el interceptor
         .pipe(
           map(() => true),  //en el interceptor -> exitoAlAutenticar()
           catchError((error: HttpErrorResponse) => this.errorAlAutenticar(error))
         );
+    } else {
+      this.logout();
+      return of(false);
     }
   }
 
@@ -57,7 +56,7 @@ export class AuthService {
 
   errorAlAutenticar(error: HttpErrorResponse): Observable<boolean> {
     this.logout()
-    if(error.status == 0) { //si no hay respuesta del servidor
+    if (error.status == 0) { //si no hay respuesta del servidor
       this._mensaje.set('No se pudo conectar con el servidor');
     } else {
       this._mensaje.set(error.error?.msg);

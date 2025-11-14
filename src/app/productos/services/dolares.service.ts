@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {  Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ResponseDolar } from '../interfaces/productos.interface';
 import { environment } from 'environments/environment.development';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
@@ -9,13 +9,13 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
     providedIn: 'root'
 })
 export class DolaresService {
-    private http = inject(HttpClient)
-
-    private _precio = signal<number>(0)
+    private readonly http = inject(HttpClient)
+    private readonly _precio = signal<number>(0)
     elDolarAutomatico = signal<boolean>(true)
 
     dolarDB = computed(() => this._precio())
     precio = computed(() => this._precio())
+
 
     traerDolarDB(): Observable<ResponseDolar | number> {
         return this.http.get<ResponseDolar>(`${environment.backendURL}/dolares`)
@@ -27,16 +27,16 @@ export class DolaresService {
 
     editarDolarDB(precio: string = '0', automatico = false): Observable<ResponseDolar | string> {
         let param;
-        if (!automatico) {
+        if (automatico) {
+            param = {
+                automatico: true,
+            }
+        } else {
             param = {
                 automatico: false,
                 dolarManual: {
                     precio
                 }
-            }
-        } else {
-            param = {
-                automatico: true,
             }
         }
 

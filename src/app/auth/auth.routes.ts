@@ -3,7 +3,7 @@ import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component'
 import { LoginComponent } from './pages/login/login.component';
 import { NuevaCuentaComponent } from './pages/nueva-cuenta/nueva-cuenta.component';
 import { OlvidePasswordComponent } from './pages/olvide-password/olvide-password.component';
-import { NuevaContraseñaComponent } from './nueva-contraseña/nueva-contraseña.component';
+import { NuevaPasswordComponent } from './nueva-contraseña/nueva-password.component';
 import { ConfirmarCuentaComponent } from './pages/confirmar-cuenta/confirmar-cuenta.component';
 import { NotAuthenticatedGuard } from './guards/not-authenticated.guard';
 
@@ -30,7 +30,7 @@ const authRoutes: Routes = [
             {
                 path: 'olvide-password/:token',
                 canActivate: [NotAuthenticatedGuard],
-                component: NuevaContraseñaComponent
+                component: NuevaPasswordComponent
             },
             {
                 path: 'confirmar/:token',

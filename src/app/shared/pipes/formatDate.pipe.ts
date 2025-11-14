@@ -7,9 +7,9 @@ import { DatePipe } from '@angular/common';
 
 //para que esto funcione tengo que configurar el main.ts y el app.config.ts
 export class FormatDatePipe implements PipeTransform {
-    private datePipe: DatePipe;
+    private readonly datePipe: DatePipe;
 
-    constructor(@Inject(LOCALE_ID) private locale: string) {    //traigo el locale del app.config.ts
+    constructor(@Inject(LOCALE_ID) private readonly locale: string) {    //traigo el locale del app.config.ts
         this.datePipe = new DatePipe(this.locale)
     }
 
