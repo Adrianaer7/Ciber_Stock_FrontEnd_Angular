@@ -10,7 +10,7 @@ import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 })
 export class VentasService {
 
-  private http = inject(HttpClient)
+  private readonly http = inject(HttpClient)
   ventas = signal<Venta[]>([])
 
   crearVenta(venta: Venta): Observable<Venta | string> {

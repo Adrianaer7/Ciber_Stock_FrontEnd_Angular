@@ -12,5 +12,5 @@ export const formatImport = (pesos: number): string => {
 }
 
 export const limpiarBusqueda = (value: string): string => {
-    return value.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    return value.toUpperCase().trim().normalize("NFD").replaceAll(/[\u0300-\u036f]/g, "")
 }

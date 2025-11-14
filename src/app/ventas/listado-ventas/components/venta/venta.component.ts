@@ -20,7 +20,7 @@ export class VentaComponent {
     const valor = await ModalCantidad()
     if (valor.isConfirmed) {
       const cantidad = Number(valor.value[0])
-      if (cantidad < 1 || !cantidad || isNaN(cantidad) || !Number.isInteger(cantidad)) {
+      if (cantidad < 1 || !cantidad || Number.isNaN(cantidad) || !Number.isInteger(cantidad)) {
         await ErrorValor()
         this.editarVenta()
         return
