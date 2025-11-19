@@ -5,12 +5,11 @@ import { AuthService } from 'app/auth/services/auth.service';
 import { Venta } from 'app/ventas/interfaces/ventas.interface';
 import { VentasService } from 'app/ventas/services/ventas.service';
 import { VentaComponent } from '../../components/venta/venta.component';
-import { CommonModule } from '@angular/common';
 import { limpiarBusqueda } from 'app/shared/utils/general.utils';
 
 @Component({
   selector: 'listado-ventas',
-  imports: [VentaComponent, CommonModule],
+  imports: [VentaComponent],
   templateUrl: './listado-ventas.component.html',
 })
 export class ListadoVentasComponent {

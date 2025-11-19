@@ -1,11 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import {  Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'layout',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, CommonModule],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './layout.component.html',
 })
 export class LayoutComponent {

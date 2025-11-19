@@ -4,12 +4,14 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "src",
+    "esModuleInterop": true,
     "paths": {
       "@constantes/*": ["app/shared/constants/*"]
     },
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
+    "moduleResolution": "bundler",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,

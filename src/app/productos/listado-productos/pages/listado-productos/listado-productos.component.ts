@@ -5,7 +5,6 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Producto } from '../../../interfaces/productos.interface';
 import { firstValueFrom, forkJoin } from 'rxjs';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../auth/services/auth.service';
 import { ProductoComponent } from "../../components/producto/producto.component";
 import { DolaresService } from 'app/productos/services/dolares.service';
@@ -18,7 +17,7 @@ type propiedades = 'codigo' | 'nombre' | 'marca' | 'modelo' | 'disponibles' | 'p
 
 @Component({
   selector: 'listado-productos',
-  imports: [ReactiveFormsModule, CommonModule, ProductoComponent],
+  imports: [ReactiveFormsModule, ProductoComponent],
   templateUrl: './listado-productos.component.html',
 })
 export class ListadoProductosComponent {
