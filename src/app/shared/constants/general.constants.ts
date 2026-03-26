@@ -60,7 +60,7 @@ export function ModalCantidad() {
     return Swal.fire({
         title: '<h5 style="color:#545454">Unidades</h5>',
         background: "white",
-        html: '<input id="swal-input" type="tel" value="1" style="color: black; width: 100px; text-align:center;" class="swal2-input">',
+        html: '<input id="swal-input" type="tel" value="1" style="color: black; width: 100px; text-align:center;" class="swal2-input" autocomplete="off">',
         width: "25rem",
         focusConfirm: true,
         preConfirm: () => {

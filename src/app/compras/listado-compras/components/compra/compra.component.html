@@ -3,7 +3,7 @@
   [ngClass]="{ 'font-semibold': !detalles() }"
   (click)="verDetalles()"
 >
-  <td class="p-3 text-center break-words ">{{ compra().nombre }}</td>
+  <td class="p-3 text-center break-words " [matTooltip]="'NOMBRE'">{{ compra().nombre }}</td>
   <td class="p-3 text-center break-words ">{{ mostrar(compra().marca) }}</td>
   <td class="p-3 text-center break-words ">{{ mostrar(compra().modelo) }}</td>
 

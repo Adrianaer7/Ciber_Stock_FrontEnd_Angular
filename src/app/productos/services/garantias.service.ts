@@ -15,7 +15,6 @@ export class GarantiasService {
     crearGarantia(codigo: number, garantia: string, proveedor: string): Observable<Garantia | string> {
         return this.http.post<Garantia>(`${environment.backendURL}/garantias`, {codigo, garantia, proveedor})
             .pipe(
-                map(res => res),
                 manejarHttpError()
             );
     }

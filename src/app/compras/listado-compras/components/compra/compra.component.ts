@@ -4,10 +4,11 @@ import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
 import { CommonModule } from '@angular/common';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
 import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @Component({
   selector: 'compra',
-  imports: [CommonModule, FormatImportPipe, FormatDatePipe],
+  imports: [CommonModule, FormatImportPipe, FormatDatePipe, MatTooltipModule],
   templateUrl: './compra.component.html',
 })
 export class CompraComponent {
