@@ -5,3 +5,27 @@
     color: white !important;
     border-radius: .5rem;
 }
+
+@media (min-width: 1024px) {
+    .app-layout {
+        display: grid;
+        grid-template-columns: 18rem minmax(0, 1fr);
+        column-gap: 2.5rem;
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .app-layout__sidebar {
+        min-height: calc(100vh - 4rem);
+        border-radius: 0.75rem;
+    }
+
+    .app-layout__content {
+        min-width: 0;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        background-color: #fff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08);
+    }
+}
