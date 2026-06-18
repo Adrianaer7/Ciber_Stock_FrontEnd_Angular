@@ -1,7 +1,7 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../services/auth.service';
+import { httpResource } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { environment } from 'environments/environment.development';
 
 @Component({
   selector: 'confirmar-cuenta',
@@ -10,24 +10,21 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 })
 export class ConfirmarCuentaComponent {
   router = inject(Router);
-  authService = inject(AuthService);
   activatedRoute = inject(ActivatedRoute);
-  mensajeForm = signal<string>(''); //error de formulario
+  mensajeForm = signal<string>('');
 
   token = this.activatedRoute.snapshot.params['token'];
 
+  tokenResource = httpResource<{ msg: string }>(
+    () => `${environment.backendURL}/usuarios/confirmar/${this.token}`,
+  );
 
-  //ni bien se inicializa el componente
-  tokenResource = rxResource({
-    params: () => ({ token: this.token }),
-    stream: ({ params }) => {
-      return this.authService.confirmarCuenta(params.token);
-    },
-  });
-
-  redirectEffect = effect(() => {
+  confirmarEffect = effect(() => {
     if (this.tokenResource.hasValue()) {
-      this.mensajeForm.set(this.tokenResource.value())
+      this.mensajeForm.set(this.tokenResource.value()!.msg);
+    }
+    if (this.tokenResource.error()) {
+      this.router.navigate(['404']);
     }
   });
 }

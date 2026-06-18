@@ -1,13 +1,11 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import { RegistroUsuarioResponse, Usuario } from '../interfaces/auth.interface';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AuthService {
 
   private readonly http = inject(HttpClient)

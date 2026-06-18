@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { httpResource } from '@angular/common/http';
+import { form, FormField, required, email, pattern } from '@angular/forms/signals';
 import { ProveedoresService } from '../../../services/proveedores.service';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { Proveedor } from '../../../interfaces/proveedores.interface';
 import { FormUtils } from '../../../../shared/utils/forms.utils';
 import { ProveedorComponent } from '../../components/proveedor/proveedor.component';
@@ -10,68 +10,75 @@ import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.const
 import { AlertError } from '../../../constants/proveedor.constants';
 import { firstValueFrom } from 'rxjs';
 import { limpiarBusqueda } from 'app/shared/utils/general.utils';
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
+import { getFirstSignalFormError, touchAllFields } from 'app/shared/utils/signal-forms.utils';
 
 @Component({
   selector: 'listado-proveedores',
-  imports: [ProveedorComponent, ReactiveFormsModule],
+  imports: [ProveedorComponent, FormField],
   templateUrl: './listado-proveedores.component.html'
 })
 export class ListadoProveedoresComponent {
 
-  fb = inject(FormBuilder)
   proveedorService = inject(ProveedoresService)
   authService = inject(AuthService)
   filtrando = signal<string>('');
-  filtrados = signal<Proveedor[]>([]);
   mostrarForm = signal<boolean>(false);
   crearNuevo = signal<boolean>(false);
   ordenAscendente = signal<boolean>(true);
+  filtradosOrdenados = signal<Proveedor[]>([]);
 
   proveedores = this.proveedorService.proveedores;
   proveedorSeleccionado = this.proveedorService.proveedorSeleccionado;
   usuario = this.authService.user
 
+  proveedoresResource = httpResource<{ proveedores: Proveedor[] }>(
+    () => `${environment.backendURL}/proveedores`,
+  );
 
-  proveedoresResoruce = rxResource({
-    stream: () => this.proveedorService.traerProveedores()
-  })
-
-  //traer proveedores o mostrar error
-  proveedoresEffect = effect(() => {
-    if (this.proveedoresResoruce.hasValue()) {
-      const respuesta = this.proveedoresResoruce.value()
-      if (typeof respuesta === 'string') return ToastError(respuesta)
+  proveedoresLoadEffect = effect(() => {
+    if (this.proveedoresResource.hasValue()) {
+      this.proveedorService.proveedores.set(this.proveedoresResource.value()!.proveedores);
     }
-  })
+    const error = this.proveedoresResource.error();
+    if (error) {
+      ToastError(getHttpResourceErrorMessage(error));
+    }
+  });
 
-  //cargar el form con datos del proveedor a editar
+  proveedorModel = signal({
+    nombre: '',
+    empresa: '',
+    telPersonal: '',
+    telEmpresa: '',
+    email: '',
+  });
+
+  proveedorForm = form(this.proveedorModel, (schema) => {
+    required(schema.empresa, { message: 'El campo empresa es requerido' });
+    pattern(schema.email, new RegExp(FormUtils.emailPattern), {
+      message: 'El campo email no tiene un formato de correo electrónico válido',
+    });
+    email(schema.email, { message: 'El campo email no es un correo electrónico válido' });
+  });
+
   proveedorSeleccionadoEffect = effect(() => {
     const proveedor = this.proveedorSeleccionado();
     if (proveedor._id) {
       this.mostrarForm.set(true);
-      this.formProveedor.patchValue({
+      this.proveedorModel.set({
         nombre: proveedor.nombre || '',
         empresa: proveedor.empresa || '',
         telPersonal: proveedor.telPersonal || '',
         telEmpresa: proveedor.telEmpresa || '',
-        email: proveedor.email || ''
+        email: proveedor.email || '',
       });
     }
+  });
 
-  })
-
-  formProveedor = this.fb.group({
-    nombre: [''],
-    empresa: ['', Validators.required],
-    telPersonal: [''],
-    telEmpresa: [''],
-    email: ['', Validators.pattern(FormUtils.emailPattern)]
-  })
-
-  //cuando cambie filtrando()
   filtroProveedor = computed(() => {
     const palabras = this.filtrando()
-
     if (!palabras) return [];
 
     const incluyeTodas = (datos: string, palabras: string): boolean => {
@@ -85,14 +92,14 @@ export class ListadoProveedoresComponent {
     );
   });
 
-  // cuando cambie el computed() filtroProveedor
-  filtradosEffect = effect(() => {
-    this.filtrados.set(this.filtroProveedor());
+  filtrados = computed(() => {
+    const ordenados = this.filtradosOrdenados();
+    return ordenados.length ? ordenados : this.filtroProveedor();
   });
 
-  //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));
+    this.filtradosOrdenados.set([]);
   }
 
   manejarFiltro() {
@@ -103,6 +110,7 @@ export class ListadoProveedoresComponent {
 
   limpiarFiltro() {
     this.filtrando.set('')
+    this.filtradosOrdenados.set([]);
   }
 
   switchMostrarForm() {
@@ -110,31 +118,43 @@ export class ListadoProveedoresComponent {
       this.mostrarForm.set(false);
       this.crearNuevo.set(false);
       this.proveedorService.limpiarSeleccionado()
-      this.formProveedor.reset();
+      this.proveedorModel.set({ nombre: '', empresa: '', telPersonal: '', telEmpresa: '', email: '' });
     } else {
       this.mostrarForm.set(true)
       if (!this.crearNuevo()) {
         this.crearNuevo.set(true);
         this.proveedorService.limpiarSeleccionado()
-        this.formProveedor.reset();
+        this.proveedorModel.set({ nombre: '', empresa: '', telPersonal: '', telEmpresa: '', email: '' });
       }
     }
   }
 
 
   async onSubmit() {
-    await this.validoCampos()
-    if (!this.formProveedor.valid) return;
+    touchAllFields([
+      this.proveedorForm.nombre,
+      this.proveedorForm.empresa,
+      this.proveedorForm.telPersonal,
+      this.proveedorForm.telEmpresa,
+      this.proveedorForm.email,
+    ]);
 
-    //CREAR NUEVO
+    if (this.proveedorForm().invalid()) {
+      const primerError = getFirstSignalFormError(this.proveedorForm, [
+        { path: this.proveedorForm.empresa, name: 'empresa' },
+        { path: this.proveedorForm.email, name: 'email' },
+      ]);
+      if (primerError?.includes('empresa')) AlertError();
+      return;
+    }
+
     if (this.crearNuevo()) {
       let nuevoProveedor: Proveedor = this.estructurarProveedor()
       nuevoProveedor.datos = this.cargarDatos(nuevoProveedor);
 
-      //llamar al endpoint para crear un nuevo proveedor
       try {
         await firstValueFrom(this.proveedorService.crearProveedor(nuevoProveedor))
-        this.formProveedor.reset();
+        this.proveedorModel.set({ nombre: '', empresa: '', telPersonal: '', telEmpresa: '', email: '' });
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
         ToastExito(AGREGAR_EXITO)
@@ -143,15 +163,14 @@ export class ListadoProveedoresComponent {
         return
       }
     }
-    //EDITAR 
+
     if (this.proveedorSeleccionado()?._id) {
       let proveedorEditado: Proveedor = this.estructurarProveedor()
       proveedorEditado.datos = this.cargarDatos(proveedorEditado);
 
-      //llamar al endpoint para editar el proveedor seleccionado
       try {
         await firstValueFrom(this.proveedorService.editarProveedor(proveedorEditado))
-        this.formProveedor.reset();
+        this.proveedorModel.set({ nombre: '', empresa: '', telPersonal: '', telEmpresa: '', email: '' });
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
         ToastExito(AGREGAR_EXITO)
@@ -162,22 +181,17 @@ export class ListadoProveedoresComponent {
   }
 
   estructurarProveedor() {
+    const { nombre, empresa, telPersonal, telEmpresa, email } = this.proveedorModel();
     return {
       _id: this.proveedorSeleccionado()?._id || '',
-      nombre: this.formProveedor.get('nombre')?.value || '',
-      empresa: this.formProveedor.get('empresa')?.value || '',
-      telPersonal: this.formProveedor.get('telPersonal')?.value || '',
-      telEmpresa: this.formProveedor.get('telEmpresa')?.value || '',
-      email: this.formProveedor.get('email')?.value || '',
+      nombre,
+      empresa,
+      telPersonal,
+      telEmpresa,
+      email,
       datos: '',
       creador: this.usuario()?._id || ''
     }
-  }
-
-
-  async validoCampos() {
-    const empresa = this.formProveedor.get('empresa')?.value;
-    if (!empresa) AlertError()
   }
 
   cargarDatos(proveedor: Proveedor): string {
@@ -185,24 +199,22 @@ export class ListadoProveedoresComponent {
   }
 
   ordenarPor() {
-    let resultado: Proveedor[] = [];
     const comparar = (a: Proveedor, b: Proveedor) => {
-      const valorA = (a.empresa || '');  //obtengo el valor del campo
+      const valorA = (a.empresa || '');
       const valorB = (b.empresa || '');
-      if (valorA > valorB) return 1;  //valorA tiene que ir despues de valorB
-      if (valorA < valorB) return -1; //valorA tiene que ir antes de valorB
-      return 0; //si valorA y valorB son iguales, dejo como están
+      if (valorA > valorB) return 1;
+      if (valorA < valorB) return -1;
+      return 0;
     };
 
-    if (this.filtrados().length) {
-      resultado = [...this.filtrados()].sort((a: Proveedor, b: Proveedor) =>
-        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)  //seria como this.ordenAscendente() ? 1 : -1
-      );
-      this.filtrados.set(resultado);
+    const base = this.filtrando() ? this.filtroProveedor() : this.proveedores();
+    const resultado = [...base].sort((a: Proveedor, b: Proveedor) =>
+      this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
+    );
+
+    if (this.filtrando()) {
+      this.filtradosOrdenados.set(resultado);
     } else {
-      resultado = [...this.proveedores()].sort((a: Proveedor, b: Proveedor) =>
-        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
-      );
       this.proveedores.set(resultado);
     }
     this.ordenAscendente.set(!this.ordenAscendente());

@@ -1,13 +1,15 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { httpResource } from '@angular/common/http';
 import { ToastError } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { FaltantesService } from 'app/faltantes/services/faltantes.service';
 import { Producto } from 'app/productos/interfaces/productos.interface';
 import { FaltanteComponent } from '../../component/faltante/faltante.component';
+import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
-import { forkJoin } from 'rxjs';
 import { limpiarBusqueda } from 'app/shared/utils/general.utils';
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
 
 type propiedades = 'codigo' | 'nombre' | 'marca' | 'modelo' | 'rubro' | 'proveedor' | 'disponibles';
 @Component({
@@ -31,21 +33,27 @@ export class ListadoFaltantesComponent {
   usuario = this.authService.user
 
 
-  faltantesResource = rxResource({
-    stream: () => forkJoin({
-      faltantes: this.faltantesService.traerFaltantes(),
-      proveedores: this.proveedoresService.traerProveedores()
-    })
-  });
+  faltantesResource = httpResource<{ faltantes: Producto[] }>(
+    () => `${environment.backendURL}/faltantes`,
+  );
+  proveedoresResource = httpResource<{ proveedores: Proveedor[] }>(
+    () => `${environment.backendURL}/proveedores`,
+  );
 
-  //traer faltantes o mostrar error
-  faltantesEffect = effect(() => {
+  faltantesLoadEffect = effect(() => {
     if (this.faltantesResource.hasValue()) {
-      const respuesta = this.faltantesResource.value()
-      if (typeof respuesta.faltantes === 'string') return ToastError(respuesta.faltantes)
-      if (typeof respuesta.proveedores === 'string') return ToastError(respuesta.proveedores)
+      this.faltantesService.faltantes.set(this.faltantesResource.value()!.faltantes);
     }
-  })
+    if (this.proveedoresResource.hasValue()) {
+      this.proveedoresService.proveedores.set(this.proveedoresResource.value()!.proveedores);
+    }
+    for (const resource of [this.faltantesResource, this.proveedoresResource]) {
+      const error = resource.error();
+      if (error) {
+        ToastError(getHttpResourceErrorMessage(error));
+      }
+    }
+  });
 
 
   //cuando cambie filtrando()
@@ -65,19 +73,15 @@ export class ListadoFaltantesComponent {
     );
   });
 
-  // cuando cambie el computed() filtroFaltante
-  filtradosEffect = effect(() => {
-    this.filtrados.set(this.filtroFaltante());
-  });
-
-  //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));
+    this.filtrados.set(this.filtroFaltante());
   }
 
   manejarFiltro() {
     if (this.filtrando()) {
-      this.filtrando.set('')
+      this.filtrando.set('');
+      this.filtrados.set([]);
     }
   }
 

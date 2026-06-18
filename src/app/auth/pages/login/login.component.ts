@@ -1,56 +1,54 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, FormField, required, minLength, email } from '@angular/forms/signals';
+import { firstValueFrom } from 'rxjs';
 
 import { MensajeComponent } from '../../components/mensaje/mensaje.component';
 import { AuthService } from '../../services/auth.service';
-import { FormUtils } from '../../../shared/utils/forms.utils';
+import { getFirstSignalFormError, touchAllFields } from '../../../shared/utils/signal-forms.utils';
 
 @Component({
   selector: 'login',
-  imports: [MensajeComponent, ReactiveFormsModule, RouterLink],
+  imports: [MensajeComponent, FormField, RouterLink],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
 
-  fb = inject(FormBuilder);
   router = inject(Router);
   authService = inject(AuthService);
-  mensaje = this.authService.mensaje;  //msg back
-  mensajeForm = signal<string>(''); //error de formulario
+  mensaje = this.authService.mensaje;
+  mensajeForm = signal<string>('');
 
-  login = this.fb.group({
-    email: ['', [Validators.required, Validators.pattern(FormUtils.emailPattern)]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
-  })
+  loginModel = signal({ email: '', password: '' });
+  loginForm = form(this.loginModel, (schema) => {
+    required(schema.email, { message: 'El campo email es requerido' });
+    email(schema.email, { message: 'El campo email no es un correo electrónico válido' });
+    required(schema.password, { message: 'El campo password es requerido' });
+    minLength(schema.password, 6, { message: 'El campo password debe tener al menos 6 caracteres.' });
+  });
 
 
-  onSubmit() {
-    if (this.login.invalid) {
-      const primerError = FormUtils.getFirstError(this.login);
-      this.mensajeForm.set(primerError ?? '')
+  async onSubmit() {
+    touchAllFields([this.loginForm.email, this.loginForm.password]);
 
-      setTimeout(() => {
-        this.mensajeForm.set('');
-      }, 3000);
+    if (this.loginForm().invalid()) {
+      const primerError = getFirstSignalFormError(this.loginForm, [
+        { path: this.loginForm.email, name: 'email' },
+        { path: this.loginForm.password, name: 'password' },
+      ]);
+      this.mensajeForm.set(primerError ?? '');
+      setTimeout(() => this.mensajeForm.set(''), 3000);
       return;
     }
 
-    //por si me llega vacio
-    const { email = '', password = '' } = this.login.value;
+    const { email, password } = this.loginModel();
 
-    //me logeo
-    this.authService.login(email!, password!).subscribe((usuario) => {
-      if (usuario) {
-        this.router.navigate(['/productos']);
-      } else {
-        this.mensajeForm.set(this.mensaje());
-        setTimeout(() => {
-          this.mensajeForm.set('');
-        }, 3000);
-      }
-    })
+    const usuario = await firstValueFrom(this.authService.login(email, password));
+    if (usuario) {
+      this.router.navigate(['/productos']);
+    } else {
+      this.mensajeForm.set(this.mensaje());
+      setTimeout(() => this.mensajeForm.set(''), 3000);
+    }
   }
-
-
 }

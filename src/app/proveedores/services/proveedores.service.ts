@@ -1,14 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { map, Observable, tap } from 'rxjs';
 import { Proveedor } from '../interfaces/proveedores.interface';
 import { environment } from '../../../environments/environment.development';
 import { PROVEEDOR_VACIO } from '../constants/proveedor.constants';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ProveedoresService {
 
   private readonly http = inject(HttpClient);

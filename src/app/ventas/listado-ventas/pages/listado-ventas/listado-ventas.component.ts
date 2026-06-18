@@ -1,11 +1,13 @@
-import { Component, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
 import { ToastError } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { Venta } from 'app/ventas/interfaces/ventas.interface';
 import { VentasService } from 'app/ventas/services/ventas.service';
 import { VentaComponent } from '../../components/venta/venta.component';
 import { limpiarBusqueda } from 'app/shared/utils/general.utils';
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
 
 @Component({
   selector: 'listado-ventas',
@@ -17,55 +19,60 @@ export class ListadoVentasComponent {
   authService = inject(AuthService);
 
   filtrando = signal<string>('');
-  filtradas = signal<Venta[]>([]);
-  filter = signal<boolean>(false);
   fechaDesde = signal<string>('');
   fechaHasta = signal<string>('');
 
   ventas = this.ventaService.ventas;
   usuario = this.authService.user;
 
-  ventasResoruce = rxResource({
-    stream: () => this.ventaService.traerVentas(),
-  });
+  ventasResource = httpResource<{ ventas: Venta[] }>(
+    () => `${environment.backendURL}/ventas`,
+  );
 
-  ventasEffect = effect(() => {
-    if (this.ventasResoruce.hasValue()) {
-      const respuesta = this.ventasResoruce.value();
-      if (typeof respuesta === 'string') return ToastError(respuesta);
+  ventasLoadEffect = effect(() => {
+    if (this.ventasResource.hasValue()) {
+      this.ventaService.ventas.set(this.ventasResource.value()!.ventas);
+    }
+    const error = this.ventasResource.error();
+    if (error) {
+      ToastError(getHttpResourceErrorMessage(error));
     }
   });
 
-  filtradosEffect = effect(() => {
+  filter = computed(() => {
+    const texto = limpiarBusqueda(this.filtrando());
+    const desde = this.fechaDesde();
+    const hasta = this.fechaHasta();
+    const tieneTexto = !!texto;
+    const tieneFechas = !!desde && !!hasta;
+    return tieneTexto || (tieneFechas && desde <= hasta);
+  });
+
+  filtradas = computed(() => {
     const texto = limpiarBusqueda(this.filtrando());
     const ventas = this.ventas();
     const desde = this.fechaDesde();
     const hasta = this.fechaHasta();
 
     const tieneTexto = !!texto;
-    const tieneFechas = !!desde && !!hasta; //que las dos variables contengan valores
-    const fechasValidas = tieneFechas && desde <= hasta;  //que la fecha desde sea menor
+    const tieneFechas = !!desde && !!hasta;
+    const fechasValidas = tieneFechas && desde <= hasta;
 
-    //si no hay ningun tipod de filtro puesto
     if (!tieneTexto && !tieneFechas) {
-      this.filter.set(false);
-      return;
+      return [];
     }
 
     const incluyeTodas = (desc: string) =>
       texto.split(' ')
         .every(p => desc.toUpperCase().includes(p));
 
-    const enRangoDeFechas = (fecha: string) => !fechasValidas || (fecha >= desde && fecha <= hasta);  //si no es valida la fecha la función devuelve siempre true. Esto significa que no se filtra por fecha
+    const enRangoDeFechas = (fecha: string) => !fechasValidas || (fecha >= desde && fecha <= hasta);
 
-    const ventasFiltradas = ventas.filter(({ descripcion, fecha }) => {
-      const textoOk = tieneTexto ? incluyeTodas(descripcion) : true;  //va a devolver true siempre a menos que no encuentre la descripcion
-      const fechaOk = tieneFechas ? enRangoDeFechas(fecha) : true;  //va a devoler true siempre a menos que la fecha de la venta no esté dentro del rango buscado
-      return textoOk && fechaOk;  //agrega la venta al array si se cumplen las dos condiciones
+    return ventas.filter(({ descripcion, fecha }) => {
+      const textoOk = tieneTexto ? incluyeTodas(descripcion) : true;
+      const fechaOk = tieneFechas ? enRangoDeFechas(fecha) : true;
+      return textoOk && fechaOk;
     });
-
-    this.filtradas.set(ventasFiltradas);
-    this.filter.set(true);
   });
 
   busqueda(value: string) {

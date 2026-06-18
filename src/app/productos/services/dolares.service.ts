@@ -1,13 +1,11 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Service, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { ResponseDolar } from '../interfaces/productos.interface';
 import { environment } from 'environments/environment.development';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Service()
 export class DolaresService {
     private readonly http = inject(HttpClient)
     private readonly _precio = signal<number>(0)

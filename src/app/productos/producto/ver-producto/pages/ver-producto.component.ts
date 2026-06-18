@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { httpResource } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ELIMINAR_EXITO, ToastError, ToastExito, Warning } from '@constantes/general.constants';
 import { PRODUCTO_VACIO } from 'app/productos/constants/productos.constants';
-import { Producto } from 'app/productos/interfaces/productos.interface';
+import { Garantia, Producto } from 'app/productos/interfaces/productos.interface';
 import { GarantiasService } from 'app/productos/services/garantias.service';
 import { ProductosService } from 'app/productos/services/productos.service';
+import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
-import { firstValueFrom, forkJoin } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { FormatImportPipe } from 'app/shared/pipes/formatImport.pipe';
 import { FormatDatePipe } from 'app/shared/pipes/formatDate.pipe';
 import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
 
 @Component({
   selector: 'ver-producto',
@@ -36,23 +38,37 @@ export class VerProductoComponent {
   urlImagen = computed(() => `${environment.backendURL}/static/productos/${this.producto().imagen}`)
   proveedoresIguales = computed(() => this.proveedores().filter(proveedor => this.producto().todos_proveedores.includes(proveedor._id!)))
 
-  productoResource = rxResource({
-    stream: () => forkJoin({
-      producto: this.productosService.traerProducto(this.url),
-      garantias: this.garantiasService.traerGarantias(),
-      proveedores: this.proveedoresService.traerProveedores()
-    })
-  });
+  productoResource = httpResource<{ producto: Producto }>(
+    () => `${environment.backendURL}/productos/${this.url}`,
+  );
+  garantiasResource = httpResource<{ garantias: Garantia[] }>(
+    () => `${environment.backendURL}/garantias`,
+  );
+  proveedoresResource = httpResource<{ proveedores: Proveedor[] }>(
+    () => `${environment.backendURL}/proveedores`,
+  );
 
-  productoEffect = effect(() => {
+  productoLoadEffect = effect(() => {
     if (this.productoResource.hasValue()) {
-      const respuesta = this.productoResource.value();
-      if (typeof respuesta.producto === 'string') return ToastError(respuesta.producto);
-      if (typeof respuesta.garantias === 'string') return ToastError(respuesta.garantias);
-      if (typeof respuesta.proveedores === 'string') return ToastError(respuesta.proveedores);
-      this.producto.set(respuesta.producto);
+      this.producto.set(this.productoResource.value()!.producto);
     }
-  })
+    if (this.garantiasResource.hasValue()) {
+      this.garantiasService.garantias.set(this.garantiasResource.value()!.garantias);
+    }
+    if (this.proveedoresResource.hasValue()) {
+      this.proveedoresService.proveedores.set(this.proveedoresResource.value()!.proveedores);
+    }
+    for (const resource of [
+      this.productoResource,
+      this.garantiasResource,
+      this.proveedoresResource,
+    ]) {
+      const error = resource.error();
+      if (error) {
+        ToastError(getHttpResourceErrorMessage(error));
+      }
+    }
+  });
 
   todasGarantias = computed(() => {
     const garantias = this.garantias();

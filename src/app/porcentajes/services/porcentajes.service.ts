@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { Porcentaje } from '../interfaces/porcentajes.intercaces';
 import { environment } from 'environments/environment.development';
 import { map, Observable, tap } from 'rxjs';
@@ -6,9 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { PORCENTAJE_VACIO } from '../constants/porcentajes.contants';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Service()
 export class PorcentajesService {
 
     private readonly http = inject(HttpClient)

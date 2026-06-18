@@ -5,19 +5,17 @@
     <div class='bg-white  mt-10 px-5 pb-3 rounded-md shadow-md md:w-3/4 mx-auto'>
         <form
             class="mt-10"
-            (ngSubmit)="onSubmit()"
-            [formGroup]="nuevoUsuario"
+            (submit)="$event.preventDefault(); onSubmit()"
         >
             <div class="mb-4 py-2">
                 <label htmlFor="nombre" class="text-gray-800 font-bold">Nombre</label>
-                <input 
+                <input
                     type="text"
                     autoComplete="off"
                     class="mt-2 block w-full p-3 rounded-md bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300 placeholder-gray-500"
                     id="nombre"
                     placeholder="Ingresa tu nombre"
-                    name="nombre"
-                    formControlName="nombre"
+                    [formField]="nuevoUsuarioForm.nombre"
                 />
             </div>
             <div class="mb-4">
@@ -28,8 +26,7 @@
                     class="mt-2 block w-full p-3 rounded-md bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300 placeholder-gray-500"
                     id="email"
                     placeholder="Ingresa tu email"
-                    name="email"
-                    formControlName="email"
+                    [formField]="nuevoUsuarioForm.email"
                 />
             </div>
             <div class="mb-4">
@@ -40,8 +37,7 @@
                     class="mt-2 block w-full p-3 rounded-md bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300 placeholder-gray-500"
                     id="password"
                     placeholder="Ingresa tu contraseña"
-                    name="password"
-                    formControlName="password"
+                    [formField]="nuevoUsuarioForm.password"
                 />
             </div>
             <div class="mb-4">
@@ -52,8 +48,7 @@
                     class="mt-2 block w-full p-3 rounded-md bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300 placeholder-gray-500"
                     id="confirmar"
                     placeholder="Repite tu contraseña"
-                    name="confirmar"
-                    formControlName="confirmar"
+                    [formField]="nuevoUsuarioForm.confirmar"
                 />
             </div>
 

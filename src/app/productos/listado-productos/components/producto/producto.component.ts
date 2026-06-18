@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Producto, Tipos } from '../../../interfaces/productos.interface';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -21,7 +21,6 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'producto',
   imports: [CommonModule, RouterLink, FormatImportPipe],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './producto.component.html',
 })
 export class ProductoComponent {
@@ -35,15 +34,17 @@ export class ProductoComponent {
   ventasService = inject(VentasService)
   producto = input.required<Producto>()
   faltante = input.required<boolean>()
-  resta = signal(0)
-  cantidad = 0
-  urlImagen = ''
-  imagenModal = signal<string | null>(null);  //al hacer click en la imagen, se abre el modal con la imagen ampliada
+  imagenModal = signal<string | null>(null);
 
   proveedores = this.proveedoresService.proveedores
   garantias = this.garantiasService.garantias
   dolarDB = this.dolaresService.dolarDB
 
+  urlImagen = computed(() =>
+    this.producto().imagen
+      ? `${environment.backendURL}/static/productos/${this.producto().imagen}`
+      : ''
+  );
 
   colorFaltante = computed(() => this.faltante())
 
@@ -51,10 +52,6 @@ export class ProductoComponent {
     const garantias = this.garantias();
     const proveedores = this.proveedores();
     const producto = this.producto();
-
-    if (this.producto().imagen) {
-      this.urlImagen = `${environment.backendURL}/static/productos/${this.producto().imagen}`
-    }
 
     if (!garantias || !proveedores || !producto) return [];
 
@@ -121,12 +118,15 @@ export class ProductoComponent {
       }
       //editar producto
       let mostrarFaltante = false
-      this.producto().disponibles = this.producto().disponibles - unidades
-      if (this.producto().disponibles <= this.producto().limiteFaltante && !this.producto().faltante) {
+      const productoActualizado = {
+        ...this.producto(),
+        disponibles: this.producto().disponibles - unidades,
+      };
+      if (productoActualizado.disponibles <= productoActualizado.limiteFaltante && !productoActualizado.faltante) {
         mostrarFaltante = true
       }
       try {
-        await firstValueFrom(this.productosService.editarProducto(this.producto()))
+        await firstValueFrom(this.productosService.editarProducto(productoActualizado))
       } catch (error) {
         ToastError(error as string)
         return
@@ -137,7 +137,7 @@ export class ProductoComponent {
         const venta: Venta = this.estructurarVenta(unidades)
         await firstValueFrom(this.ventasService.crearVenta(venta))
         //alertas de venta y faltante
-        await ToastVentaExito(unidades, this.producto().nombre)
+        await ToastVentaExito(unidades, productoActualizado.nombre)
         if (mostrarFaltante) {
           ToastFaltanteExito()
         }

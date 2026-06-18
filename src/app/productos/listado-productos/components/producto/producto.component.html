@@ -3,12 +3,12 @@
     <td class=" text-center">
          @if (producto().imagen) {
             <img
-                [src]="urlImagen"
+                [src]="urlImagen()"
                 width="100"
                 height="100"
                 alt="img"
                 style="object-fit: contain; width: auto; height: auto"
-                (click)="imagenModal.set(urlImagen)"
+                (click)="imagenModal.set(urlImagen())"
             />
         } 
     

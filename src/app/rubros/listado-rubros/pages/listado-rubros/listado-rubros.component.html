@@ -15,19 +15,17 @@
     <div class=" py-3 bg-white rounded-lg mt-6 mx-auto lg:w-2/4">
 
         <form
-            (ngSubmit)="onSubmit()"
-            [formGroup]="formRubro"
+            (submit)="$event.preventDefault(); onSubmit()"
         >
             <div class="flex justify-between px-2 gap-2">
                 <div>
                     <label htmlFor="nombre" class="text-gray-800  font-bold font">Nombre</label>
                     <input
                         type="text"
-                        name="nombre"
                         autoComplete="off"
                         class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
                         placeholder="Almacenamiento"
-                        formControlName="nombre"
+                        [formField]="rubroForm.nombre"
                     />
                 </div>
                 <div>
@@ -35,12 +33,11 @@
 
                     <input
                         type="number"
-                        name="rentabilidad"
                         autoComplete="off"
                         list="rentabilidad"
                         class="bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300  uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
                         placeholder="30"
-                        formControlName="rentabilidad"
+                        [formField]="rubroForm.rentabilidad"
                     />
                 </div>
 

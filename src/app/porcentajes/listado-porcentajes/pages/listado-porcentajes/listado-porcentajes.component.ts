@@ -1,6 +1,6 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { httpResource } from '@angular/common/http';
+import { form, FormField, required, min } from '@angular/forms/signals';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { AlertErrorComision, AlertErrorNombre } from 'app/porcentajes/constants/porcentajes.contants';
@@ -8,111 +8,104 @@ import { Porcentaje } from 'app/porcentajes/interfaces/porcentajes.intercaces';
 import { PorcentajesService } from 'app/porcentajes/services/porcentajes.service';
 import { PorcentajeComponent } from '../../components/porcentaje/porcentaje.component';
 import { firstValueFrom } from 'rxjs';
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
+import { getFirstSignalFormError, touchAllFields } from 'app/shared/utils/signal-forms.utils';
 
 @Component({
   selector: 'listado-porcentajes',
-  imports: [PorcentajeComponent, ReactiveFormsModule],
+  imports: [PorcentajeComponent, FormField],
   templateUrl: './listado-porcentajes.component.html',
 })
 export class ListadoPorcentajesComponent {
 
-  fb = inject(FormBuilder)
   porcentajesService = inject(PorcentajesService)
   authService = inject(AuthService)
-  filtrando = signal<string>('');
   mostrarForm = signal<boolean>(false);
-  
+
   porcentajes = this.porcentajesService.porcentajes;
   porcentajeSeleccionado = this.porcentajesService.porcentajeSeleccionado;
   usuario = this.authService.user
 
+  porcentajeResource = httpResource<{ porcentajes: Porcentaje[] }>(
+    () => `${environment.backendURL}/porcentajes`,
+  );
 
-  porcentajeResource = rxResource({
-    stream: () => this.porcentajesService.traerPorcentajes()
-  })
-
-  //traer porcentajes o mostrar error
-  porcentajesEffect = effect(() => {
+  porcentajesLoadEffect = effect(() => {
     if (this.porcentajeResource.hasValue()) {
-      const respuesta = this.porcentajeResource.value()
-      if (typeof respuesta === 'string') return ToastError(respuesta)
+      this.porcentajesService.porcentajes.set(this.porcentajeResource.value()!.porcentajes);
     }
-  })
+    const error = this.porcentajeResource.error();
+    if (error) {
+      ToastError(getHttpResourceErrorMessage(error));
+    }
+  });
 
-  //cargar el form con datos del porcentaje a editar
+  porcentajeModel = signal({ nombre: '', comision: 1 });
+  porcentajeForm = form(this.porcentajeModel, (schema) => {
+    required(schema.nombre, { message: 'El campo nombre es requerido' });
+    required(schema.comision, { message: 'El campo comision es requerido' });
+    min(schema.comision, 1, { message: 'El campo comision debe tener un valor mínimo de 1' });
+  });
+
   porcentajeSeleccionadoEffect = effect(() => {
     const porcentaje: Porcentaje = this.porcentajeSeleccionado();
     if (porcentaje._id) {
       this.mostrarForm.set(true);
-      this.formPorcentaje.patchValue({
+      this.porcentajeModel.set({
         nombre: porcentaje.nombre || '',
         comision: porcentaje.comision || 1,
-
       });
     }
-
-  })
-
-  formPorcentaje = this.fb.group({
-    nombre: ['', Validators.required],
-    comision: [1, [Validators.required, Validators.min(1)]],
-  })
+  });
 
 
   switchMostrarForm() {
     if (this.mostrarForm()) {
       this.mostrarForm.set(false);
       this.porcentajesService.limpiarSeleccionado()
-      this.formPorcentaje.reset();
+      this.porcentajeModel.set({ nombre: '', comision: 1 });
     } else {
       this.mostrarForm.set(true)
-
     }
   }
 
 
   async onSubmit() {
-    await this.validoCampos()
-    if (!this.formPorcentaje.valid) return;
+    touchAllFields([this.porcentajeForm.nombre, this.porcentajeForm.comision]);
 
-    //EDITAR 
+    if (this.porcentajeForm().invalid()) {
+      const primerError = getFirstSignalFormError(this.porcentajeForm, [
+        { path: this.porcentajeForm.nombre, name: 'nombre' },
+        { path: this.porcentajeForm.comision, name: 'comision' },
+      ]);
+      if (primerError?.includes('nombre')) AlertErrorNombre();
+      else AlertErrorComision();
+      return;
+    }
+
     if (this.porcentajeSeleccionado()?._id) {
-      let porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
+      const porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
 
-      //llamar al endpoint para editar el porcentaje seleccionado
       try {
         await firstValueFrom(this.porcentajesService.editarPorcentaje(porcentajeEditado))
-        this.formPorcentaje.reset();
+        this.porcentajeModel.set({ nombre: '', comision: 1 });
         this.mostrarForm.set(false);
         ToastExito(AGREGAR_EXITO)
       } catch (error) {
         ToastError(error as string)
       }
     }
-
   }
 
   estructurarPorcentaje() {
+    const { nombre, comision } = this.porcentajeModel();
     return {
       _id: this.porcentajeSeleccionado()?._id || '',
-      nombre: this.formPorcentaje.get('nombre')?.value?.toUpperCase() || '',
-      comision: this.formPorcentaje.get('comision')?.value || 1,
+      nombre: nombre.toUpperCase(),
+      comision,
       tipo: this.porcentajeSeleccionado().tipo || '',
       creador: this.usuario()?._id || ''
-    }
-  }
-
-
-  async validoCampos() {
-    const nombre = this.formPorcentaje.get('nombre')?.value;
-    if (!nombre) {
-      AlertErrorNombre();
-      return
-    } 
-
-    const comisionCambiada = Number(this.formPorcentaje.get('comision')?.value)
-    if (!comisionCambiada || comisionCambiada < 1 || Number.isNaN(comisionCambiada) || !Number(comisionCambiada))  {
-      AlertErrorComision()
     }
   }
 }

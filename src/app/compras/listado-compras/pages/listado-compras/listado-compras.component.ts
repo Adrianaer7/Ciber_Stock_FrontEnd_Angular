@@ -1,13 +1,15 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { httpResource } from '@angular/common/http';
 import { ToastError } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { Compra } from 'app/compras/interfaces/compras.interface';
 import { ComprasService } from 'app/compras/services/compras.service';
+import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
-import { forkJoin } from 'rxjs';
 import { CompraComponent } from '../../components/compra/compra.component';
 import { limpiarBusqueda } from 'app/shared/utils/general.utils';
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
 
 type propiedades = 'nombre' | 'marca' | 'modelo';
 
@@ -31,21 +33,27 @@ export class ListadoComprasComponent {
   usuario = this.authService.user
 
 
-  comprasResource = rxResource({
-    stream: () => forkJoin({
-      compras: this.comprasService.traerCompras(),
-      proveedores: this.proveedoresService.traerProveedores()
-    })
-  });
+  comprasResource = httpResource<{ todas: Compra[] }>(
+    () => `${environment.backendURL}/compras`,
+  );
+  proveedoresResource = httpResource<{ proveedores: Proveedor[] }>(
+    () => `${environment.backendURL}/proveedores`,
+  );
 
-  //traer compras o mostrar error
-  comprasEffect = effect(() => {
+  comprasLoadEffect = effect(() => {
     if (this.comprasResource.hasValue()) {
-      const respuesta = this.comprasResource.value()
-      if (typeof respuesta.compras === 'string') return ToastError(respuesta.compras)
-      if (typeof respuesta.proveedores === 'string') return ToastError(respuesta.proveedores)
+      this.comprasService.compras.set(this.comprasResource.value()!.todas);
     }
-  })
+    if (this.proveedoresResource.hasValue()) {
+      this.proveedoresService.proveedores.set(this.proveedoresResource.value()!.proveedores);
+    }
+    for (const resource of [this.comprasResource, this.proveedoresResource]) {
+      const error = resource.error();
+      if (error) {
+        ToastError(getHttpResourceErrorMessage(error));
+      }
+    }
+  });
 
 
   //cuando cambie filtrando()
@@ -65,19 +73,16 @@ export class ListadoComprasComponent {
     );
   });
 
-  // cuando cambie el computed() filtroCompra
-  filtradosEffect = effect(() => {
-    this.filtradas.set(this.filtroCompra());
-  });
-
-  //cambio filtrando
+  // cuando cambie el filtro de búsqueda
   busqueda(value: string) {
-    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));
+    this.filtradas.set(this.filtroCompra());
   }
 
   manejarFiltro() {
     if (this.filtrando()) {
-      this.filtrando.set('')
+      this.filtrando.set('');
+      this.filtradas.set([]);
     }
   }
 

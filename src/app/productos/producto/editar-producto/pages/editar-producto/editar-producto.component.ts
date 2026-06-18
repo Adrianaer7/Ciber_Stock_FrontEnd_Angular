@@ -1,11 +1,12 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { httpResource } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { ToastError } from '@constantes/general.constants';
 import { PRODUCTO_VACIO } from 'app/productos/constants/productos.constants';
 import { Producto } from 'app/productos/interfaces/productos.interface';
-import { ProductosService } from 'app/productos/services/productos.service';
 import { FormularioComponent } from "app/productos/shared/formulario/formulario.component";
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
 
 @Component({
   selector: 'editar-producto',
@@ -14,22 +15,22 @@ import { FormularioComponent } from "app/productos/shared/formulario/formulario.
 })
 export class EditarProductoComponent {
 
-  productosService = inject(ProductosService)
   activatedRoute = inject(ActivatedRoute)
 
   url = this.activatedRoute.snapshot.params['id'];
-  producto =  signal<Producto>(PRODUCTO_VACIO)
+  producto = signal<Producto>(PRODUCTO_VACIO)
 
-  productoResource = rxResource({
-    stream: () => this.productosService.traerProducto(this.url)
-  })
+  productoResource = httpResource<{ producto: Producto }>(
+    () => `${environment.backendURL}/productos/${this.url}`,
+  );
 
   productoEffect = effect(() => {
     if (this.productoResource.hasValue()) {
-      const respuesta = this.productoResource.value();
-      if (typeof respuesta === 'string') return ToastError(respuesta)
-      this.producto.set(respuesta)
+      this.producto.set(this.productoResource.value()!.producto);
     }
-  })
-
+    const error = this.productoResource.error();
+    if (error) {
+      ToastError(getHttpResourceErrorMessage(error));
+    }
+  });
 }

@@ -1,14 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { Rubro } from '../interfaces/rubros.intefaces';
 import { RUBRO_VACIO } from '../constants/rubros.constants';
 import { environment } from 'environments/environment.development';
 import { map, Observable, tap } from 'rxjs';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Service()
 
 export class RubrosService {
 

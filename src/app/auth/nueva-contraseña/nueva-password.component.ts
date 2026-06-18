@@ -1,78 +1,73 @@
 import { Component, effect, inject, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
 import { MensajeComponent } from '../components/mensaje/mensaje.component';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, FormField, required, minLength, validate } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormUtils } from '../../shared/utils/forms.utils';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
+import { environment } from 'environments/environment.development';
+import { getFirstSignalFormError, touchAllFields } from '../../shared/utils/signal-forms.utils';
 
 @Component({
   selector: 'nueva-contraseña',
-  imports: [MensajeComponent, ReactiveFormsModule, RouterLink],
+  imports: [MensajeComponent, FormField, RouterLink],
   templateUrl: './nueva-password.component.html',
 })
 export class NuevaPasswordComponent {
 
-  fb = inject(FormBuilder);
   router = inject(Router);
   authService = inject(AuthService);
   activatedRoute = inject(ActivatedRoute);
-  mensaje = this.authService.mensaje;  //msg back
-  mensajeForm = signal<string>(''); //error de formulario
-  cambioCorrecto = signal<string>('')
+  mensajeForm = signal<string>('');
+  cambioCorrecto = signal<string>('');
 
   token = this.activatedRoute.snapshot.params['token'];
 
-
-  //ni bien se inicializa el componente
-  tokenResource = rxResource({
-    params: () => ({ token: this.token }),
-    stream: ({ params }) => {
-      return this.authService.comprobarToken(params.token);
-    },
-  });
+  tokenResource = httpResource<boolean>(
+    () => `${environment.backendURL}/usuarios/olvide-password/${this.token}`,
+  );
 
   redirectEffect = effect(() => {
-    if (this.tokenResource.hasValue()) {
-      if (!this.tokenResource.value()) this.router.navigate(['404'])
+    if (this.tokenResource.error()) {
+      this.router.navigate(['404']);
     }
   });
 
-
-  formNuevaPassword = this.fb.group({
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    confirmar: ['', [Validators.required]]
-  }, {
-    validators: FormUtils.camposIguales('password', 'confirmar')
+  nuevaPasswordModel = signal({ password: '', confirmar: '' });
+  nuevaPasswordForm = form(this.nuevaPasswordModel, (schema) => {
+    required(schema.password, { message: 'El campo password es requerido' });
+    minLength(schema.password, 6, { message: 'El campo password debe tener al menos 6 caracteres.' });
+    required(schema.confirmar, { message: 'El campo confirmar es requerido' });
+    validate(schema.confirmar, () => {
+      const { password, confirmar } = this.nuevaPasswordModel();
+      if (confirmar && password !== confirmar) {
+        return { kind: 'passwordsNotEqual', message: 'Las contraseñas no coinciden' };
+      }
+      return null;
+    });
   });
 
   async onSubmit() {
-    if (this.formNuevaPassword.invalid) {
-      const primerError = FormUtils.getFirstError(this.formNuevaPassword);
-      this.mensajeForm.set(primerError ?? '');
+    touchAllFields([this.nuevaPasswordForm.password, this.nuevaPasswordForm.confirmar]);
 
-      setTimeout(() => {
-        this.mensajeForm.set('');
-      }, 3000);
+    if (this.nuevaPasswordForm().invalid()) {
+      const primerError = getFirstSignalFormError(this.nuevaPasswordForm, [
+        { path: this.nuevaPasswordForm.password, name: 'password' },
+        { path: this.nuevaPasswordForm.confirmar, name: 'confirmar' },
+      ]);
+      this.mensajeForm.set(primerError ?? '');
+      setTimeout(() => this.mensajeForm.set(''), 3000);
       return;
     }
 
-    //por si me llega vacio
-    const { password = '' } = this.formNuevaPassword.value;
+    const { password } = this.nuevaPasswordModel();
 
-    //envio el nuevo password
     try {
-      await firstValueFrom(this.authService.nuevaPassword(password!, this.token))
-      this.cambioCorrecto.set("Contraseña cambiada correctamente")
-      setTimeout(() => {
-        this.mensajeForm.set("")
-
-      }, 10000);
-    } catch (e) {
-      console.log(e)
-      this.router.navigate(["/"]);
+      await firstValueFrom(this.authService.nuevaPassword(password, this.token));
+      this.cambioCorrecto.set('Contraseña cambiada correctamente');
+      setTimeout(() => this.mensajeForm.set(''), 10000);
+    } catch {
+      this.router.navigate(['/']);
     }
-
   }
 }

@@ -1,28 +1,30 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { httpResource } from '@angular/common/http';
+import { form, FormField, required } from '@angular/forms/signals';
 import { ProductosService } from '../../../services/productos.service';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Producto } from '../../../interfaces/productos.interface';
-import { firstValueFrom, forkJoin } from 'rxjs';
+import { Garantia, Producto, ResponseDolar } from '../../../interfaces/productos.interface';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../auth/services/auth.service';
 import { ProductoComponent } from "../../components/producto/producto.component";
 import { DolaresService } from 'app/productos/services/dolares.service';
 import { GarantiasService } from 'app/productos/services/garantias.service';
+import { Proveedor } from 'app/proveedores/interfaces/proveedores.interface';
 import { ProveedoresService } from 'app/proveedores/services/proveedores.service';
 import { ToastError } from '@constantes/general.constants';
 import { limpiarBusqueda } from 'app/shared/utils/general.utils';
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
 
 type propiedades = 'codigo' | 'nombre' | 'marca' | 'modelo' | 'disponibles' | 'precio_venta_tarjeta';
 
 @Component({
   selector: 'listado-productos',
-  imports: [ReactiveFormsModule, ProductoComponent],
+  imports: [FormField, ProductoComponent],
   templateUrl: './listado-productos.component.html',
 })
 export class ListadoProductosComponent {
 
-  fb = inject(FormBuilder)
   router = inject(Router);
   productosService = inject(ProductosService)
   dolaresService = inject(DolaresService)
@@ -30,11 +32,9 @@ export class ListadoProductosComponent {
   proveedoresService = inject(ProveedoresService)
   authService = inject(AuthService)
   filtrando = signal<string>('');
-  filtro = signal<boolean>(false);
   conStock = signal<boolean>(false)
   oculto = signal<boolean>(false)
   mostrarFormDolar = signal<boolean>(false);
-  filtrados = signal<Producto[]>([]);
   ordenAscendente = signal<boolean>(true);
 
   productos = this.productosService.productos
@@ -44,22 +44,42 @@ export class ListadoProductosComponent {
   dolarAutomatico = this.dolaresService.elDolarAutomatico
 
 
-  listadoProductosResource = rxResource({
-    stream: () => forkJoin({
-      productos: this.productosService.traerProductos(),
-      dolar: this.dolaresService.traerDolarDB(),
-      proveedores: this.proveedoresService.traerProveedores(),
-      garantias: this.garantiasService.traerGarantias()
-    })
-  });
+  productosResource = httpResource<{ productos: Producto[] }>(
+    () => `${environment.backendURL}/productos`,
+  );
+  dolarResource = httpResource<ResponseDolar>(
+    () => `${environment.backendURL}/dolares`,
+  );
+  proveedoresResource = httpResource<{ proveedores: Proveedor[] }>(
+    () => `${environment.backendURL}/proveedores`,
+  );
+  garantiasResource = httpResource<{ garantias: Garantia[] }>(
+    () => `${environment.backendURL}/garantias`,
+  );
 
-  listadoEffect = effect(() => {
-    if (this.listadoProductosResource.hasValue()) {
-      const respuesta = this.listadoProductosResource.value();
-      if (typeof respuesta.productos === 'string') return ToastError(respuesta.productos)
-      if (typeof respuesta.dolar === 'string') return ToastError(respuesta.dolar)
-      if (typeof respuesta.proveedores === 'string') return ToastError(respuesta.proveedores)
-      if (typeof respuesta.garantias === 'string') return ToastError(respuesta.garantias)
+  listadoLoadEffect = effect(() => {
+    if (this.productosResource.hasValue()) {
+      this.productosService.productos.set(this.productosResource.value()!.productos);
+    }
+    if (this.dolarResource.hasValue()) {
+      this.dolaresService.guardarDolar(this.dolarResource.value()!);
+    }
+    if (this.proveedoresResource.hasValue()) {
+      this.proveedoresService.proveedores.set(this.proveedoresResource.value()!.proveedores);
+    }
+    if (this.garantiasResource.hasValue()) {
+      this.garantiasService.garantias.set(this.garantiasResource.value()!.garantias);
+    }
+    for (const resource of [
+      this.productosResource,
+      this.dolarResource,
+      this.proveedoresResource,
+      this.garantiasResource,
+    ]) {
+      const error = resource.error();
+      if (error) {
+        ToastError(getHttpResourceErrorMessage(error));
+      }
     }
   });
 
@@ -89,44 +109,44 @@ export class ListadoProductosComponent {
 
 
 
-  // cuando cambie el computed() filtroProducto
-  filtradosEffect = effect(() => {
-    if (this.filtrando() || this.conStock() || this.oculto()) {
-      this.filtro.set(true);
-    } else {
-      this.filtro.set(false);
-    }
-    this.filtrados.set(this.filtroProducto());
+  filtro = computed(() => !!(this.filtrando() || this.conStock() || this.oculto()));
+  filtradosOrdenados = signal<Producto[]>([]);
+  filtrados = computed(() => {
+    const ordenados = this.filtradosOrdenados();
+    return ordenados.length ? ordenados : this.filtroProducto();
   });
 
+  dolarModel = signal({ precio: '' });
+  dolarForm = form(this.dolarModel, (schema) => {
+    required(schema.precio, { message: 'El campo precio es requerido' });
+  });
 
-  formDolar = this.fb.group({
-    precio: ['', Validators.required]
-  })
-
-  //cambio filtrando
   busqueda(value: string) {
-    this.filtrando.set(limpiarBusqueda(value));  //limpio el input y guardo el filtro
+    this.filtrando.set(limpiarBusqueda(value));
+    this.filtradosOrdenados.set([]);
   }
 
   manejarFiltro() {
     if (this.filtrando()) {
-      this.filtrando.set('')
+      this.filtrando.set('');
+      this.filtradosOrdenados.set([]);
     }
   }
 
   setConStock() {
-    this.conStock.set(!this.conStock())
+    this.conStock.set(!this.conStock());
+    this.filtradosOrdenados.set([]);
   }
 
   setOculto() {
-    this.oculto.set(!this.oculto())
+    this.oculto.set(!this.oculto());
+    this.filtradosOrdenados.set([]);
   }
 
   async setDolarAutomatico() {
     try {
       await firstValueFrom(this.dolaresService.editarDolarDB("", true))
-      this.formDolar.reset()
+      this.dolarModel.set({ precio: '' })
       this.mostrarFormDolar.set(false);
     } catch (error) {
       ToastError(error as string)
@@ -135,11 +155,11 @@ export class ListadoProductosComponent {
 
   //dolar manual
   async onSubmitDolar() {
-    const precio = this.formDolar.value.precio
-    if (typeof precio !== 'string' || !precio.trim()) return
+    const precio = this.dolarModel().precio
+    if (!precio.trim()) return
     try {
       await firstValueFrom(this.dolaresService.editarDolarDB(precio, false))
-      this.formDolar.reset()
+      this.dolarModel.set({ precio: '' })
       this.mostrarFormDolar.set(false)
     } catch (error) {
       ToastError(error as string)
@@ -156,11 +176,11 @@ export class ListadoProductosComponent {
       return 0; //si valorA y valorB son iguales, dejo como están
     };
 
-    if (this.filtrados().length) {
+    if (this.filtro()) {
       resultado = [...this.filtrados()].sort((a: Producto, b: Producto) =>
-        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)  //seria como this.ordenAscendente() ? 1 : -1
+        this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
       );
-      this.filtrados.set(resultado);
+      this.filtradosOrdenados.set(resultado);
     } else {
       resultado = [...this.productos()].sort((a: Producto, b: Producto) =>
         this.ordenAscendente() ? comparar(a, b) : comparar(b, a)

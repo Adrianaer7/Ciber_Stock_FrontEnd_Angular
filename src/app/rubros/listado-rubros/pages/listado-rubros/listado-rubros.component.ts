@@ -1,6 +1,6 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { httpResource } from '@angular/common/http';
+import { form, FormField, required, min } from '@angular/forms/signals';
 import { AGREGAR_EXITO, ToastError, ToastExito } from '@constantes/general.constants';
 import { AuthService } from 'app/auth/services/auth.service';
 import { AlertErrorNombre, AlertErrorRentabilidad } from 'app/rubros/constants/rubros.constants';
@@ -8,59 +8,59 @@ import { Rubro } from 'app/rubros/interfaces/rubros.intefaces';
 import { RubrosService } from 'app/rubros/services/rubros.service';
 import { RubroComponent } from '../../components/rubro/rubro.component';
 import { firstValueFrom } from 'rxjs';
+import { environment } from 'environments/environment.development';
+import { getHttpResourceErrorMessage } from 'app/shared/utils/http-resource.utils';
+import { getFirstSignalFormError, touchAllFields } from 'app/shared/utils/signal-forms.utils';
 
 
 @Component({
   selector: 'listado-rubros',
-  imports: [RubroComponent, ReactiveFormsModule],
+  imports: [RubroComponent, FormField],
   templateUrl: './listado-rubros.component.html',
 })
 export class ListadoRubrosComponent {
 
-  fb = inject(FormBuilder)
   rubrosService = inject(RubrosService)
   authService = inject(AuthService)
   mostrarForm = signal<boolean>(false);
   crearNuevo = signal<boolean>(false);
   ordenAscendente = signal<boolean>(true);
 
-
   rubros = this.rubrosService.rubros;
   rubroSeleccionado = this.rubrosService.rubroSeleccionado;
   usuario = this.authService.user
 
+  rubrosResource = httpResource<{ rubros: Rubro[] }>(
+    () => `${environment.backendURL}/rubros`,
+  );
 
-  rubrosResource = rxResource({
-    stream: () => this.rubrosService.traerRubros()
-  })
-
-  //traer rubros o mostrar error
-  rubrosEffect = effect(() => {
+  rubrosLoadEffect = effect(() => {
     if (this.rubrosResource.hasValue()) {
-      const respuesta = this.rubrosResource.value()
-      if (typeof respuesta === 'string') return ToastError(respuesta)
+      this.rubrosService.rubros.set(this.rubrosResource.value()!.rubros);
     }
-  })
+    const error = this.rubrosResource.error();
+    if (error) {
+      ToastError(getHttpResourceErrorMessage(error));
+    }
+  });
 
-  //cargar el form con datos del rubro a editar
+  rubroModel = signal({ nombre: '', rentabilidad: 1 });
+  rubroForm = form(this.rubroModel, (schema) => {
+    required(schema.nombre, { message: 'El campo nombre es requerido' });
+    required(schema.rentabilidad, { message: 'El campo rentabilidad es requerido' });
+    min(schema.rentabilidad, 1, { message: 'El campo rentabilidad debe tener un valor mínimo de 1' });
+  });
+
   rubroSeleccionadoEffect = effect(() => {
     const rubro = this.rubroSeleccionado();
     if (rubro._id) {
       this.mostrarForm.set(true);
-      this.formRubro.patchValue({
+      this.rubroModel.set({
         nombre: rubro.nombre || '',
-        rentabilidad: rubro.rentabilidad || 1
-
+        rentabilidad: rubro.rentabilidad || 1,
       });
     }
-
-  })
-
-  formRubro = this.fb.group({
-    nombre: ['', Validators.required],
-    rentabilidad: [1, [Validators.required, Validators.min(1)]],
-
-  })
+  });
 
 
   switchMostrarForm() {
@@ -68,31 +68,38 @@ export class ListadoRubrosComponent {
       this.mostrarForm.set(false);
       this.crearNuevo.set(false);
       this.rubrosService.limpiarSeleccionado()
-      this.formRubro.reset();
+      this.rubroModel.set({ nombre: '', rentabilidad: 1 });
     } else {
       this.mostrarForm.set(true)
       if (!this.crearNuevo()) {
         this.crearNuevo.set(true);
         this.rubrosService.limpiarSeleccionado()
-        this.formRubro.reset();
+        this.rubroModel.set({ nombre: '', rentabilidad: 1 });
       }
     }
   }
 
 
   async onSubmit() {
-    //CREAR NUEVO
-    await this.validoCampos()
-    if (!this.formRubro.valid) return;
+    touchAllFields([this.rubroForm.nombre, this.rubroForm.rentabilidad]);
+
+    if (this.rubroForm().invalid()) {
+      const primerError = getFirstSignalFormError(this.rubroForm, [
+        { path: this.rubroForm.nombre, name: 'nombre' },
+        { path: this.rubroForm.rentabilidad, name: 'rentabilidad' },
+      ]);
+      if (primerError?.includes('nombre')) AlertErrorNombre();
+      else AlertErrorRentabilidad();
+      return;
+    }
 
     if (this.crearNuevo()) {
-      let nuevoRubro: Rubro = this.estructurarRubro()
+      const nuevoRubro: Rubro = this.estructurarRubro()
 
-      //llamar al endpoint para crear un nuevo rubro
       try {
         await firstValueFrom(this.rubrosService.crearRubro(nuevoRubro))
         ToastExito(AGREGAR_EXITO)
-        this.formRubro.reset();
+        this.rubroModel.set({ nombre: '', rentabilidad: 1 });
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
         return
@@ -101,15 +108,14 @@ export class ListadoRubrosComponent {
         return
       }
     }
-    //EDITAR 
-    if (this.rubroSeleccionado()?._id) {
-      let rubroEditado: Rubro = this.estructurarRubro()
 
-      //llamar al endpoint para editar el rubro seleccionado
+    if (this.rubroSeleccionado()?._id) {
+      const rubroEditado: Rubro = this.estructurarRubro()
+
       try {
         await firstValueFrom(this.rubrosService.editarRubro(rubroEditado))
         ToastExito(AGREGAR_EXITO)
-        this.formRubro.reset();
+        this.rubroModel.set({ nombre: '', rentabilidad: 1 });
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
       } catch (error) {
@@ -119,41 +125,26 @@ export class ListadoRubrosComponent {
   }
 
   estructurarRubro() {
+    const { nombre, rentabilidad } = this.rubroModel();
     return {
       _id: this.rubroSeleccionado()?._id || '',
-      nombre: this.formRubro.get('nombre')?.value || '',
-      rentabilidad: this.formRubro.get('rentabilidad')?.value || 1,
+      nombre,
+      rentabilidad,
       creador: this.usuario()?._id || ''
     }
   }
 
 
-  async validoCampos() {
-    const nombre = this.formRubro.get('nombre')?.value;
-    const rentabilidad = this.formRubro.get('rentabilidad')?.value;
-    if (!nombre) {
-      AlertErrorNombre()
-      return
-    }
-
-    const rentabilidadCambiada = Number(rentabilidad)
-    if (!rentabilidad || rentabilidad < 1 || Number.isNaN(rentabilidad) || !Number(rentabilidadCambiada)) {
-      AlertErrorRentabilidad()
-    }
-  }
-
   ordenarPor() {
-    let resultado: Rubro[] = [];
     const comparar = (a: Rubro, b: Rubro) => {
-      const valorA = (a.rentabilidad || '');  //obtengo el valor del campo
+      const valorA = (a.rentabilidad || '');
       const valorB = (b.rentabilidad || '');
-      if (valorA > valorB) return 1;  //valorA tiene que ir despues de valorB
-      if (valorA < valorB) return -1; //valorA tiene que ir antes de valorB
-      return 0; //si valorA y valorB son iguales, dejo como están
+      if (valorA > valorB) return 1;
+      if (valorA < valorB) return -1;
+      return 0;
     };
 
-
-    resultado = [...this.rubros()].sort((a: Rubro, b: Rubro) =>
+    const resultado = [...this.rubros()].sort((a: Rubro, b: Rubro) =>
       this.ordenAscendente() ? comparar(a, b) : comparar(b, a)
     );
     this.rubros.set(resultado);

@@ -1,13 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Venta } from '../interfaces/ventas.interface';
 import { map, Observable, tap } from 'rxjs';
 import { environment } from 'environments/environment.development';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class VentasService {
 
   private readonly http = inject(HttpClient)

@@ -34,19 +34,17 @@
     <div class=" py-3 bg-white rounded-lg mt-6 mx-auto">
 
         <form
-            (ngSubmit)="onSubmit()"
-            [formGroup]="formProveedor"
+            (submit)="$event.preventDefault(); onSubmit()"
         >
             <div class="flex justify-between px-2 gap-2">
                 <div>
                     <label htmlFor="nombre" class="text-gray-800  font-bold font">Nombre y apellido</label>
                     <input
                         type="text"
-                        name="nombre"
                         autoComplete="off"
                         class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
                         placeholder="Juan Pérez"
-                        formControlName="nombre"
+                        [formField]="proveedorForm.nombre"
                     />
                 </div>
                 <div>
@@ -54,12 +52,11 @@
 
                     <input
                         type="text"
-                        name="empresa"
                         autoComplete="off"
                         list="empresas"
                         class="bg-gray-50  focus:outline-none  focus:ring-1 focus:ring-blue-300  uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
                         placeholder="Mercadolibre"
-                        formControlName="empresa"
+                        [formField]="proveedorForm.empresa"
                     />
                     <datalist id="empresas">
                         @for (proveedor of proveedores(); track proveedor._id) {
@@ -72,11 +69,10 @@
 
                     <input
                         type="tel"
-                        name="telPersonal"
                         autoComplete="off"
                         class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1  shadow-sm placeholder-gray-500"
                         placeholder="3446101010"
-                        formControlName="telPersonal"
+                        [formField]="proveedorForm.telPersonal"
                     />
                 </div>
                 <div>
@@ -84,11 +80,10 @@
 
                     <input
                         type="tel"
-                        name="telEmpresa"
                         autoComplete="off"
                         class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
                         placeholder="3446101010"
-                        formControlName="telEmpresa"
+                        [formField]="proveedorForm.telEmpresa"
                     />
                 </div>
                 <div>
@@ -96,11 +91,10 @@
 
                     <input
                         type="email"
-                        name="email"
                         autoComplete="off"
                         class="bg-gray-50    focus:outline-none  focus:ring-1 focus:ring-blue-300 uppercase w-full p-2 rounded-md border-none active:ring-1 shadow-sm placeholder-gray-500"
                         placeholder="correo@correo.com"
-                        formControlName="email"
+                        [formField]="proveedorForm.email"
                     />
                 </div>
                 <button class=" mt-5 bg-blue-900 text-white px-2 items-end rounded-lg font-bold uppercase hover:cursor-pointer">

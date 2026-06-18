@@ -1,53 +1,49 @@
 import { Component, inject, signal } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { FormUtils } from '../../../shared/utils/forms.utils';
-import { MensajeComponent } from '../../components/mensaje/mensaje.component';
+import { form, FormField, required, email } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 
+import { AuthService } from '../../services/auth.service';
+import { MensajeComponent } from '../../components/mensaje/mensaje.component';
+import { getFirstSignalFormError, touchAllFields } from '../../../shared/utils/signal-forms.utils';
 
 @Component({
   selector: 'olvide-password',
-  imports: [MensajeComponent, RouterLink, ReactiveFormsModule],
+  imports: [MensajeComponent, RouterLink, FormField],
   templateUrl: './olvide-password.component.html',
 })
-export class OlvidePasswordComponent { 
-  fb = inject(FormBuilder);
+export class OlvidePasswordComponent {
   router = inject(Router);
   authService = inject(AuthService);
-  mensajeForm = signal<string>(''); //error de formulario
+  mensajeForm = signal<string>('');
 
-
-  formOlvidePassword = this.fb.group({
-    email: ['', [Validators.required, Validators.email]]
+  olvidePasswordModel = signal({ email: '' });
+  olvidePasswordForm = form(this.olvidePasswordModel, (schema) => {
+    required(schema.email, { message: 'El campo email es requerido' });
+    email(schema.email, { message: 'El campo email no es un correo electrónico válido' });
   });
 
-  
-  async onSubmit() {   
-    if (this.formOlvidePassword.invalid) {
-      const primerError = FormUtils.getFirstError(this.formOlvidePassword);
-      this.mensajeForm.set(primerError ?? '');
 
-      setTimeout(() => {
-        this.mensajeForm.set('');
-      }, 3000);
+  async onSubmit() {
+    touchAllFields([this.olvidePasswordForm.email]);
+
+    if (this.olvidePasswordForm().invalid()) {
+      const primerError = getFirstSignalFormError(this.olvidePasswordForm, [
+        { path: this.olvidePasswordForm.email, name: 'email' },
+      ]);
+      this.mensajeForm.set(primerError ?? '');
+      setTimeout(() => this.mensajeForm.set(''), 3000);
       return;
     }
 
-    //por si me llega vacio
-    const { email = '' } = this.formOlvidePassword.value;
+    const { email } = this.olvidePasswordModel();
 
-    //envio el email para que me envie un mail de recuperacion
     try {
-      const msg = await firstValueFrom(this.authService.olvideContraseña(email!))
+      const msg = await firstValueFrom(this.authService.olvideContraseña(email));
       this.mensajeForm.set(msg);
     } catch (error) {
-      this.mensajeForm.set(error as string)
-      setTimeout(() => {
-        this.mensajeForm.set('');
-      }, 3000);
+      this.mensajeForm.set(error as string);
+      setTimeout(() => this.mensajeForm.set(''), 3000);
     }
-   }
-
+  }
 }

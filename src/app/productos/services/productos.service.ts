@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { Producto, ResponseImagen } from '../interfaces/productos.interface';
 import { environment } from '../../../environments/environment.development';
@@ -7,9 +7,7 @@ import { ComprasService } from 'app/compras/services/compras.service';
 import { GarantiasService } from './garantias.service';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ProductosService {
 
   private readonly http = inject(HttpClient)

@@ -57,10 +57,10 @@
                             ${{ dolarDB() }}
                         </span>
                     } @else {
-                        <form [formGroup]="formDolar" (ngSubmit)="onSubmitDolar()" class="w-1/4">
+                        <form (submit)="$event.preventDefault(); onSubmitDolar()" class="w-1/4">
                             <input type="tel" 
                                 class="w-full focus:outline-none focus:ring focus:border-blue-300 bg-white rounded-sm md:rounded-sm"
-                                formControlName="precio" 
+                                [formField]="dolarForm.precio"
                                 autocomplete="off" 
                                 id="precio">
                         </form>
