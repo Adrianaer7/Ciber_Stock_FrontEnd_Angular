@@ -10,5 +10,6 @@
         "angular-page": {
             "skipChangeDetectionOnPush": true
         }
-    }
+    },
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

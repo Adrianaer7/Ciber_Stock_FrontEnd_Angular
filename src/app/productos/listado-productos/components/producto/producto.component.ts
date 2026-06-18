@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Producto, Tipos } from '../../../interfaces/productos.interface';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -21,6 +21,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'producto',
   imports: [CommonModule, RouterLink, FormatImportPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './producto.component.html',
 })
 export class ProductoComponent {
