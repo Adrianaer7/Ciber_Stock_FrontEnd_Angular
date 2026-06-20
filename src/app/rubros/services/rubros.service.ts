@@ -15,7 +15,7 @@ export class RubrosService {
     rubroSeleccionado = signal<Rubro>(RUBRO_VACIO)
 
 
-    crearRubro(rubro: Rubro): Observable<Rubro | string> {
+    crearRubro(rubro: Pick<Rubro, 'nombre' | 'rentabilidad'>): Observable<Rubro | string> {
         return this.http.post<{ rubro: Rubro }>(`${environment.backendURL}/rubros`, rubro)
             .pipe(
                 tap(res => this.rubros.update(rubros => [...rubros, res.rubro])),
@@ -34,8 +34,8 @@ export class RubrosService {
     }
 
 
-    editarRubro(rubro: Rubro): Observable<Rubro | string> {
-        return this.http.put<{ rubro: Rubro }>(`${environment.backendURL}/rubros/${rubro._id}`, rubro)
+    editarRubro(id: string, rubro: Pick<Rubro, 'nombre' | 'rentabilidad'>): Observable<Rubro | string> {
+        return this.http.put<{ rubro: Rubro }>(`${environment.backendURL}/rubros/${id}`, rubro)
             .pipe(
                 tap(res => this.rubros.update(rubros => rubros.map(rubro => rubro._id === res.rubro._id ? res.rubro : rubro))),
                 tap(() => this.limpiarSeleccionado()),

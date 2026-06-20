@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
 import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { Producto, ResponseImagen } from '../interfaces/productos.interface';
+import { productoParaApi } from '../utils/producto-payload.utils';
 import { environment } from '../../../environments/environment.development';
 import { ComprasService } from 'app/compras/services/compras.service';
 import { GarantiasService } from './garantias.service';
@@ -25,7 +26,7 @@ export class ProductosService {
     //luego de subir la imagen
     return subirImagen.pipe(
       //creo el producto
-      switchMap(() => this.http.post<{ producto: Producto }>(`${environment.backendURL}/productos`, producto)),
+      switchMap(() => this.http.post<{ producto: Producto }>(`${environment.backendURL}/productos`, productoParaApi(producto))),
       //luego creo la compra y/o garantia si corresponde
       switchMap(res => {
         const nuevoProducto = res.producto;
@@ -59,7 +60,7 @@ export class ProductosService {
     //luego de subir la imagen
     return subirImagen.pipe(
       //actualizo el producto
-      switchMap(() => this.http.put<{ producto: Producto }>(`${environment.backendURL}/productos/${producto._id}`, { producto })),
+      switchMap(() => this.http.put<{ producto: Producto }>(`${environment.backendURL}/productos/${producto._id}`, { producto: productoParaApi(producto) })),
       //luego actualizo la compra y/o garantia si corresponde
       switchMap(res => {
         const productoEditado = res.producto;

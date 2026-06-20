@@ -94,7 +94,7 @@ export class ListadoRubrosComponent {
     }
 
     if (this.crearNuevo()) {
-      const nuevoRubro: Rubro = this.estructurarRubro()
+      const nuevoRubro = this.estructurarRubro()
 
       try {
         await firstValueFrom(this.rubrosService.crearRubro(nuevoRubro))
@@ -110,10 +110,10 @@ export class ListadoRubrosComponent {
     }
 
     if (this.rubroSeleccionado()?._id) {
-      const rubroEditado: Rubro = this.estructurarRubro()
+      const rubroEditado = this.estructurarRubro()
 
       try {
-        await firstValueFrom(this.rubrosService.editarRubro(rubroEditado))
+        await firstValueFrom(this.rubrosService.editarRubro(this.rubroSeleccionado()!._id, rubroEditado))
         ToastExito(AGREGAR_EXITO)
         this.rubroModel.set({ nombre: '', rentabilidad: 1 });
         this.mostrarForm.set(false);
@@ -126,12 +126,7 @@ export class ListadoRubrosComponent {
 
   estructurarRubro() {
     const { nombre, rentabilidad } = this.rubroModel();
-    return {
-      _id: this.rubroSeleccionado()?._id || '',
-      nombre,
-      rentabilidad,
-      creador: this.usuario()?._id || ''
-    }
+    return { nombre, rentabilidad }
   }
 
 

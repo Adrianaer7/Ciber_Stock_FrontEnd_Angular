@@ -16,3 +16,5 @@ export interface Venta {
     creado:         string;
     creador:        string;
 }
+
+export type VentaParaApi = Omit<Venta, '_id' | 'creado' | 'creador'>;

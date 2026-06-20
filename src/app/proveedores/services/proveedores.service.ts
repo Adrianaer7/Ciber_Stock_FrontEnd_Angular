@@ -15,7 +15,7 @@ export class ProveedoresService {
   proveedoresFiltrados = signal<Proveedor[]>([])
   proveedorSeleccionado = signal<Proveedor>(PROVEEDOR_VACIO);
 
-  crearProveedor(proveedor: Proveedor): Observable<Proveedor | string> {
+  crearProveedor(proveedor: Pick<Proveedor, 'nombre' | 'empresa' | 'telPersonal' | 'telEmpresa' | 'email'>): Observable<Proveedor | string> {
     return this.http.post<{ proveedor: Proveedor }>(`${environment.backendURL}/proveedores`, proveedor)
       .pipe(
         tap(res => this.proveedores.update(proveedores => [...proveedores, res.proveedor])),
@@ -35,8 +35,8 @@ export class ProveedoresService {
   }
 
 
-  editarProveedor(proveedor: Proveedor): Observable<Proveedor | string> {
-    return this.http.put<{ proveedor: Proveedor }>(`${environment.backendURL}/proveedores/${proveedor._id}`, proveedor)
+  editarProveedor(id: string, proveedor: Pick<Proveedor, 'nombre' | 'empresa' | 'telPersonal' | 'telEmpresa' | 'email'>): Observable<Proveedor | string> {
+    return this.http.put<{ proveedor: Proveedor }>(`${environment.backendURL}/proveedores/${id}`, proveedor)
       .pipe(
         tap(res => this.proveedores.update(proveedores => proveedores.map(proveedor => proveedor._id === res.proveedor._id ? res.proveedor : proveedor))),
         tap(() => this.limpiarSeleccionado()),

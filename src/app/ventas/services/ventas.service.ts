@@ -1,6 +1,6 @@
 import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Venta } from '../interfaces/ventas.interface';
+import { Venta, VentaParaApi } from '../interfaces/ventas.interface';
 import { map, Observable, tap } from 'rxjs';
 import { environment } from 'environments/environment.development';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
@@ -11,7 +11,7 @@ export class VentasService {
   private readonly http = inject(HttpClient)
   ventas = signal<Venta[]>([])
 
-  crearVenta(venta: Venta): Observable<Venta | string> {
+  crearVenta(venta: VentaParaApi): Observable<Venta | string> {
     return this.http.post<{ venta: Venta }>(`${environment.backendURL}/ventas`, venta)
       .pipe(
         tap(res => this.ventas.update(ventas => [...ventas, res.venta])),

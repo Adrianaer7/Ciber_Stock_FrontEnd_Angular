@@ -24,8 +24,8 @@ export class PorcentajesService {
 
 
 
-    editarPorcentaje(porcentaje: Porcentaje): Observable<Porcentaje | string> {
-        return this.http.put<{ porcentaje: Porcentaje }>(`${environment.backendURL}/porcentajes/${porcentaje._id}`, porcentaje)
+    editarPorcentaje(id: string, porcentaje: Pick<Porcentaje, 'nombre' | 'comision' | 'tipo'>): Observable<Porcentaje | string> {
+        return this.http.put<{ porcentaje: Porcentaje }>(`${environment.backendURL}/porcentajes/${id}`, porcentaje)
             .pipe(
                 tap(res => this.porcentajes.update(porcentajes => porcentajes.map(porcentaje => porcentaje._id === res.porcentaje._id ? res.porcentaje : porcentaje))),
                 tap(() => this.limpiarSeleccionado()),

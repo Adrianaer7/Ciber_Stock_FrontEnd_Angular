@@ -10,7 +10,7 @@ import { FaltantesService } from 'app/faltantes/services/faltantes.service';
 import { ProductosService } from 'app/productos/services/productos.service';
 import { ErrorCantidad, ErrorValor, ToastVentaExito } from 'app/productos/constants/productos.constants';
 import { VentasService } from 'app/ventas/services/ventas.service';
-import { Venta } from 'app/ventas/interfaces/ventas.interface';
+import { VentaParaApi } from 'app/ventas/interfaces/ventas.interface';
 import { DolaresService } from 'app/productos/services/dolares.service';
 import { hoy } from '../../../../shared/utils/general.utils';
 import { ToastFaltanteExito } from 'app/faltantes/constants/faltantes.constants';
@@ -134,7 +134,7 @@ export class ProductoComponent {
 
       //añadir nueva venta
       try {
-        const venta: Venta = this.estructurarVenta(unidades)
+        const venta: VentaParaApi = this.estructurarVenta(unidades)
         await firstValueFrom(this.ventasService.crearVenta(venta))
         //alertas de venta y faltante
         await ToastVentaExito(unidades, productoActualizado.nombre)
@@ -158,9 +158,8 @@ export class ProductoComponent {
   }
 
   estructurarVenta(unidades: number) {
-    const { _id, codigo, nombre, marca, modelo, barras, precio_venta_tarjeta, descripcion } = this.producto()
+    const { codigo, nombre, marca, modelo, barras, precio_venta_tarjeta, descripcion, _id } = this.producto()
     return {
-      _id: "",
       codigo,
       nombre,
       marca,
@@ -174,8 +173,6 @@ export class ProductoComponent {
       descripcion,
       idProducto: _id,
       existeProducto: true,
-      creado: "",
-      creador: ""
     }
   }
 }

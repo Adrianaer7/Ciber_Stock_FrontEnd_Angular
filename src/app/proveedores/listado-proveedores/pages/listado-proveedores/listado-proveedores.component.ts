@@ -149,8 +149,7 @@ export class ListadoProveedoresComponent {
     }
 
     if (this.crearNuevo()) {
-      let nuevoProveedor: Proveedor = this.estructurarProveedor()
-      nuevoProveedor.datos = this.cargarDatos(nuevoProveedor);
+      const nuevoProveedor = this.estructurarProveedor()
 
       try {
         await firstValueFrom(this.proveedorService.crearProveedor(nuevoProveedor))
@@ -165,11 +164,10 @@ export class ListadoProveedoresComponent {
     }
 
     if (this.proveedorSeleccionado()?._id) {
-      let proveedorEditado: Proveedor = this.estructurarProveedor()
-      proveedorEditado.datos = this.cargarDatos(proveedorEditado);
+      const proveedorEditado = this.estructurarProveedor()
 
       try {
-        await firstValueFrom(this.proveedorService.editarProveedor(proveedorEditado))
+        await firstValueFrom(this.proveedorService.editarProveedor(this.proveedorSeleccionado()!._id!, proveedorEditado))
         this.proveedorModel.set({ nombre: '', empresa: '', telPersonal: '', telEmpresa: '', email: '' });
         this.mostrarForm.set(false);
         this.crearNuevo.set(false);
@@ -182,20 +180,7 @@ export class ListadoProveedoresComponent {
 
   estructurarProveedor() {
     const { nombre, empresa, telPersonal, telEmpresa, email } = this.proveedorModel();
-    return {
-      _id: this.proveedorSeleccionado()?._id || '',
-      nombre,
-      empresa,
-      telPersonal,
-      telEmpresa,
-      email,
-      datos: '',
-      creador: this.usuario()?._id || ''
-    }
-  }
-
-  cargarDatos(proveedor: Proveedor): string {
-    return `${proveedor.nombre}${proveedor.empresa}${proveedor.telPersonal}${proveedor.telEmpresa}${proveedor.email}`.toUpperCase()
+    return { nombre, empresa, telPersonal, telEmpresa, email }
   }
 
   ordenarPor() {

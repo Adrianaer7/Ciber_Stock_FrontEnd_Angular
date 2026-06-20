@@ -85,10 +85,10 @@ export class ListadoPorcentajesComponent {
     }
 
     if (this.porcentajeSeleccionado()?._id) {
-      const porcentajeEditado: Porcentaje = this.estructurarPorcentaje()
+      const porcentajeEditado = this.estructurarPorcentaje()
 
       try {
-        await firstValueFrom(this.porcentajesService.editarPorcentaje(porcentajeEditado))
+        await firstValueFrom(this.porcentajesService.editarPorcentaje(this.porcentajeSeleccionado()!._id!, porcentajeEditado))
         this.porcentajeModel.set({ nombre: '', comision: 1 });
         this.mostrarForm.set(false);
         ToastExito(AGREGAR_EXITO)
@@ -101,11 +101,9 @@ export class ListadoPorcentajesComponent {
   estructurarPorcentaje() {
     const { nombre, comision } = this.porcentajeModel();
     return {
-      _id: this.porcentajeSeleccionado()?._id || '',
       nombre: nombre.toUpperCase(),
       comision,
       tipo: this.porcentajeSeleccionado().tipo || '',
-      creador: this.usuario()?._id || ''
     }
   }
 }

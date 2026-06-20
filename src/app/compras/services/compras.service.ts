@@ -4,6 +4,7 @@ import { environment } from 'environments/environment.development';
 import { map, Observable, tap } from 'rxjs';
 import { Compra } from '../interfaces/compras.interface';
 import { Producto } from 'app/productos/interfaces/productos.interface';
+import { productoParaApi } from 'app/productos/utils/producto-payload.utils';
 import { manejarHttpError } from 'app/shared/utils/http-error-handler';
 
 @Service()
@@ -14,7 +15,7 @@ export class ComprasService {
     compras = signal<Compra[]>([])
 
     crearCompra(producto: Producto, cantidad: number): Observable<Compra | string> {
-        return this.http.post<{ compra: Compra }>(`${environment.backendURL}/compras`, {producto, cantidad})
+        return this.http.post<{ compra: Compra }>(`${environment.backendURL}/compras`, { producto: productoParaApi(producto), cantidad })
             .pipe(
                 map(res => res.compra),
                 manejarHttpError()
